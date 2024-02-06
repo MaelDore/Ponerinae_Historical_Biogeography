@@ -1,4 +1,4 @@
-##### Script 01: Create and curate Taxa-level database #####
+##### Script 01: Curate taxonomic information #####
 
 ####################################
 #       Author: Maël Doré          #
@@ -6,27 +6,39 @@
 ####################################
 
 ### Goals
+
 # Create taxa-level database for taxonomic, morphologic, ecologic and biogeographic information
 # Aggregate data from AntWeb.org and AntMaps.org
 # Extract list of taxa from phylogeny
 # Aggregate current trait measurement data
+
 ###
 
 ### Inputs
-# Ponerinae phylogeny: 805-taxa
+
+# Ponerinae phylogeny: 793-taxa
 # Trait measurements dataset
-# AntWeb specimen database accessed on 14 November 2023
+# AntWeb specimen database accessed on 04 February 2024
 # AntMap: GABI Database Release 1.0 from 18 January 2020
+
 ###
 
 ### Sources
-# AntWeb. Version 8.101. California Academy of Science, online at https://www.antweb.org. Accessed 14 November 2023.
+
+# AntWeb. Version 8.101. California Academy of Science, online at https://www.antweb.org. Accessed on 04 February 2024.
 # GABI: Data release 1.0 of 18 January 2020.
     # Guénard, B., Weiser, M., Gomez, K., Narula, N., Economo, E.P. (2017) The Global Ant Biodiversity Informatics (GABI) database: synthesizing data on the geographic distributions of ant species. Myrmecological News 24: 83-89.
+
 ###
 
 ### Outputs
+
 # Taxa-level database for taxonomic, ecologic and biogeographic information
+# Curated AntWeb database
+# Curate GABI database
+# Biogeographic database merging the two latter (still need to be curated for geographic errors. See Script 2)
+# Curated trait measurement database
+
 ###
 
 
@@ -40,11 +52,10 @@ library(MASS)
 library(tidyverse)
 library(readxl)
 library(xlsx)      # Need the Java Development Kit (JDK) installed
+library(openxlsx)  # Use Rccp. No need of Java
 library(treeio)    # To read tree from any phylogenetic format
 library(ggtree)    # To plot tree using the tidyverse grammar
 library(tidytree)  # To manipulate tlb_tree tibble that store info on tree topology as list of edges
-library(rnaturalearth)
-library(rnaturalearthdata)
 library(phytools)
 library(ape)
 
@@ -52,7 +63,11 @@ library(ape)
 
 ### 1.2/ Load databases ####
 
-AntWeb_database <- read_excel("./input_data/AntWeb_data/AntWeb_database_Ponerinae_2023_11_23.xlsx", )
+AntWeb_database_old <- read_excel("./input_data/AntWeb_data/AntWeb_database_Ponerinae_2024_01_23.xlsx")
+AntWeb_database <- read_excel("./input_data/AntWeb_data/AntWeb_database_Ponerinae_2024_02_04.xlsx")
+
+setdiff(names(AntWeb_database_old), names(AntWeb_database))
+
 GABI_database <- read.csv(file = "./input_data/GABI_Data_Release1.0_18012020/GABI_Data_Release1.0_18012020.csv", header = T, sep = ",", na.strings = "", quote = '"')
 
 ## GABI database was initially broken !!! Need to fix that by detecting wrong access numbers
@@ -70,15 +85,22 @@ GABI_database <- readRDS(file = "./input_data/GABI_Data_Release1.0_18012020/GABI
 
 ### 1.3/ Load phylogeny ####
 
-Ponerinae_phylogeny_805 <- read.iqtree(file = "./input_data/Phylogenies/ponerinae-805t-90p.phylip.contree")
-Ponerinae_phylogeny_805@phylo$tip.label
+# Ponerinae_phylogeny_805t <- read.iqtree(file = "./input_data/Phylogenies/ponerinae-805t-90p.phylip.contree")
+# Ponerinae_phylogeny_805t@phylo$tip.label
+# 
+# Ponerinae_phylogeny_793t <- read.iqtree(file = "./input_data/Phylogenies/ponerinae-793t-75p-iqtree-nopart-gtrg.tre")
+# Ponerinae_phylogeny_793t@phylo$tip.label
+
+Ponerinae_phylogeny_792t <- read.tree(file = "./input_data/Phylogenies/ponerinae-792t-0p-spruce83-iqtree-prelim.tre")
+Ponerinae_phylogeny_792t$tip.label
+
 
 # Prune outgroups
 outgroups <- c("Amblyopone_australis_D0872", "Paraponera_clavata_EX1573", "Proceratium_google_MAMI0434")
-Ponerinae_phylogeny_802 <- tidytree::drop.tip(object = Ponerinae_phylogeny_805, tip = outgroups)
+Ponerinae_phylogeny_789t <- tidytree::drop.tip(object = Ponerinae_phylogeny_792t, tip = outgroups)
 
 # Extract labels from the phylogeny
-taxa_names_phylogeny_802_label <- Ponerinae_phylogeny_802@phylo$tip.label
+taxa_names_phylogeny_789t_label <- Ponerinae_phylogeny_789t$tip.label
 
 # Extract data for specimens used in the phylogeny, including name in AntWeb database (may have changed)
 Phylogeny_sample_data <- read_excel("input_data/Phylogenies/ponerinae-dataset-sample-list-current.xlsx")
@@ -97,7 +119,7 @@ Phylogeny_sample_data <- Phylogeny_sample_data[!(Phylogeny_sample_data$AntWeb_na
 # Correct mistakes in AntWeb Names
 Phylogeny_sample_data$AntWeb_name[Phylogeny_sample_data$AntWeb_name == "Cryptopone_guatemalensis_large"] <- "Cryptopone_guatemalensis"
 
-## Extract phylogeny name from label
+## 1.3.1/ Extract phylogeny name from label ####
 
 # Extract taxa names from the phylogeny
 taxa_in_phylogeny <- str_split(string = Phylogeny_sample_data$Phylo_label, pattern = "_", simplify = F)
@@ -169,7 +191,7 @@ Phylogeny_sample_data$AntWeb_name <- AntWeb_name_formated
 saveRDS(Phylogeny_sample_data, file = "./input_data/Phylogenies/Phylogeny_sample_data_802.rds")
 
 # Save pruned phylogeny with only ingroups
-saveRDS(Ponerinae_phylogeny_802, file = "./input_data/Phylogenies/Ponerinae_phylogeny_802_treedata.rds")
+saveRDS(Ponerinae_phylogeny_789t, file = "./input_data/Phylogenies/Ponerinae_phylogeny_789t_treedata.rds")
 
 
 ##### 2/ Curate databases for taxonomy #####
@@ -204,6 +226,8 @@ setdiff(Ponerinae_Species_AntCat, Ponerinae_Species_AntWeb) # 165 species withou
 
 
 ### 2.2/ Extract Ponerinae only from GABI database ####
+
+## 2.2.1/ Filter for valid Genera ####
 
 ## Extract 'valid' Genus and genus names from GABI
 GABI_database_Genus_names_pub <- unique(GABI_database$genus_name_pub)
@@ -246,6 +270,8 @@ View(GABI_database[GABI_database$Genus_pub_Ponerinae_suspected, ])
 GABI_database[GABI_database$Genus_pub_Ponerinae_suspected, ]$genus_name_pub
 # Wrong space included in the Genus pub name that prevents matching. But still detected as valid from the curated name so not an issue.
 
+## 2.2.2/ Filter for valid Species ####
+
 ## Flag GABI dataset for matches of original publication or curated names with Ponerinae species from AntCat
 
 # Original publication
@@ -274,7 +300,7 @@ View(GABI_database[GABI_database$Species_pub_Ponerinae & !GABI_database$Species_
 # Myopias_maligna punctigera needs to be changed for Myopias_maligna; punctigera is the subspecies
 # Other are not Ponerinae, or the former name does not match the location, so better remove the entry anyway.
 
-## Correct mistakes to match AntCat names
+## 2.2.3/ Correct mistakes to match AntCat names ####
 
 # Create a new field to keep tracks of initial GABI's curated names
 GABI_database$AntCat_Genus_species_name <- GABI_database$valid_species_name
@@ -295,7 +321,7 @@ GABI_database$AntCat_Genus_species_name[(GABI_database$valid_species_name == "Ir
 # Myopias_maligna punctigera needs to be changed for Myopias_maligna; punctigera is the subspecies
 GABI_database$AntCat_Genus_species_name[(GABI_database$valid_species_name == "Myopias_maligna punctigera") & (GABI_database$pub_Genus_species_name == "Myopias_papua")] <- "Myopias_maligna"
 
-## Validate entry based on matching flags for Species
+## 2.2.4/ Validate entry based on matching flags for Species ####
 
 # Rerun flagging on AntCat names to validate corrected entries
 GABI_database$Ponerinae_entry <- GABI_database$AntCat_Genus_species_name %in% Ponerinae_Species_AntCat
@@ -314,6 +340,8 @@ saveRDS(GABI_database_Ponerinae, file = "./input_data/GABI_Data_Release1.0_18012
 ### 2.3/ Curate AntWeb database for valid names and dubious data ####
 
 AntWeb_database_curated <- AntWeb_database
+
+## 2.3.1/ Filter out fossils, indet and introduced entries ####
 
 ## Create Genus_species field
 AntWeb_database_curated$Genus_species <- paste0(AntWeb_database_curated$genus, "_", AntWeb_database_curated$species)
@@ -346,15 +374,15 @@ Ponerinae_morphotaxa_AntWeb_valid_in_AntCat <- Ponerinae_morphotaxa_Species_AntW
 # One morphotaxon that is valid in AntCat: "Bothroponera_pumicosa sculpturata_nr". It is a subspecies of a valid species. Not a mistake.
 Ponerinae_morphotaxa_AntWeb_not_valid_AntCat <- Ponerinae_morphotaxa_Species_AntWeb[!(Ponerinae_morphotaxa_Species_AntWeb %in% Ponerinae_Species_AntCat)]
 
-## Curate names so they match between AntWeb, the phylogeny, and this database
+## 2.3.2/ Curate names so they match between AntWeb, the phylogeny, and this database ####
 
 Phylogeny_sample_data_802 <- readRDS(file = "./input_data/Phylogenies/Phylogeny_sample_data_802.rds")
-taxa_names_phylogeny_802_AntWeb_format <- Phylogeny_sample_data_802$AntWeb_name
+taxa_names_phylogeny_789t_AntWeb_format <- Phylogeny_sample_data_802$AntWeb_name
 
 AntWeb_database_taxa_names <- unique(AntWeb_database_curated$Genus_species)
 
 # Detect Phylo-taxa missing from AntWeb
-taxa_names_phylogeny_802_AntWeb_format[!(taxa_names_phylogeny_802_AntWeb_format %in% AntWeb_database_taxa_names)]
+taxa_names_phylogeny_789t_AntWeb_format[!(taxa_names_phylogeny_789t_AntWeb_format %in% AntWeb_database_taxa_names)]
 
 ## Need to adjust case-by-case. Use Specimen code to track them back.
 
@@ -858,7 +886,7 @@ saveRDS(Phylogeny_sample_data_802, file = "./input_data/Phylogenies/Phylogeny_sa
 saveRDS(AntWeb_database_curated, file = "./input_data/AntWeb_data/AntWeb_database_curated.rds")
 
 
-### Flag for presence or not in the phylogeny
+### 2.3.3/ Flag for presence or not in the phylogeny ####
 
 # In the taxa-level summary table
 Phylogeny_sample_data_802$In_phylogeny <- T
@@ -868,7 +896,7 @@ AntWeb_database_curated$In_phylogeny <- F
 AntWeb_database_curated$In_phylogeny[(AntWeb_database_curated$Genus_species %in% Phylogeny_sample_data_802$AntWeb_name)] <- T
 # AntWeb_database_curated$In_phylogeny[(AntWeb_database_curated$Genus_species %in% Phylogeny_sample_data_802$Current_name)] <- T
 
-### Flag for specimens where name from AntWeb is "wrong" (different from the one we are using)
+### 2.3.4/ Flag for specimens where name from AntWeb is "wrong" (different from the one we are using) ####
 
 # Need to add a current name and an AntWeb name field in both specimen and taxa-level datasets (which I should have kept in the first place...)
 
@@ -1128,7 +1156,7 @@ View(AntWeb_database_curated[!(Updated_AntWeb_names_match == AntWeb_database_cur
 Phylogeny_sample_data_802$Name_changed_from_phylogeny <- !(Phylogeny_sample_data_802$Current_name == Phylogeny_sample_data_802$Phylo_name)
 
 
-### Flag true duplicates to eventually remove
+### 2.3.5/ Flag true duplicates to eventually remove ####
 
 # Look for duplicates that highlight possible taxonomic update
 Phylogeny_sample_data_802$Current_name[duplicated(Phylogeny_sample_data_802$Current_name)]
@@ -1147,7 +1175,7 @@ Phylogeny_sample_data_802$Current_duplicate[duplicated(Phylogeny_sample_data_802
   # CASENT0923418 should be removed.
 
 
-### Add name status in metadata table for phylogeny data: valid, morphotaxon, indeterminate
+### 2.3.6/ Add name status in metadata table for phylogeny data: valid, morphotaxon, indeterminate ####
 
 # Add new field to record name status
 Phylogeny_sample_data_802$Name_status <- NA
@@ -1164,6 +1192,8 @@ saveRDS(Phylogeny_sample_data_802, file = "./input_data/Phylogenies/Phylogeny_sa
 # Save curated AntWeb database
 saveRDS(AntWeb_database_curated, file = "./input_data/AntWeb_data/AntWeb_database_curated.rds")
 
+## 2.3.7/ Add comments ####
+
 ## Merge previous comments from ponerinae-dataset-sample-list-current
 
 Former_summary_df <- read_excel("./input_data/Phylogenies/ponerinae-dataset-sample-list-current.xlsx")
@@ -1178,13 +1208,14 @@ Phylogeny_sample_data_802 <- left_join(x = Phylogeny_sample_data_802, y = Former
 ## Add manual comments on the name changes
 
 # Export as Excel file. Write comments. Reimport. Save as .rds
-# xlsx::write.xlsx(x = Phylogeny_sample_data_802, file = "./input_data/Phylogeny_sample_data_802.xlsx", showNA = F, row.names = F)
-openxlsx::write.xlsx(x = Phylogeny_sample_data_802, file = "./input_data/Phylogeny_sample_data_802.xlsx", overwrite = T)
-Phylogeny_sample_data_802 <- read_excel("./input_data/Phylogeny_sample_data_802.xlsx")
+# xlsx::write.xlsx(x = Phylogeny_sample_data_802, file = "./input_data/Phylogenies/Phylogeny_sample_data_802.xlsx", showNA = F, row.names = F)
+openxlsx::write.xlsx(x = Phylogeny_sample_data_802, file = "./input_data/Phylogenies/Phylogeny_sample_data_802.xlsx", overwrite = T)
+Phylogeny_sample_data_802 <- read_excel("./input_data/Phylogenies/Phylogeny_sample_data_802.xlsx")
 
 # Save updated df for Metadata of samples in the phylogeny
 saveRDS(Phylogeny_sample_data_802, file = "./input_data/Phylogenies/Phylogeny_sample_data_802.rds")
 
+## 2.3.8/ Export curated AntWeb database with different levels of inclusion ####
 
 ### Remove morphospecies outside of the phylogeny
 
@@ -1213,7 +1244,7 @@ nrow(AntWeb_database_curated_only_phylo)
 saveRDS(AntWeb_database_curated_only_phylo, file = "./input_data/AntWeb_data/AntWeb_database_curated_only_phylo.rds")
 
 
-### Go back to GABI database to flag names using the current curated names for terminals in the phylogeny
+### 2.3.9/ Go back to GABI database to flag names using the current curated names for terminals in the phylogeny ####
 
 ### Add fields for Names status (Status_AntCat), presence in phylogeny (In_phylogeny), and Name update (Name_updated), 
 
@@ -1288,7 +1319,7 @@ table(Biogeographic_database_Ponerinae$duplicate)
 # 63,807 unique localized records before biogeographic curation
 
 ## Save merged specimen database for Biogeographic data on Ponerinae
-saveRDS(Biogeographic_database_Ponerinae, file = "./input_data/Biogeographic_database_Ponerinae.rds")
+saveRDS(Biogeographic_database_Ponerinae, file = "./input_data/Biogeographic_data/Biogeographic_database_Ponerinae.rds")
 
 
 ##### 3/ Build taxa-level summary df #####
@@ -1361,8 +1392,8 @@ table(Ponerinae_Macroevolution_taxa_database$Current_duplicate)
 ## Fill fields for clade inclusion for terminals in the phylogeny
 Ponerinae_Macroevolution_taxa_database$Conservative_clade_Terminal_with_MRCA[(Ponerinae_Macroevolution_taxa_database$In_phylogeny == T)] <- Ponerinae_Macroevolution_taxa_database$Phylo_label[(Ponerinae_Macroevolution_taxa_database$In_phylogeny == T)] 
 Ponerinae_Macroevolution_taxa_database$Least_inclusive_clade_Terminal_with_MRCA[(Ponerinae_Macroevolution_taxa_database$In_phylogeny == T)] <- Ponerinae_Macroevolution_taxa_database$Phylo_label[(Ponerinae_Macroevolution_taxa_database$In_phylogeny == T)] 
-Ponerinae_Macroevolution_taxa_database$Conservative_clade_Node_ID <- tidytree::nodeid(tree = Ponerinae_phylogeny_802, label = Ponerinae_Macroevolution_taxa_database$Phylo_label)
-Ponerinae_Macroevolution_taxa_database$Least_inclusive_clade_Node_ID <- tidytree::nodeid(tree = Ponerinae_phylogeny_802, label = Ponerinae_Macroevolution_taxa_database$Phylo_label)
+Ponerinae_Macroevolution_taxa_database$Conservative_clade_Node_ID <- tidytree::nodeid(tree = Ponerinae_phylogeny_789t, label = Ponerinae_Macroevolution_taxa_database$Phylo_label)
+Ponerinae_Macroevolution_taxa_database$Least_inclusive_clade_Node_ID <- tidytree::nodeid(tree = Ponerinae_phylogeny_789t, label = Ponerinae_Macroevolution_taxa_database$Phylo_label)
 Ponerinae_Macroevolution_taxa_database$Conservative_clade_Notes[(Ponerinae_Macroevolution_taxa_database$In_phylogeny == T)] <- "Terminal in the current phylogeny. Conservative clade is the terminal itself. No need for grafting."
 Ponerinae_Macroevolution_taxa_database$Least_inclusive_clade_Notes[(Ponerinae_Macroevolution_taxa_database$In_phylogeny == T)] <- "Terminal in the current phylogeny. Least inclusive clade is the termial itself. No need for grafting."
 
@@ -1391,12 +1422,17 @@ saveRDS(Ponerinae_Macroevolution_taxa_database, file = "./input_data/Ponerinae_M
 
 ### 3.4/ Merge with trait dataset ####
 
+# Load taxa-level summary df
+Ponerinae_Macroevolution_taxa_database <- readRDS(file = "./input_data/Ponerinae_Macroevolution_taxa_database.rds")
+
 # Load trait dataset
-Trait_database <- read_excel("input_data/AoW_Ponerinae_measurements_2023_11_17.xlsx")
+Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2024_01_12.xlsx")
 Trait_database <- Trait_database %>% 
+  rename(Specimen_measured_Code = MeasSpecimen) %>% 
   select(-c("PmSP", "PrSP", "PtSP")) %>%   # Remove spinescence measurements that have been abandoned
   filter(GenSp != "Centromyrmex alfaroi") %>%  # Remove entry with no data
-  filter(MeasSpecimen != "INBIOCRI0012278883") # Remove duplicate with wrong Specimen code
+  filter(EXcode != "EX3093") %>%   
+  filter(Specimen_measured_Code != "INBIOCRI0012278883") # Remove duplicate with wrong Specimen code
 
 
 # Add new field to match names
@@ -1404,199 +1440,311 @@ Trait_database$Genus_species <- paste0(Trait_database$Genus, "_", Trait_database
 
 # Remove duplicates
 
-table(duplicated(Trait_database$MeasSpecimen))
-View(Trait_database[duplicated(Trait_database$MeasSpecimen), ])
+table(duplicated(Trait_database$Specimen_measured_Code))
+View(Trait_database[duplicated(Trait_database$Specimen_measured_Code), ])
 
-Trait_database <- Trait_database[!duplicated(Trait_database$MeasSpecimen), ]
+Trait_database <- Trait_database[!duplicated(Trait_database$Specimen_measured_Code), ]
 
-### Retrieve name of specimens from AntWeb database
+### 3.4.1/ Retrieve name of specimens from AntWeb database ####
 
-AntWeb_database_extract <- AntWeb_database_curated[, c("code", "Genus_species", "AntWeb_name")] %>% 
+AntWeb_database_extract <- AntWeb_database_curated[, c("code", "Genus_species", "AntWeb_name", "Status_AntCat")] %>% 
   rename(Current_name = Genus_species) %>% 
-  mutate(code = str_to_upper(AntWeb_database_extract$code))
-Trait_database <- left_join(Trait_database, AntWeb_database_extract, by = c("MeasSpecimen" = "code"))
+  mutate(code = str_to_upper(code))
+Trait_database <- left_join(Trait_database, AntWeb_database_extract, by = c("Specimen_measured_Code" = "code"))
 Trait_database$AntWeb_match <- !is.na(Trait_database$AntWeb_name) 
 
 table(Trait_database$AntWeb_match)
 
+# Trait_database <- Trait_database %>%
+#   rename(Current_name = Current_name.y) %>%
+#   select(-Current_name.x)
+# Trait_database <- Trait_database %>%
+#   rename(Status_AntCat = Status_AntCat.y) %>%
+#   select(-Status_AntCat.x)
+
 # Save curated Trait database
-saveRDS(Trait_database, file = "./input_data/Trait_database.rds")
+saveRDS(Trait_database, file = "./input_data/Traits_data/Trait_database.rds")
 
 # Load curated Trait database
-Trait_database <- readRDS(file = "./input_data/Trait_database.rds")
+Trait_database <- readRDS(file = "./input_data/Traits_data/Trait_database.rds")
 
-### Fix error on case by case 
+### 3.4.2/ Fix error on case by case ####
 
 View(Trait_database[!Trait_database$AntWeb_match, ])
 
 ## Case of Specimens in Introduced location (Not in the curated AntWeb dataset)
 # CASENT0637780 # Ponera_swezeyi in AntWeb # Ponera_swezeyi in Phylogeny # Ponera_swezeyi in Current_name
-Trait_database$Current_name[Trait_database$MeasSpecimen == "CASENT0637780"] <- "Ponera_swezeyi"
-Trait_database$AntWeb_name[Trait_database$MeasSpecimen == "CASENT0637780"] <- "Ponera_swezeyi"
+Trait_database$Current_name[Trait_database$Specimen_measured_Code == "CASENT0637780"] <- "Ponera_swezeyi"
+Trait_database$AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0637780"] <- "Ponera_swezeyi"
+Trait_database$Status_AntCat[Trait_database$Specimen_measured_Code == "CASENT0637780"] <- "valid"
 # CASENT0649763 # Brachyponera_chinensis in AntWeb # Brachyponera_chinensis in Phylogeny # Brachyponera_chinensis in Current_name 
-Trait_database$Current_name[Trait_database$MeasSpecimen == "CASENT0649763"] <- "Brachyponera_chinensis"
-Trait_database$AntWeb_name[Trait_database$MeasSpecimen == "CASENT0649763"] <- "Brachyponera_chinensis"
+Trait_database$Current_name[Trait_database$Specimen_measured_Code == "CASENT0649763"] <- "Brachyponera_chinensis"
+Trait_database$AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0649763"] <- "Brachyponera_chinensis"
+Trait_database$Status_AntCat[Trait_database$Specimen_measured_Code == "CASENT0649763"] <- "valid"
 
 ## Case of Specimens with error in the Specimen code
-# Specimen LACMENT140941. Not LACM ENT 140941.
-Trait_database$MeasSpecimen[Trait_database$MeasSpecimen == "LACM ENT 140941"] <- "LACMENT140941"
-Trait_database$Current_name[Trait_database$MeasSpecimen == "LACMENT140941"] <- "Ponera_coarctata"
-Trait_database$AntWeb_name[Trait_database$MeasSpecimen == "LACMENT140941"] <- "Ponera_coarctata"
-# Specimen of Anochetus_hohenbergiae is indicated as the "holotype" which corresponds to Specimen CASENT0919827 found in AntWeb and used as voucher for molecular extraction.
-Trait_database$MeasSpecimen[Trait_database$MeasSpecimen == "holotype"] <- "CASENT0919827"
-Trait_database$Current_name[Trait_database$MeasSpecimen == "CASENT0919827"] <- "Anochetus_hohenbergiae"
-Trait_database$AntWeb_name[Trait_database$MeasSpecimen == "CASENT0919827"] <- "Anochetus_hohenbergiae"
+# # Specimen LACMENT140941. Not LACM ENT 140941.
+# Trait_database$Specimen_measured_Code[Trait_database$Specimen_measured_Code == "LACM ENT 140941"] <- "LACMENT140941"
+# Trait_database$Current_name[Trait_database$Specimen_measured_Code == "LACMENT140941"] <- "Ponera_coarctata"
+# Trait_database$AntWeb_name[Trait_database$Specimen_measured_Code == "LACMENT140941"] <- "Ponera_coarctata"
+# Trait_database$Status_AntCat[Trait_database$Specimen_measured_Code == "LACMENT140941"] <- "valid"
+# # Specimen of Anochetus_hohenbergiae is indicated as the "holotype" which corresponds to Specimen CASENT0919827 found in AntWeb and used as voucher for molecular extraction.
+# Trait_database$Specimen_measured_Code[Trait_database$Specimen_measured_Code == "holotype"] <- "CASENT0919827"
+# Trait_database$Current_name[Trait_database$Specimen_measured_Code == "CASENT0919827"] <- "Anochetus_hohenbergiae"
+# Trait_database$AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0919827"] <- "Anochetus_hohenbergiae"
+# Trait_database$Status_AntCat[Trait_database$Specimen_measured_Code == "CASENT0919827"] <- "valid"
 
 ## Case of Specimens with a Specimen code different from the extracted voucher, and not found in AntWeb
 # Specimen ZRC_ENT00028294. Not in AntWeb but used as a substitute for voucher ZRC_ENT00047844 which is a Centromyrmex_hamulatus.
-Trait_database$Current_name[Trait_database$MeasSpecimen == "ZRC_ENT00028294"] <- "Centromyrmex_hamulatus"
-Trait_database$AntWeb_name[Trait_database$MeasSpecimen == "ZRC_ENT00028294"] <- "Centromyrmex_hamulatus"
+Trait_database$Current_name[Trait_database$Specimen_measured_Code == "ZRC_ENT00028294"] <- "Centromyrmex_hamulatus"
+Trait_database$AntWeb_name[Trait_database$Specimen_measured_Code == "ZRC_ENT00028294"] <- "Centromyrmex_hamulatus"
+Trait_database$Status_AntCat[Trait_database$Specimen_measured_Code == "ZRC_ENT00028294"] <- "valid"
 
 ## Case of indeterminate not in the phylogeny, so need to be removed
 # CASENT0650354 # Odontomachus_(indet) not used in the phylogeny
-Trait_database <- Trait_database[!Trait_database$MeasSpecimen == "CASENT0650354", ]
+Trait_database <- Trait_database[!Trait_database$Specimen_measured_Code == "CASENT0650354", ]
+# CASENT0872814 # Euponera_(indet) not used in the phylogeny
+Trait_database <- Trait_database[!Trait_database$Specimen_measured_Code == "CASENT0872814", ]
 
 ## Case of Specimen that is not a Ponerinae
 # CASENT0106229 # Amblyopone_australis is an Outgroup in the phylogeny. It is an Amblyoponinae.
-Trait_database <- Trait_database[!Trait_database$MeasSpecimen == "CASENT0106229", ]
+Trait_database <- Trait_database[!Trait_database$Specimen_measured_Code == "CASENT0106229", ]
+
+## New specimens in AntWeb. Should be present in the new updated AntWeb database
+# CASENT0012708 si Odontomachus_simillimus
+Trait_database$Current_name[Trait_database$Specimen_measured_Code == "CASENT0012708"] <- "Odontomachus_simillimus"
+Trait_database$Specimen_measured_AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0012708"] <- "Odontomachus_simillimus"
+Trait_database$Status_AntCat[Trait_database$Specimen_measured_Code == "CASENT0012708"] <- "valid"
+Trait_database$Specimen_phylogeny_AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0012708"] <- "Odontomachus_simillimus"
+Trait_database$Phylo_name[Trait_database$Specimen_measured_Code == "CASENT0012708"] <- "Odontomachus_simillimus"
+Trait_database$AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0012708"] <- "Odontomachus_simillimus"
+# CASENT0818943 is Hypoponera_ragusai
+Trait_database$Current_name[Trait_database$Specimen_measured_Code == "CASENT0818943"] <- "Hypoponera_ragusai"
+Trait_database$Specimen_measured_AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0818943"] <- "Hypoponera_ragusai"
+Trait_database$Status_AntCat[Trait_database$Specimen_measured_Code == "CASENT0818943"] <- "valid"
+Trait_database$Specimen_phylogeny_AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0818943"] <- "Hypoponera_ragusai"
+Trait_database$Phylo_name[Trait_database$Specimen_measured_Code == "CASENT0818943"] <- "Hypoponera_ragusai"
+Trait_database$AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0818943"] <- "Hypoponera_ragusai"
+# CASENT0898545 is Promyopias_silvestrii
+Trait_database$Current_name[Trait_database$Specimen_measured_Code == "CASENT0898545"] <- "Promyopias_silvestrii"
+Trait_database$Specimen_measured_AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0898545"] <- "Promyopias_silvestrii"
+Trait_database$Status_AntCat[Trait_database$Specimen_measured_Code == "CASENT0898545"] <- "valid"
+Trait_database$AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0898545"] <- "Promyopias_silvestrii"
+# CASENT02706126 is Odontomachus_animosus
+Trait_database$Current_name[Trait_database$Specimen_measured_Code == "CASENT02706126"] <- "Odontomachus_animosus"
+Trait_database$Specimen_measured_AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT02706126"] <- "Odontomachus_animosus"
+Trait_database$Status_AntCat[Trait_database$Specimen_measured_Code == "CASENT02706126"] <- "valid"
+Trait_database$AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT02706126"] <- "Odontomachus_animosus"
+
 
 # Should be no more errors
 View(Trait_database[!Trait_database$AntWeb_match, ])
 
 
-### Match specimen based on Extraction code (Not Specimen code since they can use different specimens)
+### 3.4.3/ Match specimen based on Extraction code to detect presence in the phylogeny ####
 
-Trait_database$Extraction_code_match <- Trait_database$EXcode %in% Ponerinae_Macroevolution_taxa_database$Specimen_phylogeny_Extraction_code
-table(Trait_database$Extraction_code_match)
+# (Not Specimen code since they can use different specimens)
+
+Trait_database$Taxa_in_phylogeny <- Trait_database$EXcode %in% Ponerinae_Macroevolution_taxa_database$Specimen_phylogeny_Extraction_code
+table(Trait_database$Taxa_in_phylogeny)
 
 # Compare names
 Macroevol_database_extract <- Ponerinae_Macroevolution_taxa_database[, c("Current_name", "Specimen_phylogeny_Extraction_code", "Specimen_phylogeny_Code", "Specimen_phylogeny_AntWeb_name", "Phylo_name")]
 Trait_database <- left_join(Trait_database, Macroevol_database_extract, by = c("EXcode" = "Specimen_phylogeny_Extraction_code"))
-test <- Trait_database[!(Trait_database$Current_name.x == Trait_database$Current_name.y),]
-test <- test[!is.na(test$Current_name.x), ]
-View(test)
-
-### Correct for all these differences in the 2.3 section.
-# Save AntWeb_curated and Ponerinae_sample_data_208 again. 
-# Add comments in Word and in the database. 
-# Then run all following sections up to here to be sure everything is properly updated.
 
 table((Trait_database$Current_name.x == Trait_database$Current_name.y))
+test <- Trait_database[!(Trait_database$Current_name.x == Trait_database$Current_name.y),]
+test <- test[!is.na(test$Current_name.x), ]
+View(test) # Should be no entries with different Current names
+
+# Clean the duplicate of Current-name fields
+Trait_database <- Trait_database %>% 
+  rename(Current_name = Current_name.x) %>% 
+  select(-Current_name.y)
+# Trait_database <- Trait_database %>%
+#   rename(Specimen_phylogeny_Code = Specimen_phylogeny_Code.y) %>%
+#   select(-Specimen_phylogeny_Code.x)
+# Trait_database <- Trait_database %>%
+#   rename(Specimen_phylogeny_AntWeb_name = Specimen_phylogeny_AntWeb_name.y) %>%
+#   select(-Specimen_phylogeny_AntWeb_name.x)
+# Trait_database <- Trait_database %>%
+#   rename(Phylo_name = Phylo_name.y) %>%
+#   select(-Phylo_name.x)
+
+# Rename AntWeb names to distinguish between Specimen in the phylogeny and specimen measured
+Trait_database <- Trait_database %>% 
+  # select(-Specimen_measured_AntWeb_name) %>% 
+  rename(Specimen_measured_AntWeb_name = AntWeb_name) %>% 
+  rename(Specimen_measured_Name = Genus_species)
 
 
-Trait_database$Specimen_code_match <- Trait_database$MeasSpecimen %in% Ponerinae_Macroevolution_taxa_database$Specimen_phylogeny_Code
-table(Trait_database$Specimen_code_match)
+## Flag for discrepancy between specimen measured and specimen in phylogeny
 
-# Compare names
-Macroevol_database_extract <- Ponerinae_Macroevolution_taxa_database[, c("Current_name", "Specimen_phylogeny_Code", "Specimen_phylogeny_AntWeb_name", "Phylo_name")]
-Trait_database <- left_join(Trait_database, Macroevol_database_extract, by = c("MeasSpecimen" = "Specimen_phylogeny_Code"))
+Trait_database$Specimen_measured_is_in_phylogeny <- Trait_database$Specimen_measured_Code == Trait_database$Specimen_phylogeny_Code
 
+### 3.4.4/ Add flags for partial and complete trait measurements ####
 
-### Match Specimen based on species (for entries missing a match for Extraction code)
-# Idea = Some specimens that are not in the phylogeny may belong to a valid species we may want to record trait measurements for.
-# Idea = In some cases, the voucher used for extracting molecular data was improper for trait measurements so they used a different one. Need to retrieve the matches.
+Trait_database[, c("HW", "HL", "SL", "ED", "WL", "PW", "MtFL")] <- round(apply(X = Trait_database[, c("HW", "HL", "SL", "ED", "WL", "PW", "MtFL")], MARGIN = 2, FUN = as.numeric), 3)
+Trait_matrix <- Trait_database[, c("HW", "HL", "SL", "ED", "WL", "PW", "MtFL")]
 
+Trait_database$Complete_trait_measurements <- complete.cases(Trait_matrix)
+Trait_matrix_binary <- is.na(Trait_matrix)
+Trait_database$Partial_trait_measurements <- apply(X = Trait_matrix_binary, MARGIN = 1, FUN = function (x) {(sum(x) > 0) & (sum(x) < length(x))})
 
+table(Trait_database$Complete_trait_measurements)
+table(Trait_database$Partial_trait_measurements)
 
-
-### Repair species names...
-
-
-### Need to retrieve match for valid species that are not in the phylogeny but for which we have measurement of the specimens...
-
-### Merge with the trait dataset ! Need to keep info on name in trait dataset to ensure to be able to merge in the future.
-# Add Specimen_Traits_Code, and Specimen_Traits_name in Summary_df and (and in the trait df if I keep one...!)
+## Save curated Trait database
+saveRDS(Trait_database, file = "./input_data/Traits_data/Trait_database.rds")
 
 
+### 3.4.5/ Merge the curated trait dataset with the taxa-level summary df ####
 
-##### 4/ Curate databases for geographic information #####
+names(Trait_database)
 
+Trait_database_for_merging <- Trait_database %>% 
+  rename(Notes_measurements = Notes) %>% 
+  rename(Source_measurements = Source) %>% 
+  rename(Specimen_measured_Extraction_code = EXcode) %>%
+  # rename(Specimen_measured_Code = MeasSpecimen) %>%
+  select(Current_name, Specimen_measured_Extraction_code, Specimen_measured_Code, Specimen_measured_Name, Specimen_measured_AntWeb_name, HW, HL, SL, ED, WL, PW, MtFL, Complete_trait_measurements, Partial_trait_measurements, Source_measurements, Notes_measurements)
 
-# Check dubious records with CoordinateCleaner. Remove erroneous. Flag dubious (be careful if it is the last data for a taxa)
-# Share all dubious with AoW team
+## Merge both summary df to add other valid species in the df
 
-# Flag especially records across continents that represent a low count/percentage => could cause mistakes in biogeographic analyses
+# # Remove fields that are already there only because I am rerunning the script.
+# Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database %>% 
+#   select(-Specimen_measured_Extraction_code, -Specimen_measured_Code, -Specimen_measured_Name, -Specimen_measured_AntWeb_name, -HW, -HL, -SL, -ED, -WL, -PW, -MtFL, -Complete_trait_measurements, -Partial_trait_measurements, -Source_measurements, -Notes_measurements)
 
+nrow(Ponerinae_Macroevolution_taxa_database) # 1569 rows in the Ponerinae_Macroevolution_taxa_database including all taxa in phylogeny + other valid species name
+Ponerinae_Macroevolution_taxa_database <- left_join(Ponerinae_Macroevolution_taxa_database, Trait_database_for_merging, by = "Current_name") %>% 
+  mutate(Specimen_measured_used_in_phylogeny = Specimen_measured_Code == Specimen_phylogeny_Code) %>% 
+  select(Current_name, Status_AntCat, In_phylogeny, Specimen_phylogeny_Code, Specimen_phylogeny_AntWeb_name, Specimen_phylogeny_Name_updated_from_AntWeb, Specimen_phylogeny_Extraction_code, Phylo_label, Phylo_name, Specimen_phylogeny_Name_changed_from_phylogeny, Current_duplicate, Subspecies, Conservative_clade_Node_ID, Conservative_clade_Terminal_with_MRCA, Conservative_clade_Notes, Least_inclusive_clade_Node_ID, Least_inclusive_clade_Terminal_with_MRCA, Least_inclusive_clade_Notes, Country_Specimen_Phylogeny, Country_type, Bioregion_Specimen_Phylogeny, Bioregion_type, Available_occurrences, To_include_in_analyses, Notes_2022_04_26, Notes_2023_11_28, Specimen_measured_used_in_phylogeny, Specimen_measured_Extraction_code, Specimen_measured_Code, Specimen_measured_Name, Specimen_measured_AntWeb_name, HW, HL, SL, ED, WL, PW, MtFL, Complete_trait_measurements, Partial_trait_measurements, Source_measurements, Notes_measurements)
 
-### Remove dubious records from initial databases too (GABI and AntWeb), not only the merged one
-
-# Check correspondence of administrative regions across databases
-
-table(AntWeb_database$Adm1)
-table(GABI_database$adm1)
-
-length(unique(AntWeb_database$Adm1))
-length(unique(GABI_database$adm1))
-
-table(AntWeb_database$Adm2)
-table(GABI_database$adm2)
-
-length(unique(AntWeb_database$Adm1))
-length(unique(GABI_database$adm1))
-
-table(is.na(AntWeb_database$LocLatitude))
-table(is.na(GABI_database$dec_lat))
+nrow(Ponerinae_Macroevolution_taxa_database) # 1616 rows after merging
+# Number of row is not equivalent because there are duplicates in the trait dataset. Need to remove them.
 
 
-##### Curate geographic location #####
+## Inspect case of specimen different in phylogeny and in trait measurement AND name in trait measurement disagree with AntWeb (so Antweb records may need to be changed)
+# May need to go back and change the name of the Measured specimen in AntWeb and Trait dataset if it is a mistake...
+test <- test[!test$Specimen_measured_used_in_phylogeny, ]
+test <- test[!is.na(test$Current_name), ]
+test <- test %>% 
+  filter(Specimen_measured_Name != Specimen_measured_AntWeb_name) %>% 
+  select(Current_name, Specimen_phylogeny_Code, Specimen_phylogeny_AntWeb_name, Specimen_phylogeny_Extraction_code, Notes_2022_04_26, Notes_2023_11_28, Specimen_measured_Extraction_code, Specimen_measured_Code, Specimen_measured_Name, Specimen_measured_AntWeb_name, Notes_measurements, everything())
+View(test) # Inspect for possible mistakes
+
+## Case of possible mistake in the Trait dataset
+# Specimen CASENT0842143, found in North of Mozambique is labeled as Anochetus_punctaticeps but recorded as Anochetus_talpa in AntWeb. Other Anochetus_punctaticeps are found n South Africa, except a dubious outlier in Cameroon. Other Anochetus_talpa can be found in Mozambique, so I assumed CASENT0842143 was an Anochetus_talpa as recorded in AntWeb.
+# Specimen CASENT0634243, found in Sabah, Borneo, Malaysia is labeled as Leptogenys_iridescens but recorded as Leptogenys_borneensis in AntWeb. Leptogenys_borneensis has only records in Sabah while Leptogenys_iridescens can be found in Sarawak and Sulawesi, but not in Sabah.  Thus, I assumed CASENT0634243 was a Leptogenys_borneensis as recorded in AntWeb.
+# Specimen CASENT0629612, found in Uganda is labeled as Fisheropone_ambigua but recorded as Mesoponera_ambigua in AntWeb. Both have large distribution across Africa so I believed AntWeb and kept it as a Mesoponera_ambigua.
+# Specimen JTLC000008642, found in Queensland, Australia is labeled as Anochetus_armstrongi but recorded as Anochetus_rectangularis in AntWeb. Both species have large distribution across Australia, including Queensland, so I assumed AntWeb was right and kept it as a Anochetus_rectangularis.
+# Specimen CASENT0650262 is labeled as Hypoponera_JTL030 but have been changed for Hypoponera_vc01 according to Jack’s comment in the other file.
+
+## Record comments in the Trait dataset
+# Export as Excel file. Write comments. Reimport. Save as .rds
+openxlsx::write.xlsx(x = Trait_database, file = "./input_data/Traits_data/Trait_database.xlsx", overwrite = T)
+Trait_database <- read_excel("./input_data/Traits_data/Trait_database.xlsx")
+
+# Save updated df for Trait dataset
+saveRDS(Trait_database, file = "./input_data/Traits_data/Trait_database.rds")
+
+
+### 3.4.6/ Check for duplicates after curation ####
+
+# Reorder rows per taxa and keep entry using three hierarchical criteria: 1/ the Specimen used in the phylogeny, 2/ Data obtained from specimens, 3/ At random.
+Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database %>% 
+  arrange(Current_name, desc(Specimen_measured_used_in_phylogeny), desc(Source_measurements)) %>% 
+  # select(Current_name, Specimen_measured_used_in_phylogeny, Source_measurements, everything()) %>%
+  group_by(Current_name) %>% 
+  mutate(Duplicates_counter = row_number(Current_name)) %>% 
+  ungroup()
+
+# Remove duplicates
+Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database %>% 
+  filter(Duplicates_counter == 1 | Current_duplicate == T) %>%  # Remove duplicates from the trait dataset, but not duplicates from the phylogeny
+  select(-Duplicates_counter)
+
+nrow(Ponerinae_Macroevolution_taxa_database)
+# 1571 rows again after cleaning of duplicates # If difference, it is because new taxa in the trait measurements need to be updated from the current AntWeb database I am using...
+
+## Save taxa-level summary df
+saveRDS(Ponerinae_Macroevolution_taxa_database, file = "./input_data/Ponerinae_Macroevolution_taxa_database.rds")
+
+## Export in Excel to provide in AoW folder
+openxlsx::write.xlsx(x = Ponerinae_Macroevolution_taxa_database, file = "./input_data/Ponerinae_Macroevolution_taxa_database.xlsx")
+
+### 3.5/ Retrieve grafting information from DropBox file ####
+
+Ponerinae_Macroevolution_taxa_database_DropBox_version <- read_excel("input_data/Ponerinae_Macroevolution_taxa_database_DropBox_version.xlsx")
+
+View(Ponerinae_Macroevolution_taxa_database_DropBox_version[which(!Ponerinae_Macroevolution_taxa_database_DropBox_version$Current_name %in% Ponerinae_Macroevolution_taxa_database$Current_name), ])
+View(Ponerinae_Macroevolution_taxa_database[which(!Ponerinae_Macroevolution_taxa_database$Current_name %in% Ponerinae_Macroevolution_taxa_database_DropBox_version$Current_name), ])
+
+# Extract grafting info from Dropbox file
+Grafting_info <- Ponerinae_Macroevolution_taxa_database_DropBox_version %>% 
+  select(Current_name, Conservative_clade_Node_ID, Conservative_clade_Terminal_with_MRCA, Conservative_clade_Notes, Least_inclusive_clade_Node_ID, Least_inclusive_clade_Terminal_with_MRCA, Least_inclusive_clade_Notes)
+
+# Remove previous field to be replaced by the update
+Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database %>% 
+  select(-Conservative_clade_Node_ID, -Conservative_clade_Terminal_with_MRCA, -Conservative_clade_Notes, -Least_inclusive_clade_Node_ID, -Least_inclusive_clade_Terminal_with_MRCA, -Least_inclusive_clade_Notes)
+
+# Merge update
+Ponerinae_Macroevolution_taxa_database <- left_join(Ponerinae_Macroevolution_taxa_database, Grafting_info)
+
+# Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database %>% 
+#   filter(Duplicates_counter == 1) %>% 
+#   select(-Duplicates_counter)
+                                                    
+### 3.6/ Retrieve "To_measure" information from DropBox file ####
+
+To_measure_info <- read_excel("input_data/Ponerinae_Macroevolution_taxa_database_DropBox_version.xlsx", sheet = "to measure")
+
+# Rename columns adequately
+To_measure_info <- To_measure_info %>% 
+  rename(Specimen_to_measure_Code = `specimen to measure`) %>%
+  rename(Specimen_to_measure_Location = "where") %>%
+  rename(Specimen_to_measure_Notes = "note") %>%
+  select(Current_name, Specimen_to_measure_Code, Specimen_to_measure_Location, Specimen_to_measure_Notes)
+
+# Merge with Macroevolution database
+Ponerinae_Macroevolution_taxa_database <- left_join(Ponerinae_Macroevolution_taxa_database, To_measure_info)
+
+## Add field to detect that measurements are still needed
+
+Ponerinae_Macroevolution_taxa_database$To_measure <- is.na(Ponerinae_Macroevolution_taxa_database$Specimen_measured_Code)
+
+table(Ponerinae_Macroevolution_taxa_database$To_measure)
+
+## Add field to notify if only 'queens or males' are available, disqualifying them from being measured
+
+# Based on Jack's saying, there should be all specimens that have no measurements, but that are not listed in its subsheet
+
+Ponerinae_Macroevolution_taxa_database$Specimen_to_measure_Only_queens_or_males <- NA
+
+In_Jack_list <- Ponerinae_Macroevolution_taxa_database$Current_name %in% To_measure_info$Current_name
+
+test <- !In_Jack_list & Ponerinae_Macroevolution_taxa_database$To_measure
+table(test) # 80 cases of taxa that are yet to be measured and not in Jack's list ! 
+View(Ponerinae_Macroevolution_taxa_database[test, ])
+
+## Export Macroevolution database = taxa-level summary df
+
+# Sort columns in a logical order
+Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database %>% 
+  select(Current_name, Status_AntCat, In_phylogeny, Specimen_phylogeny_Code, Specimen_phylogeny_AntWeb_name, Specimen_phylogeny_Name_updated_from_AntWeb, Specimen_phylogeny_Extraction_code, Phylo_label, Phylo_name, Specimen_phylogeny_Name_changed_from_phylogeny, Current_duplicate, Subspecies,
+         Country_Specimen_Phylogeny, Country_type, Bioregion_Specimen_Phylogeny, Bioregion_type, Available_occurrences, To_include_in_analyses, Notes_2022_04_26, Notes_2023_11_28,
+         Conservative_clade_Node_ID, Conservative_clade_Terminal_with_MRCA, Conservative_clade_Notes, Least_inclusive_clade_Node_ID, Least_inclusive_clade_Terminal_with_MRCA, Least_inclusive_clade_Notes, Specimen_measured_used_in_phylogeny, Specimen_measured_Extraction_code, Specimen_measured_Code, Specimen_measured_Name, Specimen_measured_AntWeb_name, HW, HL, SL, ED, WL, PW, MtFL, Complete_trait_measurements, Partial_trait_measurements, Source_measurements, Notes_measurements, To_measure, Specimen_to_measure_Code, Specimen_to_measure_Location, Specimen_to_measure_Only_queens_or_males, Specimen_to_measure_Notes)
+
+## Save taxa-level summary df
+saveRDS(Ponerinae_Macroevolution_taxa_database, file = "./input_data/Ponerinae_Macroevolution_taxa_database.rds")
+
+## Export in Excel to provide in AoW folder
+openxlsx::write.xlsx(x = Ponerinae_Macroevolution_taxa_database, file = "./input_data/Ponerinae_Macroevolution_taxa_database.xlsx")
 
 
 
-# Use Natural Earth adm1 entities as the reference = adm1
+Ponerinae_Macroevolution_taxa_database <- readRDS(file = "./input_data/Ponerinae_Macroevolution_taxa_database.rds")
 
-# Create table of GABI_adm1 (Bentity2) matches in NE_adm1
-   # Create matching table based on spatial overlay
-   # Manually curate GABI_adm1 with multiple matches (may be due to border effects)
-   # Random region will be picked based on random coordinates drawn within the GABI region
-# Create table of AW_adm1 (AntWeb/Geographic Names Server) matches in NE_adm1
-   # Create matching table based on name similarity
-   # If multiple match, random region will be picked and random coordinates will be drawn within this new NE region
-
-# Clean duplicates
-# Assign correspondence in both database
-# Merge both databases
-
-# Assign random coordinates =  draw random point within the area of the smallest geounit available (Bentity2 if no adm1 shapefile) 
-  # Compare area of geographic entity if possible to select the smallest one
-  # Use a field to inform on the nature of the coordinates: true, random
-
-# map_subunits_sf <- ne_download(scale = 50, category = "cultural", type = 'map_subunits', returnclass = 'sf', destdir = "./input_data/NaturalEarth_maps/ne_50m_admin_0_map_subunits/")
-
-map_countries_sf <- ne_load(scale = 50, category = "cultural", type = 'countries', returnclass = 'sf', destdir = "./input_data/NaturalEarth_maps/ne_50m_admin_0_countries/")
-map_subunits_sf <- ne_load(scale = 50, category = "cultural", type = 'map_subunits', returnclass = 'sf', destdir = "./input_data/NaturalEarth_maps/ne_50m_admin_0_map_subunits/")
-map_NE_adm1_sf <- ne_load(file_name = "ne_10m_admin_1_states_provinces", returnclass = 'sf', destdir = "./input_data/NaturalEarth_maps/ne_10m_admin_1_states_provinces/")
-
-plot(map_NE_adm1_sf[, "adm1_code"])   # Sovereign administrative countries
-
-# Target = GPS coordinates and smallest possible geounit for each specimen data
-
-# The geounit will be used to draw a random GPS coordinates to use for gridded analyses
-# For all entries with GPS coordinates, find the matching adm1 from Natural Earth
-   # Check correspondence of name with AW_adm1 and GABI_adm1
-   # Create a summary table of AW_adm1 and GABI_adm1 matches in NE_adm1
-# For all entries without GPS coordinates
-   # Remove duplicates based on geounit location before to simulate random coordinates
-   # For GABI data = Drawn random coordinates within the GABI region and assign new NE_region
-   # Register uncertainty as the mean distance to centroid in the region   
-   # For AntWeb data = Match adm1 names
-   # If multiple match, select one randomly => flag this information
-   # Once the NE_adm1 is attributed, draw random GPS coordinates (or centroid if it falls within the region?) within it => flag this information
-   # Register uncertainty as the mean distance to centroid in the region
-   # Extract Bentity2 correspondance for every AntWeb coordinates
-
-# May want to filter out data with too much uncertainty
-
-?ne_download
-  
-
-
-
-##### Extract specimen database for taxa-level information ####
-
-# Add nb of biogeographic records
-
-
-##### Create the Genus-level summary table #####
-
-# Create a summary table at Genus-level of nb of valid species, nb of valid species included in our phylogeny, nb of morphospecies in our phylogeny, other (not curated) morphospecies from AntWeb
-# Add nb of biogeographic records
+table(Ponerinae_Macroevolution_taxa_database$Complete_trait_measurements)
+table(Ponerinae_Macroevolution_taxa_database$Complete_trait_measurements & Ponerinae_Macroevolution_taxa_database$In_phylogeny)
+table(Ponerinae_Macroevolution_taxa_database$Complete_trait_measurements & !Ponerinae_Macroevolution_taxa_database$In_phylogeny)
