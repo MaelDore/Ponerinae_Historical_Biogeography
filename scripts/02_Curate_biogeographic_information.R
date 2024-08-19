@@ -9508,7 +9508,7 @@ table(Evaluation_table_occurrence_maps$Taxa_Type, Evaluation_table_occurrence_ma
 
 Biogeographic_database_Ponerinae_curated$Bioregion_from_GPS <- Biogeographic_database_Ponerinae_curated$Bioregion
 
-### 9.1/ Occurrences to change (Location match a more credible GPS location, or redetermination) ####
+### 9.2/ Occurrences to change (Location match a more credible GPS location, or redetermination) ####
 
 # Occurrence n°41364: Anochetus_mayri in Sonora. Not credible that north. Locality = Manicaragua in Cuba. # adm2 = Manicaragua # adm1 = Villa Clara
 Biogeographic_database_Ponerinae_curated$Latitude_dec[replace_na(data = str_detect(Biogeographic_database_Ponerinae_curated$Locality, pattern = "Manicaragua"), replace = FALSE)] <- 22.148
@@ -9566,7 +9566,11 @@ Biogeographic_database_Ponerinae_curated$Current_name[(Biogeographic_database_Po
 # saveRDS(object = Biogeographic_database_Ponerinae_curated, file = "./input_data/Biogeographic_data/Biogeographic_database_Ponerinae_curated.rds")
 
 
-### 9.2/ Occurrences to remove (not credible, or introduced) ####
+### 9.3/ Occurrences to add from new AntWeb update to fill gaps ####
+
+# Use Brian's updated AntWeb database
+
+### 9.4/ Occurrences to remove (not credible, or introduced) ####
 
 # Brachyponera_chinensis: Remove distance outlier in India
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Brachyponera_chinensis" & Biogeographic_database_Ponerinae_curated$Country_ISO3_code == "IND"), ]
@@ -10178,7 +10182,7 @@ table(Biogeographic_database_Ponerinae_curated$Bioregion_7_PaleA)
 
 ## 12.1.3/ Deal with the particular cases of countries overlapping Palearctic bioregions
 
-## Russia is splitted between Eastern and Western Paelarctic based on adm1
+## Russia is split between Eastern and Western Palearctic based on adm1
 
 Russia_adm1_in_Eastern_Palearctic <- c("Altai Krai", "Altai Republic", "Amur Oblast", "Buryatia", "Chelyabinsk Oblast", "Chukotka Autonomous Okrug", "Irkutsk Oblast", "Jewish Autonomous Oblast", "Kamchatka Krai", "Kemerovo Oblast", "Khabarovsk Krai", "Khakassia", "Khanty-Mansiysk Autonomous Okrug ? Ugra", "Krasnoyarsk Krai", "Kurgan Oblast", "Magadan Oblast", "Novosibirsk Oblast", "Omsk Oblast", "Primorsky Krai", "Sakha Republic", "Sakhalin Oblast", "Sverdlovsk Oblast", "Tomsk Oblast", "Tuva", "Tyumen Oblast", "Yamalo-Nenets Autonomous Okrug", "Zabaykalsky Krai")
 

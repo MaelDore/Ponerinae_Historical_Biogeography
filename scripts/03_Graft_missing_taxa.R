@@ -110,7 +110,7 @@ Ponerinae_fossil_calibrations <- read_excel("input_data/Time_calibration/Ponerin
 # Root calibration
 root_calib <- makeChronosCalib(phy = Ponerinae_uncalibrated_phylogeny_789t, 
                                node = "root", 
-                               age.min = 80, age.max = 100,
+                               age.min = 100, age.max = 126,
                                interactive = FALSE, soft.bounds = FALSE)
 
 # Fossil Odontoponera_pseudotransversa in Odontoponera genus
@@ -118,7 +118,7 @@ Odontoponera_tips <- Ponerinae_uncalibrated_phylogeny_789t$tip.label[str_detect(
 Odontoponera_node <- getMRCA(phy = Ponerinae_uncalibrated_phylogeny_789t, tip = Odontoponera_tips)
 Odontoponera_calib <- makeChronosCalib(phy = Ponerinae_uncalibrated_phylogeny_789t, 
                                        node = Odontoponera_node, 
-                                       age.min = 10, age.max = 100,
+                                       age.min = 10, age.max = 126,
                                        interactive = FALSE, soft.bounds = FALSE)
 
 # Fossil Neoponera_vejestoria in Neoponera_foetida group
@@ -127,7 +127,7 @@ Neoponera_inversa_tip <- Ponerinae_uncalibrated_phylogeny_789t$tip.label[str_det
 Neoponera_node <- getMRCA(phy = Ponerinae_uncalibrated_phylogeny_789t, tip = c(Neoponera_foetida_tip, Neoponera_inversa_tip))
 Neoponera_calib <- makeChronosCalib(phy = Ponerinae_uncalibrated_phylogeny_789t, 
                                        node = Neoponera_node, 
-                                       age.min = 15, age.max = 100,
+                                       age.min = 15, age.max = 126,
                                        interactive = FALSE, soft.bounds = FALSE)
 
 # Fossil Platythyrea_dlusskyi in Platythyrea genus
@@ -135,7 +135,7 @@ Platythyrea_tips <- Ponerinae_uncalibrated_phylogeny_789t$tip.label[str_detect(s
 Platythyrea_node <- getMRCA(phy = Ponerinae_uncalibrated_phylogeny_789t, tip = Platythyrea_tips)
 Platythyrea_calib <- makeChronosCalib(phy = Ponerinae_uncalibrated_phylogeny_789t, 
                                        node = Platythyrea_node, 
-                                       age.min = 52, age.max = 100,
+                                       age.min = 52, age.max = 126,
                                        interactive = FALSE, soft.bounds = FALSE)
 
 # Fossil Ponera mayri in Ponera genus
@@ -143,7 +143,7 @@ Ponera_tips <- Ponerinae_uncalibrated_phylogeny_789t$tip.label[str_detect(string
 Ponera_node <- getMRCA(phy = Ponerinae_uncalibrated_phylogeny_789t, tip = Ponera_tips)
 Ponera_calib <- makeChronosCalib(phy = Ponerinae_uncalibrated_phylogeny_789t, 
                                  node = Ponera_node, 
-                                 age.min = 34, age.max = 100,
+                                 age.min = 34, age.max = 126,
                                  interactive = FALSE, soft.bounds = FALSE)
 
 # Fossil Hypoponera atavia in Hypoponera genus
@@ -151,7 +151,7 @@ Hypoponera_tips <- Ponerinae_uncalibrated_phylogeny_789t$tip.label[str_detect(st
 Hypoponera_node <- getMRCA(phy = Ponerinae_uncalibrated_phylogeny_789t, tip = Hypoponera_tips)
 Hypoponera_calib <- makeChronosCalib(phy = Ponerinae_uncalibrated_phylogeny_789t, 
                                       node = Hypoponera_node, 
-                                      age.min = 34, age.max = 100,
+                                      age.min = 34, age.max = 126,
                                       interactive = FALSE, soft.bounds = FALSE)
 
 # Fossil Odontomachus_spinifer in Odontomachus_haematodus group
@@ -160,7 +160,7 @@ Odontomachus_troglodytes_tip <- Ponerinae_uncalibrated_phylogeny_789t$tip.label[
 Odontomachus_node <- getMRCA(phy = Ponerinae_uncalibrated_phylogeny_789t, tip = c(Odontomachus_haematodus_tip, Odontomachus_troglodytes_tip))
 Odontomachus_calib <- makeChronosCalib(phy = Ponerinae_uncalibrated_phylogeny_789t, 
                                     node = Odontomachus_node, 
-                                    age.min = 15, age.max = 100,
+                                    age.min = 15, age.max = 126,
                                     interactive = FALSE, soft.bounds = FALSE)
 
 # Fossil Anochetus_ambiguus in Anochetus_emarginatus group
@@ -169,7 +169,7 @@ Anochetus_striatulus_tip <- Ponerinae_uncalibrated_phylogeny_789t$tip.label[str_
 Anochetus_node <- getMRCA(phy = Ponerinae_uncalibrated_phylogeny_789t, tip = c(Anochetus_emarginatus_tip, Anochetus_striatulus_tip))
 Anochetus_calib <- makeChronosCalib(phy = Ponerinae_uncalibrated_phylogeny_789t, 
                                        node = Anochetus_node, 
-                                       age.min = 15, age.max = 100,
+                                       age.min = 15, age.max = 126,
                                        interactive = FALSE, soft.bounds = FALSE)
 
 # Bind all calib to create calib_df
