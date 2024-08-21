@@ -84,7 +84,7 @@ all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_coun
 all_dispersal_events_all_sliding_windows_df_list <- readRDS(file = paste0("./outputs/Network_events_counts/all_dispersal_events_all_sliding_windows_df_list_",window_width,"My.rds"))
 
 
-### 1.5 Adjust color scheme for a less shiny output
+### 1.5 Adjust color scheme for a less shiny output ####
 
 colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
 colors_list_for_areas <- colors_list_for_states[c("A", "U", "I", "R", "N", "E", "W")]
@@ -95,7 +95,7 @@ names(new_lighter_color_scheme) <- c("A", "U", "I", "R", "N", "E", "W")
 
 saveRDS(new_lighter_color_scheme, file = "./outputs/BSM/BSM_maps/colors_list_for_areas_light.rds")
 
-### 1.5/ Function to generate polgyons from data.frame ####
+### 1.6/ Function to generate polgyons from data.frame ####
 
 ## Function to reconstruct initial POLYGONS from ordered POINTS
 reconstruct_initial_polygon_with_sfheaders <- function (sf)
@@ -374,6 +374,27 @@ W_patch <- data.frame(Latitude_dec = c(0, 0, 0.01, 0.01, 0),
   select(-Subregion, -seq_ID)
 st_crs(W_patch) <- st_crs(4326)
 
+N_patch <- data.frame(Latitude_dec = c(90, 90, 89.9, 89.9, 90),
+                      Longitude_dec = c(0, 0.01, 0.01, 0, 0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Bioregion = "Eastern Palearctic",
+         Subregion = "Eastern Palearctic",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders() %>%
+  select(-Subregion, -seq_ID)
+st_crs(N_patch) <- st_crs(4326)
+
+S_patch <- data.frame(Latitude_dec = c(-90, -90, -89.9, -89.9, -90),
+                      Longitude_dec = c(0, 0.01, 0.01, 0, 0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Bioregion = "Antarctica",
+         Subregion = "Antarctica",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders() %>%
+  select(-Subregion, -seq_ID)
+st_crs(S_patch) <- st_crs(4326)
+
+
 ## Extract Paleomaps for T=0
 
 Paleomaps_with_bioregions_sf_T0 <- Paleomaps_with_bioregions_sf[[1]]
@@ -385,8 +406,12 @@ metadata <- st_drop_geometry(Paleomaps_with_bioregions_sf_T0[1, ]) %>%
 # Add E/W patches to ensure all the bbox is plotted ans stable
 E_patch_to_bind <- cbind(E_patch, metadata)
 W_patch_to_bind <- cbind(W_patch, metadata)
+N_patch_to_bind <- cbind(N_patch, metadata)
+S_patch_to_bind <- cbind(S_patch, metadata)
+
 # Add patches to the list of bioregions
 Paleomaps_with_bioregions_sf_T0 <- rbind(Paleomaps_with_bioregions_sf_T0, E_patch_to_bind, W_patch_to_bind)
+Paleomaps_with_bioregions_sf_T0 <- rbind(Paleomaps_with_bioregions_sf_T0, N_patch_to_bind, S_patch_to_bind)
 
 ## Create geoscale
 
@@ -526,7 +551,7 @@ all_dispersal_events_overall_ggplot <- ggplot(data = nodes_metadata_updated_coor
   theme(panel.background = element_rect(fill = NA),
         panel.border = element_rect(fill = NA, colour = NA),
         # panel.grid.major = element_line(colour = "grey70", linetype = "dashed", linewidth = 0.5), # Plot graticules
-        plot.title = element_text(hjust = 0.5, size = 18, face = "bold", margin = margin(b = 25)),
+        plot.title = element_text(hjust = 0.5, size = 18, face = "bold", margin = margin(b = 20)),
         axis.ticks = element_blank(),
         axis.text = element_blank(),
         axis.line = element_blank(),
@@ -607,6 +632,27 @@ W_patch <- data.frame(Latitude_dec = c(0, 0, 0.01, 0.01, 0),
   reconstruct_initial_polygon_with_sfheaders() %>%
   select(-Subregion, -seq_ID)
 st_crs(W_patch) <- st_crs(4326)
+
+N_patch <- data.frame(Latitude_dec = c(90, 90, 89.9, 89.9, 90),
+                      Longitude_dec = c(0, 0.01, 0.01, 0, 0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Bioregion = "Eastern Palearctic",
+         Subregion = "Eastern Palearctic",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders() %>%
+  select(-Subregion, -seq_ID)
+st_crs(N_patch) <- st_crs(4326)
+
+S_patch <- data.frame(Latitude_dec = c(-90, -90, -89.9, -89.9, -90),
+                      Longitude_dec = c(0, 0.01, 0.01, 0, 0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Bioregion = "Antarctica",
+         Subregion = "Antarctica",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders() %>%
+  select(-Subregion, -seq_ID)
+st_crs(S_patch) <- st_crs(4326)
+
 
 ### 5.2/ Set color scheme ####
 
@@ -719,13 +765,16 @@ geol_scale_plot <- ggplot(fake_ts_data_df) +
 for (i in seq_along(nodes_metadata_time_series))
 {
   # i <- 1
+  # i <- 31
+  # i <- 32
+  # i <- 33
   # i <- 94
   
   # Extract age
   age_i <- nodes_metadata_time_series[i]
   j <- which(Paleomaps_time_series == age_i)
   
-  ## 5.4.1/ Extract data for time i and adjust display scales ####
+  ## 5.5.1/ Extract data for time i and adjust display scales ####
   
   # Extract the minimum number of events to display an edge
   # min_counts_threshold_i <- min_counts_threshold
@@ -799,15 +848,18 @@ for (i in seq_along(nodes_metadata_time_series))
   # Add E/W patches to ensure all the bbox is plotted ans stable
   E_patch_to_bind <- cbind(E_patch, metadata)
   W_patch_to_bind <- cbind(W_patch, metadata)
+  N_patch_to_bind <- cbind(N_patch, metadata)
+  S_patch_to_bind <- cbind(S_patch, metadata)
   # Add patches to the list of bioregions
   Paleomaps_with_bioregions_sf_i <- rbind(Paleomaps_with_bioregions_sf_i, E_patch_to_bind, W_patch_to_bind)
+  Paleomaps_with_bioregions_sf_i <- rbind(Paleomaps_with_bioregions_sf_i, N_patch_to_bind, S_patch_to_bind)
   
   # # Crop to final fixed bbox (does not fix the wobbling...)
   # suppressMessages(sf_use_s2(FALSE))
   # Paleomaps_with_bioregions_sf_i <- suppressMessages(st_crop(x = Paleomaps_with_bioregions_sf_i, y = st_bbox(obj = c(xmin = -180, xmax = 180, ymax = 90, ymin = -90), crs = st_crs(4326))))
   # suppressMessages(sf_use_s2(TRUE))
   
-  ## 5.4.2/ Adjust color scheme ####
+  ## 5.5.2/ Adjust color scheme ####
   
   # Adjust bioregions factors in node/edge data
   nodes_metadata_sliding_windows_i$bioregions <- factor(nodes_metadata_sliding_windows_i$bioregions, levels = bioregion_names, labels = bioregion_names)
@@ -816,8 +868,7 @@ for (i in seq_along(nodes_metadata_time_series))
   # Adjust bioregions factors in Paleomaps
   Paleomaps_with_bioregions_sf_i$Bioregion <- factor(Paleomaps_with_bioregions_sf_i$Bioregion, levels = bioregion_names_with_Antarctica, labels = bioregion_names_with_Antarctica)
   
-  
-  ## 5.4.3/ Plot map and network ####
+  ## 5.5.3/ Plot map and network ####
   
   # Plot PDF
   pdf(file = paste0("./outputs/Network_events_counts/plots_for_sliding_windows_moving_continents/all_dispersal_events_mean_counts_sliding_windows_",i,"_",window_width,"My_moving_continents_ggplot.pdf"),
@@ -914,7 +965,7 @@ for (i in seq_along(nodes_metadata_time_series))
     theme(panel.background = element_rect(fill = NA),
           panel.border = element_rect(fill = NA, colour = NA),
           # panel.grid.major = element_line(colour = "grey70", linetype = "dashed", linewidth = 0.5), # Plot graticules
-          plot.title = element_text(hjust = 0.5, size = 18, face = "bold", margin = margin(b = 25)),
+          plot.title = element_text(hjust = 0.5, size = 18, face = "bold", margin = margin(b = 20)),
           axis.ticks = element_blank(),
           axis.text = element_blank(),
           axis.line = element_blank(),
@@ -931,7 +982,7 @@ for (i in seq_along(nodes_metadata_time_series))
   
   # print(all_dispersal_events_sliding_windows_i_ggplot)
   
-  ## 5.4.4/ Plot geoscale ####
+  ## 5.5.4/ Plot geoscale ####
   
   ## Add time marker
   current_time <- age_i
@@ -949,7 +1000,7 @@ for (i in seq_along(nodes_metadata_time_series))
   
   # print(geol_scale_i_plot)
   
-  ## 5.4.5/ Arrange map and scale in a faceted plot ####
+  ## 5.5.5/ Arrange map and scale in a faceted plot ####
   
   gridExtra::grid.arrange(
     grobs = list(all_dispersal_events_sliding_windows_i_ggplot,
