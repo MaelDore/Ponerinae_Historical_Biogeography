@@ -61,7 +61,7 @@ root_age <- max(phytools::nodeHeights(Ponerinae_phylogeny_1534t_short_names)) ; 
 start_time <- 145
 
 
-### 1.3/ Functions to manipulate sf objects
+### 1.3/ Functions to manipulate sf objects ####
 
 ## Function to select only the largest POLYGON out of a MULTIPOLYGON
 keep_only_largest_polygon <- function (sf)

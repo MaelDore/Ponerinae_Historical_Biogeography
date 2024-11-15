@@ -59,10 +59,12 @@ library(BayesTwin) # To compute HPD intervals
 ### 1.2/ Load data and path to data ####
 
 # Load imputed phylogeny with short names
-Ponerinae_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.rds")
+# Ponerinae_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.rds")
+Ponerinae_MCC_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.rds")
 
 # Set path to Newick tree
-path_to_tree <- "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.tree"
+# path_to_tree <- "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.tree"
+path_to_tree <- "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.tree"
 path_to_tree <- BioGeoBEARS::np(path_to_tree)
 
 
@@ -80,7 +82,8 @@ Taxa_bioregions_tipranges_obj <- BioGeoBEARS::getranges_from_LagrangePHYLIP(lgda
 ### 1.3/ Load modeling results from best model (DEC+J) #####
 
 # Load time-stratified DEC+J model output
-DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
+DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
 
 
 ##### 2/ Run Biogeographic Stochastic Mapping ####
@@ -94,8 +97,10 @@ DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.r
 DEC_J_BSM_inputs <- get_inputs_for_stochastic_mapping(res = DEC_J_fit)
 
 # Save BSM inputs
-saveRDS(object = DEC_J_BSM_inputs, file = "./outputs/BSM/DEC_J_BSM_inputs.rds")
-DEC_J_BSM_inputs <- readRDS(file = "./outputs/BSM/DEC_J_BSM_inputs.rds")
+# saveRDS(object = DEC_J_BSM_inputs, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_inputs.rds")
+saveRDS(object = DEC_J_BSM_inputs, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_inputs.rds")
+# DEC_J_BSM_inputs <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_inputs.rds")
+DEC_J_BSM_inputs <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_inputs.rds")
 
 # BSM input object as one list per time-stratum
 str(DEC_J_BSM_inputs, max.level = 1)
@@ -121,7 +126,7 @@ DEC_J_BSM_inputs[[5]]$Qmat
 
 ### 2.2/ Run BSM  ####
 
-nb_BSM_maps <- 10
+# nb_BSM_maps <- 10
 nb_BSM_maps <- 1000
 
 DEC_J_BSM_output <- runBSM(res = DEC_J_fit,  # Model fit object
@@ -130,18 +135,21 @@ DEC_J_BSM_output <- runBSM(res = DEC_J_fit,  # Model fit object
                              nummaps_goal = nb_BSM_maps, # Number of accepted stochastic maps to target
                              maxtries_per_branch = 40000,
                              save_after_every_try = TRUE,
-                             savedir = "./outputs/BSM/",
+                             # savedir = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/",
+                             savedir = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/",
                              seedval = 12345,
                              wait_before_save = 0.01,
                              master_nodenum_toPrint = 0)
 
 ## Save BSM outputs
-saveRDS(object = DEC_J_BSM_output, file = "./outputs/BSM/DEC_J_BSM_output.rds")
+# saveRDS(object = DEC_J_BSM_output, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_output.rds")
+saveRDS(object = DEC_J_BSM_output, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_output.rds")
 
 ## Inspect outputs = cladogenetic and anagenetic event tables
 
 # Load BSM outputs
-DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/DEC_J_BSM_output.rds")
+# DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_output.rds")
+DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_output.rds")
 
 # Extract records of events
 DEC_J_clado_events_tables <- DEC_J_BSM_output$RES_clado_events_tables
@@ -150,12 +158,21 @@ DEC_J_ana_events_tables <- DEC_J_BSM_output$RES_ana_events_tables
 length(DEC_J_clado_events_tables) # One summary table per stochastic history
 length(DEC_J_ana_events_tables) # One summary table per stochastic history
 
+# Save independently the cladogenetic and anagenetic tables
+# saveRDS(object = DEC_J_clado_events_tables, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_clado_events_tables.rds")
+saveRDS(object = DEC_J_clado_events_tables, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_clado_events_tables.rds")
+# saveRDS(object = DEC_J_ana_events_tables, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_ana_events_tables.rds")
+saveRDS(object = DEC_J_ana_events_tables, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_ana_events_tables.rds")
+
+
 ## Cladogenetic event tables (one table per simulated biogeographic history)
 
 # One row = 1 node/tip
 names(DEC_J_clado_events_tables[[1]])
 nrow(DEC_J_clado_events_tables[[1]]) # Have more events than nodes/tips because some branches are split across time-strata and one "event" (or absence of event) per branch per strata is recorded
-Ponerinae_phylogeny_1534t_short_names$Nnode + length(Ponerinae_phylogeny_1534t_short_names$tip.label)
+# Ponerinae_phylogeny_1534t_short_names$Nnode + length(Ponerinae_phylogeny_1534t_short_names$tip.label)
+Ponerinae_MCC_phylogeny_1534t_short_names$Nnode + length(Ponerinae_MCC_phylogeny_1534t_short_names$tip.label)
+
 View(DEC_J_clado_events_tables[[1]])
 
 # Node metadata
@@ -270,14 +287,16 @@ colors_list_for_states <- get_colors_for_states_list_0based(areanames = all_area
                                                             plot_null_range = null_range_check)
 names(colors_list_for_states) <- all_states
 # Save set of colors used in BSM
-saveRDS(object = colors_list_for_states, file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
+saveRDS(object = colors_list_for_states, file = "./outputs/BSM/colors_list_for_states.rds")
 
 # Load path to additional script
 scriptdir = np(system.file("extdata/a_scripts", package="BioGeoBEARS"))
 
 ### 3.1/ Loop through the maps and plot to a single PDF (typically fail) ####
 
-pdf(file = paste0("./outputs/BSM/BSM_maps/DEC_J_BSMs_",nb_maps,"_maps.pdf"),
+# pdf(file = paste0("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/BSM_maps/DEC_J_BSMs_",nb_maps,"_maps.pdf"),
+#     height = 150, width = 40)
+pdf(file = paste0("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/BSM_maps/DEC_J_BSMs_",nb_maps,"_maps.pdf"),
     height = 150, width = 40)
 
 for (i in 1:nb_maps)
@@ -361,7 +380,7 @@ dev.off()
 for (i in 1:nb_maps)
   # for (i in 1:100)
 {
-  # i <- 1
+  # i <- 3
   
   # Extract the master tables of events summary for map n°i
   DEC_J_clado_events_table_i <- DEC_J_clado_events_tables[[i]]
@@ -373,7 +392,8 @@ for (i in 1:nb_maps)
   ana_events_table_cols_to_add <- DEC_J_ana_events_table_i[,colnums]
   anagenetic_events_txt_below_node <- rep("none", nrow(ana_events_table_cols_to_add))
   ana_events_table_cols_to_add <- cbind(ana_events_table_cols_to_add, anagenetic_events_txt_below_node)
-  rows_to_get_TF <- ana_events_table_cols_to_add$node <= length(Ponerinae_phylogeny_1534t_short_names$tip.label)
+  # rows_to_get_TF <- ana_events_table_cols_to_add$node <= length(Ponerinae_phylogeny_1534t_short_names$tip.label)
+  rows_to_get_TF <- ana_events_table_cols_to_add$node <= length(Ponerinae_MCC_phylogeny_1534t_short_names$tip.label)
   DEC_J_clado_events_master_table_i <- rbind(ana_events_table_cols_to_add[rows_to_get_TF,], DEC_J_clado_events_table_i)
   
   # View(DEC_J_clado_events_table_i)
@@ -384,7 +404,9 @@ for (i in 1:nb_maps)
                                                     master_table_cladogenetic_events = DEC_J_clado_events_master_table_i,
                                                     stratified = TRUE)
   
-  pdf(file = paste0("./outputs/BSM/BSM_maps/DEC_J_BSMs_map_",i,".pdf"),
+  # pdf(file = paste0("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/BSM_maps/DEC_J_BSMs_map_",i,".pdf"),
+  #     height = 150, width = 40)
+  pdf(file = paste0("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/BSM_maps/DEC_J_BSMs_map_",i,".pdf"),
       height = 150, width = 40)
   
   # Set title
@@ -435,16 +457,19 @@ for (i in 1:nb_maps)
   }
 }
 
-## Combine all PDF in a single one with N pages
-
-all_BSM_maps_path <- list.files(path = "./outputs/BSM/BSM_maps/", pattern = "BSMs_map_", full.names = T)
-nb_maps <- length(all_BSM_maps_path)
-
-# Reorder in numerical rather than alphabetic order
-prefix <- str_remove(string = all_BSM_maps_path[1], pattern = "_\\d+.pdf")
-all_BSM_maps_path <- paste0(prefix,"_",1:nb_maps,".pdf")
-
-qpdf::pdf_combine(input = all_BSM_maps_path, output = paste0("./outputs/BSM/BSM_maps/All_DEC_J_BSMs_",nb_maps,"_maps.pdf"))
+# ## Combine all PDF in a single one with N pages
+# 
+# # all_BSM_maps_path <- list.files(path = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/BSM_maps/", pattern = "BSMs_map_", full.names = T)
+# all_BSM_maps_path <- list.files(path = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/BSM_maps/", pattern = "BSMs_map_", full.names = T)
+# 
+# nb_maps <- length(all_BSM_maps_path)
+# 
+# # Reorder in numerical rather than alphabetic order
+# prefix <- str_remove(string = all_BSM_maps_path[1], pattern = "_\\d+.pdf")
+# all_BSM_maps_path <- paste0(prefix,"_",1:nb_maps,".pdf")
+# 
+# # qpdf::pdf_combine(input = all_BSM_maps_path, output = paste0("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/BSM_maps/All_DEC_J_BSMs_",nb_maps,"_maps.pdf"))
+# qpdf::pdf_combine(input = all_BSM_maps_path, output = paste0("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/BSM_maps/All_DEC_J_BSMs_",nb_maps,"_maps.pdf"))
 
 ## Do it by smaller batch to avoid saturating RAM
 
@@ -459,7 +484,8 @@ for (i in seq_along(start_i))
   nb_maps_i <- length(all_BSM_maps_path_i)
   subset_label <- paste0(subset_indices_i[1],"_",subset_indices_i[nb_maps_i])
   
-  qpdf::pdf_combine(input = all_BSM_maps_path_i, output = paste0("./outputs/BSM/BSM_maps/All_DEC_J_BSMs_",subset_label,"_maps.pdf"))
+  # qpdf::pdf_combine(input = all_BSM_maps_path_i, output = paste0("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/BSM_maps/All_DEC_J_BSMs_",subset_label,"_maps.pdf"))
+  qpdf::pdf_combine(input = all_BSM_maps_path_i, output = paste0("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/BSM_maps/All_DEC_J_BSMs_",subset_label,"_maps.pdf"))
   
   # Print progress
   cat(paste0(Sys.time(), " - Stochastic maps aggregated from n°", subset_indices_i[1], " to ", subset_indices_i[nb_maps_i],"\n"))
@@ -467,14 +493,17 @@ for (i in seq_along(start_i))
 
 ## Aggregate batches in a single PDF
 
-all_BSM_maps_batches_path <- list.files(path = "./outputs/BSM/BSM_maps/", pattern = "All_DEC_J_BSMs_", full.names = T)
+# all_BSM_maps_batches_path <- list.files(path = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/BSM_maps/", pattern = "All_DEC_J_BSMs_", full.names = T)
+all_BSM_maps_batches_path <- list.files(path = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/BSM_maps/", pattern = "All_DEC_J_BSMs_", full.names = T)
+
 nb_batches <- length(all_BSM_maps_batches_path)
 
 # # Reorder in numerical rather than alphabetic order
 # prefix <- str_remove(string = all_BSM_maps_path[1], pattern = "_\\d+.pdf")
 # all_BSM_maps_path <- paste0(prefix,"_",1:nb_maps,".pdf")
 
-qpdf::pdf_combine(input = all_BSM_maps_batches_path, output = paste0("./outputs/BSM/BSM_maps/All_DEC_J_BSMs_1_",nb_maps,"_maps.pdf"))
+# qpdf::pdf_combine(input = all_BSM_maps_batches_path, output = paste0("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/BSM_maps/All_DEC_J_BSMs_1_",nb_maps,"_maps.pdf"))
+qpdf::pdf_combine(input = all_BSM_maps_batches_path, output = paste0("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/BSM_maps/All_DEC_J_BSMs_1_",nb_maps,"_maps.pdf"))
 
 
 
@@ -482,21 +511,46 @@ qpdf::pdf_combine(input = all_BSM_maps_batches_path, output = paste0("./outputs/
 
 # See magickR... to use the PDF as input and create a GIF
 
+source("./functions/image_resize_and_write_gif.R")
+
+# Limit number of maps to reduce GIF size and avoid crashing because of memory allocation limits
+nb_maps_in_GIF <- nb_maps
+nb_maps_in_GIF <- 100
+
+# Select fps
+# fps <- 1
+fps <- 5
+# fps <- 10
+
 # Load pdf as image frames
-BSM_pdf <- magick::image_read_pdf(paste0("./outputs/BSM/BSM_maps/All_DEC_J_BSMs_1_",nb_maps,"_maps.pdf"))
+# pdf_pointer_BSM_maps <- magick::image_read_pdf(path = paste0("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/BSM_maps/All_DEC_J_BSMs_1_",nb_maps_in_GIF,"_maps.pdf"),
+#                                                pages = NULL, density = 75)
+pdf_pointer_BSM_maps <- magick::image_read_pdf(path = paste0("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/BSM_maps/All_DEC_J_BSMs_1_",nb_maps_in_GIF,"_maps.pdf"),
+                                                       pages = NULL, density = 75)
+magick::image_info(pdf_pointer_BSM_maps)
 
-# Export as GIF
-magick::image_write_gif(image = BSM_pdf, path = paste0("./outputs/BSM/BSM_maps/All_DEC_J_BSMs_1_",nb_maps,"_maps.gif"), delay = 1/10)
+image_resize_and_write_gif(image = pdf_pointer_BSM_maps,
+                           # path =  paste0("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/BSM_maps/All_DEC_J_BSMs_1_",nb_maps_in_GIF,"_maps.gif"),
+                           path =  paste0("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/BSM_maps/All_DEC_J_BSMs_1_",nb_maps_in_GIF,"_maps.gif"),
+                           delay = 1/fps, # Time between frames in seconds
+                           width = 300, height = 1250,
+                           loop = FALSE,
+                           progress = TRUE)
 
-# Does not work because of memory allocation issue. Use online tools instead...
+
+# If does not work because of memory allocation issue. Use online tools instead...
 
 
 ##### 5/ Convert BSM outputs in phytools.simmaps ####
 
+source("./functions/BSM_to_phytools_SM_custom.R")
+source("./functions/generate_list_ranges.R")
 
 ## Reorder phylogeny in "cladewise" order so edge ID match what is expected in BSM_to_phytools_SM
-str(Ponerinae_phylogeny_1534t_short_names)
-Ponerinae_phylogeny_1534t_cladewise <- reorder.phylo(x = Ponerinae_phylogeny_1534t_short_names, order = "cladewise")
+# str(Ponerinae_phylogeny_1534t_short_names)
+# Ponerinae_phylogeny_1534t_cladewise <- reorder.phylo(x = Ponerinae_phylogeny_1534t_short_names, order = "cladewise")
+str(Ponerinae_MCC_phylogeny_1534t_short_names)
+Ponerinae_MCC_phylogeny_1534t_cladewise <- reorder.phylo(x = Ponerinae_MCC_phylogeny_1534t_short_names, order = "cladewise")
 
 # Initiate list for simmap
 DEC_J_simmaps <- list()
@@ -508,7 +562,8 @@ for (i in 1:length(DEC_J_clado_events_tables))
   
   # Convert BSM output to a SIMMAP object for phytools while computing residence times
   DEC_J_simmap_times_i <- BSM_to_phytools_SM_custom(res = DEC_J_fit,
-                                                    tree = Ponerinae_phylogeny_1534t_cladewise,
+                                                    # tree = Ponerinae_phylogeny_1534t_cladewise,
+                                                    tree = Ponerinae_MCC_phylogeny_1534t_cladewise,
                                                     clado_events_table = DEC_J_clado_events_tables[[i]],
                                                     ana_events_table = DEC_J_ana_events_tables[[i]])
   
@@ -518,13 +573,18 @@ for (i in 1:length(DEC_J_clado_events_tables))
   # Print progress every 10 maps
   if (i %% 10 == 0)
   {
+    # Save simmaps
+    # saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps.rds")
+    saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps.rds")
+    
     cat(paste0(Sys.time(), " - BSM map output converted to simmap Stochastic map - n°", i, "/", length(DEC_J_clado_events_tables),"\n"))
   }
 }
 class(DEC_J_simmaps) <- c("list", "multiSimmap")
 
 # Save simmaps
-saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/DEC_J_simmaps.rds")
+# saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps.rds")
+saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps.rds")
 
 
 
@@ -536,7 +596,8 @@ saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/DEC_J_simmaps.rds")
 ?phytools::densityMap
 
 # Load simmaps of BS maps
-DEC_J_simmaps <- readRDS(file = "./outputs/BSM/DEC_J_simmaps.rds")
+# DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps.rds")
+DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps.rds")
 
 # Subset for testing
 # DEC_J_simmaps <- DEC_J_simmaps[1:10]
@@ -552,9 +613,12 @@ all_states <- unique(unlist(lapply(X = DEC_J_simmaps, FUN = function (x) { lappl
 all_areas <- all_states[nchar(all_states) == 1]
 all_areas
 
-all_areas_labels <- c("Neotropics", "Afrotropics", "Eastern Palearctic", "Indomalaya", "Western Palearctic", "Australasia", "Nearctic")
+# all_areas_labels <- c("Neotropics", "Afrotropics", "Eastern Palearctic", "Indomalaya", "Western Palearctic", "Australasia", "Nearctic")
+all_areas_labels <- c("Afrotropics", "Neotropics", "Indomalaya", "Australasia", "Eastern Palearctic",  "Western Palearctic",  "Nearctic")
 
 ### 6.2/ Modify simmaps to attribute randomly a unique area to multi-states ####
+
+# Better approach would be to use equal weights to split multi-states rather than random attribution of a unique area
 
 # Function to attribute randomly a unique area to multi-states
 attribute_unique_areas_to_simmap <- function (simmap, all_areas = NULL, verbose = F, seed = 1234) 
@@ -626,13 +690,15 @@ all_states <- unique(unlist(lapply(X = DEC_J_simmaps_unique_areas, FUN = functio
 all_states
 
 # Save simmaps with only unique areas
-saveRDS(object = DEC_J_simmaps_unique_areas, file = "./outputs/BSM/DEC_J_simmaps_unique_areas.rds")
+# saveRDS(object = DEC_J_simmaps_unique_areas, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
+saveRDS(object = DEC_J_simmaps_unique_areas, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
 
 
 ### 6.3/ Compute and plot density maps of binary areas ####
 
 # Load simmaps with only unique areas
-DEC_J_simmaps_unique_areas <- readRDS(file = "./outputs/BSM/DEC_J_simmaps_unique_areas.rds")
+# DEC_J_simmaps_unique_areas <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
+DEC_J_simmaps_unique_areas <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
 
 ## Loop per unique area
 DEC_J_density_map_all_areas <- list()
@@ -678,7 +744,7 @@ for (i in seq_along(all_areas))
   
   ##  Create a custom color scale
   # Use color scheme of BSM
-  colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
+  colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
   
   # Set colors for areas/bioregions
   focal_color <- colors_list_for_states[focal_area]
@@ -689,7 +755,8 @@ for (i in seq_along(all_areas))
   DEC_J_density_map <- setMap(DEC_J_density_map, c("grey90", focal_color))
   
   ## Save the resulting Density map with updated color gradient
-  saveRDS(object = DEC_J_density_map, file = paste0("./outputs/Density_maps/DEC_J_density_map_",focal_area_label,".rds"))
+  # saveRDS(object = DEC_J_density_map, file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_",focal_area_label,".rds"))
+  saveRDS(object = DEC_J_density_map, file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_",focal_area_label,".rds"))
   
   ## Store in final object with all density maps
   DEC_J_density_map_all_areas <- append(x = DEC_J_density_map_all_areas, values = list(DEC_J_density_map))
@@ -703,13 +770,15 @@ for (i in seq_along(all_areas))
 names(DEC_J_density_map_all_areas) <- paste0("Density_map_", all_areas_labels)
 
 # Save density maps
-saveRDS(object = DEC_J_density_map_all_areas, file = paste0("./outputs/Density_maps/DEC_J_density_map_all_areas.rds"))
+# saveRDS(object = DEC_J_density_map_all_areas, file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
+saveRDS(object = DEC_J_density_map_all_areas, file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
 
 
 ### 6.4/ Plot density maps of posterior probability to belong to focal area ####
 
 # Load density maps
-DEC_J_density_map_all_areas <- readRDS(file = paste0("./outputs/Density_maps/DEC_J_density_map_all_areas.rds"))
+# DEC_J_density_map_all_areas <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
+DEC_J_density_map_all_areas <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
 
 
 ## Loop per area
@@ -727,7 +796,8 @@ for (i in 1:length(DEC_J_density_map_all_areas))
   
   ## Plot density map
   
-  pdf(file = paste0("./outputs/Density_maps/DEC_J_density_map_",focal_area_label,".pdf"), width = 40, height = 150)
+  # pdf(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_",focal_area_label,".pdf"), width = 40, height = 150)
+  pdf(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_",focal_area_label,".pdf"), width = 40, height = 150)
   
   plot(DEC_J_density_map_i, fsize = c(0.3,2.5), lwd = c(3,4))
   
@@ -764,9 +834,11 @@ returned_mats$areanames
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 
 # Recreate paths to density maps in predefined order
-all_density_maps_paths <- paste0("./outputs/Density_maps/DEC_J_density_map_",bioregion_names,".pdf")
+# all_density_maps_paths <- paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_",bioregion_names,".pdf")
+all_density_maps_paths <- paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_",bioregion_names,".pdf")
 
 # Combine PDFs in a unique PDF
-qpdf::pdf_combine(input = all_density_maps_paths, output = paste0("./outputs/Density_maps/All_DEC_J_density_maps.pdf"))
+# qpdf::pdf_combine(input = all_density_maps_paths, output = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/All_DEC_J_density_maps.pdf"))
+qpdf::pdf_combine(input = all_density_maps_paths, output = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/All_DEC_J_density_maps.pdf"))
 
 

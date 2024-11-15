@@ -8,9 +8,9 @@
 ### Goals
 
 # Define ‘Regional In Situ Radiations’ (RISR) as independent clades including at least X% of residence times along descendant edges within the focal region
-# Fit BD time-dependent models (RPANDA) per RISR as an exponential function of time and fixed extinction rate
+# Fit BD time-dependent models per RISR as an exponential function of time and fixed extinction rate
   # Extract current richenss, crown-age, net diversification rate at the crown (lambda_0), net diversification rate at present, time-variation (alpha).
-# Explore frequency of EB fits: evidence for burst of diversification following disperal to new bioregion
+# Explore frequency of time-decaying model fits: evidence for burst of diversification following disperal to new bioregion
   # Compare fits of time-dependent (decaying) vs. constant BD
   # Count relative frequency of decaying model selection as the best fit
 # Compare Bioregions, OW vs. NW, Tropics vs. Temperate
@@ -72,7 +72,8 @@ library(reghelper)
 ### 1.1/ Load the phylogeny ####
 
 # Load phylogeny
-Ponerinae_phylogeny_1534t_treedata <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata.rds")
+# Ponerinae_phylogeny_1534t_treedata <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata_for_ARE.rds")
+Ponerinae_phylogeny_1534t_treedata <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE.rds")
 
 ### 1.2/ Prepare node metadata ####
 
@@ -119,7 +120,8 @@ RISR_nodes_metadata_df$PP_Temperate <- RISR_nodes_metadata_df$PP_Nearctic + RISR
 RISR_nodes_metadata_df$PP_Tropics <- 1 - RISR_nodes_metadata_df$PP_Temperate
 
 # Save nodes metadata for RISR
-saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/RISR_nodes_metadata_df.rds")
+# saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_nodes_metadata_df.rds")
+saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_nodes_metadata_df.rds")
 
 ### 1.3/ AICc function for model fits ####
 
@@ -211,7 +213,8 @@ hist(RISR_nodes_metadata_df$residence_time_desc_prop_OW_NW)
 hist(RISR_nodes_metadata_df$residence_time_desc_prop_Trop_Temp)
 
 # Save nodes metadata for RISR
-saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/RISR_nodes_metadata_df.rds")
+# saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_nodes_metadata_df.rds")
+saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_nodes_metadata_df.rds")
 
 
 ### 2.2/ Identify RISR per Bioregions ~ endemicity threshold ####
@@ -219,12 +222,17 @@ saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/RISR_nodes_metadata_df.rds")
 ## 2.2.1/ Identify RISR per Bioregions ~ endemicity threshold
 
 # Load nodes metadata for RISR
-RISR_nodes_metadata_df <- readRDS(file = "./outputs/RISR/RISR_nodes_metadata_df.rds")
+# RISR_nodes_metadata_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_nodes_metadata_df.rds")
+RISR_nodes_metadata_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_nodes_metadata_df.rds")
 
 
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 
 endemicity_threshold_list <- seq(from = 0.70, to = 1.00, by = 0.05)
+
+# Set min number of current taxa in RISR
+min_nb_descendant_tips <- 5
+min_nb_descendant_tips <- 10
 
 # Initiate RISR status variables
 RISR_nodes_metadata_df$RISR_Bioregion_0.70 <- FALSE
@@ -249,7 +257,7 @@ for (i in seq_along(endemicity_threshold_list))
   # Detect candidate edges with endemicity higher than the threshold
   candidate_nodes_df_i <- RISR_nodes_metadata_df %>% 
     filter(residence_time_desc_prop_Bioregion >= threshold_i) %>% 
-    filter(nb_descendant_tips >= 5) # Remove clades with less than 5 tips
+    filter(nb_descendant_tips >= min_nb_descendant_tips) # Remove clades with less than N tips
   
   # table(candidate_nodes_df_i$Bioregion)
   
@@ -345,7 +353,8 @@ for (i in seq_along(RISR_nodes))
 table(table(RISR_descendant_nodes))
 
 ## Save nodes metadata for RISR updated with RISR nodes identification for Bioregions
-saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/RISR_nodes_metadata_df.rds")
+# saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_nodes_metadata_df.rds")
+saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_nodes_metadata_df.rds")
 
 ## 2.2.2/ Compute metadata of RISR clades per endemicity threshold 
 
@@ -377,7 +386,8 @@ View(RISR_clades_for_Bioregions_df)
 table(RISR_clades_for_Bioregions_df$Region, RISR_clades_for_Bioregions_df$endemicity_threshold)
 
 # Save metadata df of RISR clades per endemicity threshold 
-saveRDS(RISR_clades_for_Bioregions_df, file = "./outputs/RISR/RISR_clades_for_Bioregions_df.rds")
+# saveRDS(RISR_clades_for_Bioregions_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Bioregions_df.rds")
+saveRDS(RISR_clades_for_Bioregions_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Bioregions_df.rds")
 
 
 ### 2.3/ Identify RISR per Old World vs. New World ####
@@ -385,7 +395,8 @@ saveRDS(RISR_clades_for_Bioregions_df, file = "./outputs/RISR/RISR_clades_for_Bi
 ## 2.3.1/ Identify RISR per Old World vs. New World ~ endemicity threshold
 
 # Load nodes metadata for RISR
-RISR_nodes_metadata_df <- readRDS(file = "./outputs/RISR/RISR_nodes_metadata_df.rds")
+# RISR_nodes_metadata_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_nodes_metadata_df.rds")
+RISR_nodes_metadata_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_nodes_metadata_df.rds")
 
 
 OW_NW_names <- c("Old World", "New World")
@@ -511,7 +522,8 @@ for (i in seq_along(RISR_nodes))
 table(table(RISR_descendant_nodes))
 
 ## Save nodes metadata for RISR updated with RISR nodes identification for Bioregions
-saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/RISR_nodes_metadata_df.rds")
+# saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_nodes_metadata_df.rds")
+saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_nodes_metadata_df.rds")
 
 ## 2.3.2/ Compute metadata of RISR clades per endemicity threshold 
 
@@ -543,7 +555,8 @@ View(RISR_clades_for_OW_NW_df)
 table(RISR_clades_for_OW_NW_df$Region, RISR_clades_for_OW_NW_df$endemicity_threshold)
 
 # Save metadata df of RISR clades per endemicity threshold 
-saveRDS(RISR_clades_for_OW_NW_df, file = "./outputs/RISR/RISR_clades_for_OW_NW_df.rds")
+# saveRDS(RISR_clades_for_OW_NW_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_OW_NW_df.rds")
+saveRDS(RISR_clades_for_OW_NW_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_OW_NW_df.rds")
 
 
 ### 2.4/ Identify RISR per Tropics vs. Temperate ####
@@ -551,7 +564,8 @@ saveRDS(RISR_clades_for_OW_NW_df, file = "./outputs/RISR/RISR_clades_for_OW_NW_d
 ## 2.4.1/ Identify RISR per Tropics vs. Temperate ~ endemicity threshold
 
 # Load nodes metadata for RISR
-RISR_nodes_metadata_df <- readRDS(file = "./outputs/RISR/RISR_nodes_metadata_df.rds")
+# RISR_nodes_metadata_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_nodes_metadata_df.rds")
+RISR_nodes_metadata_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_nodes_metadata_df.rds")
 
 Trop_Temp_names <- c("Tropics", "Temperate")
 
@@ -676,7 +690,8 @@ for (i in seq_along(RISR_nodes))
 table(table(RISR_descendant_nodes))
 
 ## Save nodes metadata for RISR updated with RISR nodes identification for Bioregions
-saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/RISR_nodes_metadata_df.rds")
+# saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_nodes_metadata_df.rds")
+saveRDS(RISR_nodes_metadata_df, "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_nodes_metadata_df.rds")
 
 ## 2.4.2/ Compute metadata of RISR clades per endemicity threshold 
 
@@ -708,7 +723,8 @@ View(RISR_clades_for_Trop_Temp_df)
 table(RISR_clades_for_Trop_Temp_df$Region, RISR_clades_for_Trop_Temp_df$endemicity_threshold)
 
 # Save metadata df of RISR clades per endemicity threshold 
-saveRDS(RISR_clades_for_Trop_Temp_df, file = "./outputs/RISR/RISR_clades_for_Trop_Temp_df.rds")
+# saveRDS(RISR_clades_for_Trop_Temp_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Trop_Temp_df.rds")
+saveRDS(RISR_clades_for_Trop_Temp_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Trop_Temp_df.rds")
 
 # Not a single Temperate RISR clade! They are all nested in Tropics RISR clades, or do not have enough tips...
 
@@ -716,10 +732,14 @@ saveRDS(RISR_clades_for_Trop_Temp_df, file = "./outputs/RISR/RISR_clades_for_Tro
 ### 2.5/ Aggregate RISR clades metadata across region schemes ####
 
 # Load metadata df of RISR clades per endemicity threshold per Bioregions
-RISR_clades_for_Bioregions_df <- readRDS(file = "./outputs/RISR/RISR_clades_for_Bioregions_df.rds")
+# RISR_clades_for_Bioregions_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Bioregions_df.rds")
+# RISR_clades_for_Bioregions_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Bioregions_df.rds")
+RISR_clades_for_Trop_Temp_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Trop_Temp_df.rds")
+RISR_clades_for_Trop_Temp_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Trop_Temp_df.rds")
 
 # Load metadata df of RISR clades per endemicity threshold for Old World vs. New World
-RISR_clades_for_OW_NW_df <- readRDS(file = "./outputs/RISR/RISR_clades_for_OW_NW_df.rds")
+# RISR_clades_for_OW_NW_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_OW_NW_df.rds")
+RISR_clades_for_OW_NW_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_OW_NW_df.rds")
 
 
 # Aggregate nb of RISR clades and RISR descendants per endemicity threshold per Bioregion scheme
@@ -775,13 +795,14 @@ RISR_clades_per_threshold_df <- rbind(RISR_clades_for_Bioregions_df_per_threshol
 View(RISR_clades_per_threshold_df)
 
 # Save RISR clades metadata per endemicity threshold
-saveRDS(RISR_clades_per_threshold_df, file = "./outputs/RISR/RISR_clades_per_threshold_df.rds")
+# saveRDS(RISR_clades_per_threshold_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_per_threshold_df.rds")
+saveRDS(RISR_clades_per_threshold_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_per_threshold_df.rds")
 
 
 ### 2.6/  Plot nb of RISR per endemicity threshold ####
 
 # Set color scheme for regions
-colors_list_for_areas <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_areas_light.rds")
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 names(colors_list_for_areas) <- bioregion_names
 colors_list_for_regions <- colors_list_for_areas[c("Afrotropics", "Australasia", "Indomalaya", "Neotropics")]
@@ -791,7 +812,8 @@ names(colors_list_for_regions)[5:8] <- c("all Bioregions", "New World", "Old Wor
 region_breaks <- str_replace(string = names(colors_list_for_regions), pattern = " ", replacement = "_")
 
 # GGplot
-pdf(file = "./outputs/RISR/RISR_clades_nb_per_threshold_per_Regions.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_nb_per_threshold_per_Regions.pdf", height = 8, width = 12)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_nb_per_threshold_per_Regions.pdf", height = 8, width = 12)
 
 RISR_clades_nbs_per_threshold_per_Regions_plot <- ggplot(data = RISR_clades_per_threshold_df) +
   
@@ -800,7 +822,8 @@ RISR_clades_nbs_per_threshold_per_Regions_plot <- ggplot(data = RISR_clades_per_
             linewidth = 2.0) +
   
   # Add vertical lines for selected thresholds
-  geom_vline(xintercept = 80, linewidth = 1.5, linetype = "solid", col = "red") +
+  # geom_vline(xintercept = 80, linewidth = 1.5, linetype = "solid", col = "red") +
+  geom_vline(xintercept = 75, linewidth = 1.5, linetype = "solid", col = "red") +
   geom_vline(xintercept = 95, linewidth = 1.5, linetype = "dashed", col = "red") +
 
   # Adjust color scheme and legend
@@ -847,8 +870,8 @@ dev.off()
 ### 2.7/ Plot proportion of tips included per endemicity threshold ####
 
 # Set color scheme for regions
-colors_list_for_areas <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_areas_light.rds")
-bioregion_names <- c("Afrotropics", "Australasia", "Eastern Palearctic", "Indomalaya", "Nearctic", "Neotropics",  "Western Palearctic")
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
+bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 names(colors_list_for_areas) <- bioregion_names
 colors_list_for_regions <- colors_list_for_areas[c("Afrotropics", "Australasia", "Indomalaya", "Neotropics")]
 colors_list_for_regions <- c(colors_list_for_regions, "black", "peachpuff2", "mediumpurple2", "grey")
@@ -857,7 +880,8 @@ names(colors_list_for_regions)[5:8] <- c("all Bioregions", "New World", "Old Wor
 region_breaks <- str_replace(string = names(colors_list_for_regions), pattern = " ", replacement = "_")
 
 # GGplot
-pdf(file = "./outputs/RISR/RISR_tips_prop_per_threshold_per_Regions.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_tips_prop_per_threshold_per_Regions.pdf", height = 8, width = 12)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_tips_prop_per_threshold_per_Regions.pdf", height = 8, width = 12)
 
 RISR_tips_prop_per_threshold_per_Regions_plot <- ggplot(data = RISR_clades_per_threshold_df) +
   
@@ -866,7 +890,8 @@ RISR_tips_prop_per_threshold_per_Regions_plot <- ggplot(data = RISR_clades_per_t
             linewidth = 2.0) +
   
   # Add vertical lines for selected thresholds
-  geom_vline(xintercept = 80, linewidth = 1.5, linetype = "solid", col = "red") +
+  # geom_vline(xintercept = 80, linewidth = 1.5, linetype = "solid", col = "red") +
+  geom_vline(xintercept = 75, linewidth = 1.5, linetype = "solid", col = "red") +
   geom_vline(xintercept = 95, linewidth = 1.5, linetype = "dashed", col = "red") +
   
   # Adjust color scheme and legend
@@ -911,23 +936,44 @@ print(RISR_tips_prop_per_threshold_per_Regions_plot)
 dev.off()
 
 
-## Conclusion: Use a 80% endemicity threshold!
+## Conclusion: Use a 75% endemicity threshold!
 
-RISR_clades_per_threshold_df[as.character(RISR_clades_per_threshold_df$endemicity_threshold) == "0.8", ]
+RISR_clades_per_threshold_df[as.character(RISR_clades_per_threshold_df$endemicity_threshold) == "0.75", ]
+RISR_clades_per_threshold_df[as.character(RISR_clades_per_threshold_df$endemicity_threshold) == "0.95", ]
 
-## Total bioregions: 47
-# 16 Afrotropics
-# 8 Australasia
-# 15 Indomalaya
-# 8 Neotropics
+# ## For rough phylogeny 
+# 
+# ## Total bioregions: 47 with 80% endemicity
+# # 16 Afrotropics
+# # 8 Australasia
+# # 15 Indomalaya
+# # 8 Neotropics
+# 
+# ## Total independent OW vs. NW: 16 with 95% endemicity
+# # 11 Old World
+# # 5 New World
+# 
+# ## Total aggregated OW vs. NW: 47 with 80% endemicity
+# # 41 Old World
+# # 8 New World
 
-## Total independent OW vs. NW: 16
-# 11 Old World
+## For MCC phylogeny 
+
+## Total bioregions: 31 with 75% endemicity
+# 9 Afrotropics
+# 5 Australasia
+# 12 Indomalaya
+# 5 Neotropics
+
+## Total independent OW vs. NW: 16 / 34
+# 11 Old World for 75% endemicity
+# 5 New World for 75% endemicity
+# 24 Old World for 95% endemicity
+# 10 New World for 95% endemicity
+
+## Total aggregated OW vs. NW: 31 with 75% endemicity
+# 26 Old World
 # 5 New World
-
-## Total aggregated OW vs. NW: 47
-# 41 Old World
-# 8 New World
 
 
 ##### 3/ Fit time-dependent BD models #####
@@ -935,17 +981,21 @@ RISR_clades_per_threshold_df[as.character(RISR_clades_per_threshold_df$endemicit
 ?diversitree::make.bd.t # For time-dependent BD models
 
 # Load metadata df of RISR clades per endemicity threshold per Bioregions
-RISR_clades_for_Bioregions_df <- readRDS(file = "./outputs/RISR/RISR_clades_for_Bioregions_df.rds")
+# RISR_clades_for_Bioregions_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Bioregions_df.rds")
+RISR_clades_for_Bioregions_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Bioregions_df.rds")
 
 # Load metadata df of RISR clades per endemicity threshold for Old World vs. New World
-RISR_clades_for_OW_NW_df <- readRDS(file = "./outputs/RISR/RISR_clades_for_OW_NW_df.rds")
+# RISR_clades_for_OW_NW_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_OW_NW_df.rds")
+RISR_clades_for_OW_NW_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_OW_NW_df.rds")
 
 # Define selected threshold
-selected_endemicity_threshold_Bioregions <- 0.80 # For Bioregions (and aggregated OW/NW)
+#selected_endemicity_threshold_Bioregions <- 0.80 # For Bioregions (and aggregated OW/NW)
+selected_endemicity_threshold_Bioregions <- 0.75 # For Bioregions (and aggregated OW/NW)
 selected_endemicity_threshold_OW_NW <- 0.95 # For independent OW/NW
 
 # Extract RISR for the selected threshold for Bioregions
-RISR_clades_for_Bioregions_0.80_df <- RISR_clades_for_Bioregions_df %>% 
+# RISR_clades_for_Bioregions_0.80_df <- RISR_clades_for_Bioregions_df %>% 
+RISR_clades_for_Bioregions_0.75_df <- RISR_clades_for_Bioregions_df %>% 
   filter(as.character(endemicity_threshold) == as.character(selected_endemicity_threshold_Bioregions))
 
 # Extract RISR for the selected threshold for Old World vs. New World
@@ -957,27 +1007,43 @@ RISR_clades_for_OW_NW_0.95_df <- RISR_clades_for_OW_NW_df %>%
 
 ## With diversitree in ML
 
+# # Initiate variables for model parameters
+# RISR_clades_for_Bioregions_0.80_df$lambda_0 <- NA
+# RISR_clades_for_Bioregions_0.80_df$alpha <- NA
+# RISR_clades_for_Bioregions_0.80_df$mu <- NA
+# RISR_clades_for_Bioregions_0.80_df$net_div_0 <- NA
+# RISR_clades_for_Bioregions_0.80_df$lambda_current <- NA
+# RISR_clades_for_Bioregions_0.80_df$net_div_current <- NA
+# RISR_clades_for_Bioregions_0.80_df$BD_AICc <- NA
+# RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_AICc <- NA
+# RISR_clades_for_Bioregions_0.80_df$BD_Akaike_w <- NA
+# RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_Akaike_w <- NA
+
 # Initiate variables for model parameters
-RISR_clades_for_Bioregions_0.80_df$lambda_0 <- NA
-RISR_clades_for_Bioregions_0.80_df$alpha <- NA
-RISR_clades_for_Bioregions_0.80_df$mu <- NA
-RISR_clades_for_Bioregions_0.80_df$net_div_0 <- NA
-RISR_clades_for_Bioregions_0.80_df$lambda_current <- NA
-RISR_clades_for_Bioregions_0.80_df$net_div_current <- NA
-RISR_clades_for_Bioregions_0.80_df$BD_AICc <- NA
-RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_AICc <- NA
-RISR_clades_for_Bioregions_0.80_df$BD_Akaike_w <- NA
-RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_Akaike_w <- NA
+RISR_clades_for_Bioregions_0.75_df$lambda_0 <- NA
+RISR_clades_for_Bioregions_0.75_df$alpha <- NA
+RISR_clades_for_Bioregions_0.75_df$mu <- NA
+RISR_clades_for_Bioregions_0.75_df$net_div_0 <- NA
+RISR_clades_for_Bioregions_0.75_df$lambda_current <- NA
+RISR_clades_for_Bioregions_0.75_df$net_div_current <- NA
+RISR_clades_for_Bioregions_0.75_df$BD_AICc <- NA
+RISR_clades_for_Bioregions_0.75_df$BD_lambda_var_AICc <- NA
+RISR_clades_for_Bioregions_0.75_df$BD_Akaike_w <- NA
+RISR_clades_for_Bioregions_0.75_df$BD_lambda_var_Akaike_w <- NA
+
 
 ## Loop per RISR clades
 
-for (i in 1:nrow(RISR_clades_for_Bioregions_0.80_df))
+# for (i in 1:nrow(RISR_clades_for_Bioregions_0.80_df))
+for (i in 1:nrow(RISR_clades_for_Bioregions_0.75_df))
 {
   # i <- 1
   
   # Extract the RISR root nodes
-  node_i <- RISR_clades_for_Bioregions_0.80_df$node[i]
-  bioregion_i <- RISR_clades_for_Bioregions_0.80_df$Region[i]
+  # node_i <- RISR_clades_for_Bioregions_0.80_df$node[i]
+  # bioregion_i <- RISR_clades_for_Bioregions_0.80_df$Region[i]
+  node_i <- RISR_clades_for_Bioregions_0.75_df$node[i]
+  bioregion_i <- RISR_clades_for_Bioregions_0.75_df$Region[i]
   
   # Extract RISR clade from the phylogeny
   phylo_i <- ape::extract.clade(phy = Ponerinae_phylogeny_1534t_treedata@phylo, node = node_i)
@@ -994,7 +1060,8 @@ for (i in 1:nrow(RISR_clades_for_Bioregions_0.80_df))
   # BD_MLE
   
   # Save constant BD model output
-  saveRDS(object = BD_MLE, file = paste0("./outputs/RISR/model_fits/BD_MLE_Bioregions_node_",node_i,".rds"))
+  # saveRDS(object = BD_MLE, file = paste0("./outputs/RISR/Ponerinae_rough_phylogeny_1534t/model_fits/BD_MLE_Bioregions_node_",node_i,".rds"))
+  saveRDS(object = BD_MLE, file = paste0("./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/model_fits/BD_MLE_Bioregions_node_",node_i,".rds"))
   
   # Step 3: Make time-dependent BD likelihood function
   BD_lambda_var_Lk_fn <- make.bd.t(tree = phylo_i,
@@ -1009,7 +1076,8 @@ for (i in 1:nrow(RISR_clades_for_Bioregions_0.80_df))
   # BD_lambda_var_MLE
   
   # Save model output
-  saveRDS(object = BD_lambda_var_MLE, file = paste0("./outputs/RISR/model_fits/BD_lambda_var_MLE_Bioregions_node_",node_i,".rds"))
+  # saveRDS(object = BD_lambda_var_MLE, file = paste0("./outputs/RISR/Ponerinae_rough_phylogeny_1534t/model_fits/BD_lambda_var_MLE_Bioregions_node_",node_i,".rds"))
+  saveRDS(object = BD_lambda_var_MLE, file = paste0("./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/model_fits/BD_lambda_var_MLE_Bioregions_node_",node_i,".rds"))
   
   # Extract MLE of parameters from our fitted model
   lambda_0 <- BD_lambda_var_MLE$par[1]
@@ -1018,17 +1086,26 @@ for (i in 1:nrow(RISR_clades_for_Bioregions_0.80_df))
   net_div_0 <- lambda_0 - mu
     
   # Compute current rates
-  clade_age <- RISR_clades_for_Bioregions_0.80_df$node_age[i]
+  # clade_age <- RISR_clades_for_Bioregions_0.80_df$node_age[i]
+  clade_age <- RISR_clades_for_Bioregions_0.75_df$node_age[i]
   lambda_current <- lambda_0 * exp(-alpha * clade_age)
   net_div_current <- lambda_current - mu
   
+  # # Store parameters
+  # RISR_clades_for_Bioregions_0.80_df$lambda_0[i] <- lambda_0
+  # RISR_clades_for_Bioregions_0.80_df$alpha[i] <- -alpha # Record as positive alpha = increasing rates ; negative alpha = decaying rates
+  # RISR_clades_for_Bioregions_0.80_df$mu[i] <- mu
+  # RISR_clades_for_Bioregions_0.80_df$net_div_0[i] <- net_div_0
+  # RISR_clades_for_Bioregions_0.80_df$lambda_current[i] <- lambda_current
+  # RISR_clades_for_Bioregions_0.80_df$net_div_current[i] <- net_div_current
+  
   # Store parameters
-  RISR_clades_for_Bioregions_0.80_df$lambda_0[i] <- lambda_0
-  RISR_clades_for_Bioregions_0.80_df$alpha[i] <- -alpha # Record as positive alpha = increasing rates ; negative alpha = decaying rates
-  RISR_clades_for_Bioregions_0.80_df$mu[i] <- mu
-  RISR_clades_for_Bioregions_0.80_df$net_div_0[i] <- net_div_0
-  RISR_clades_for_Bioregions_0.80_df$lambda_current[i] <- lambda_current
-  RISR_clades_for_Bioregions_0.80_df$net_div_current[i] <- net_div_current
+  RISR_clades_for_Bioregions_0.75_df$lambda_0[i] <- lambda_0
+  RISR_clades_for_Bioregions_0.75_df$alpha[i] <- -alpha # Record as positive alpha = increasing rates ; negative alpha = decaying rates
+  RISR_clades_for_Bioregions_0.75_df$mu[i] <- mu
+  RISR_clades_for_Bioregions_0.75_df$net_div_0[i] <- net_div_0
+  RISR_clades_for_Bioregions_0.75_df$lambda_current[i] <- lambda_current
+  RISR_clades_for_Bioregions_0.75_df$net_div_current[i] <- net_div_current
   
   ## Plot estimated lambda parameter though time
   
@@ -1040,7 +1117,9 @@ for (i in 1:nrow(RISR_clades_for_Bioregions_0.80_df))
   mu_t <- rep(mu, length(time_scale))
   max_rates <- max(lambda_t, mu_t)
   
-  pdf(file = paste0("./outputs/RISR/model_fits/BD_lambda_var_MLE_Bioregions_node_",node_i,".pdf"), width = 8, height = 6)
+  # pdf(file = paste0("./outputs/RISR/Ponerinae_rough_phylogeny_1534t/model_fits/BD_lambda_var_MLE_Bioregions_node_",node_i,".pdf"), width = 8, height = 6)
+  pdf(file = paste0("./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/model_fits/BD_lambda_var_MLE_Bioregions_node_",node_i,".pdf"), width = 8, height = 6)
+  
   # Set plotting parameters
   par(mar = c(5.1, 5.1, 2.6, 2.1))
   # Plot curves from the fitted model
@@ -1056,6 +1135,7 @@ for (i in 1:nrow(RISR_clades_for_Bioregions_0.80_df))
          legend = c(expression(paste("speciation (",lambda,")")),
                     expression(paste("extinction (",mu,")"))),
          cex = 0.8, bty = "n")
+  
   dev.off()
   
   ## Compare model fits
@@ -1083,19 +1163,27 @@ for (i in 1:nrow(RISR_clades_for_Bioregions_0.80_df))
   # Display result
   models_comparison
   
+  # # Store model comparison results
+  # RISR_clades_for_Bioregions_0.80_df$BD_AICc[i] <- models_comparison$AICc[1]
+  # RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_AICc[i] <- models_comparison$AICc[2]
+  # RISR_clades_for_Bioregions_0.80_df$BD_Akaike_w[i] <- models_comparison$Akaike_weights[1]
+  # RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_Akaike_w[i] <- models_comparison$Akaike_weights[2]
+  
   # Store model comparison results
-  RISR_clades_for_Bioregions_0.80_df$BD_AICc[i] <- models_comparison$AICc[1]
-  RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_AICc[i] <- models_comparison$AICc[2]
-  RISR_clades_for_Bioregions_0.80_df$BD_Akaike_w[i] <- models_comparison$Akaike_weights[1]
-  RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_Akaike_w[i] <- models_comparison$Akaike_weights[2]
+  RISR_clades_for_Bioregions_0.75_df$BD_AICc[i] <- models_comparison$AICc[1]
+  RISR_clades_for_Bioregions_0.75_df$BD_lambda_var_AICc[i] <- models_comparison$AICc[2]
+  RISR_clades_for_Bioregions_0.75_df$BD_Akaike_w[i] <- models_comparison$Akaike_weights[1]
+  RISR_clades_for_Bioregions_0.75_df$BD_lambda_var_Akaike_w[i] <- models_comparison$Akaike_weights[2]
   
   # Print progress
-  cat(paste0(Sys.time(), " - Time-dependent BD models fit for RISR clades identified for Bioregions - n° ", i, "/", nrow(RISR_clades_for_Bioregions_0.80_df),"\n"))
+  # cat(paste0(Sys.time(), " - Time-dependent BD models fit for RISR clades identified for Bioregions - n° ", i, "/", nrow(RISR_clades_for_Bioregions_0.80_df),"\n"))
+  cat(paste0(Sys.time(), " - Time-dependent BD models fit for RISR clades identified for Bioregions - n° ", i, "/", nrow(RISR_clades_for_Bioregions_0.75_df),"\n"))
   
 }
 
 # Save metadata df of RISR clades per Bioregions for the selected endemicity threshold
-saveRDS(object = RISR_clades_for_Bioregions_0.80_df, file = "./outputs/RISR/RISR_clades_for_Bioregions_0.80_df.rds")
+# saveRDS(object = RISR_clades_for_Bioregions_0.80_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Bioregions_0.80_df.rds")
+saveRDS(object = RISR_clades_for_Bioregions_0.75_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Bioregions_0.75_df.rds")
 
 
 ### 3.2/ Fit time-dependent BD models for RISR clades for Old World vs. New World ####
@@ -1139,7 +1227,8 @@ for (i in 1:nrow(RISR_clades_for_OW_NW_0.95_df))
   # BD_MLE
   
   # Save constant BD model output
-  saveRDS(object = BD_MLE, file = paste0("./outputs/RISR/model_fits/BD_MLE_OW_NW_node_",node_i,".rds"))
+  # saveRDS(object = BD_MLE, file = paste0("./outputs/RISR/Ponerinae_rough_phylogeny_1534t/model_fits/BD_MLE_OW_NW_node_",node_i,".rds"))
+  saveRDS(object = BD_MLE, file = paste0("./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/model_fits/BD_MLE_OW_NW_node_",node_i,".rds"))
   
   # Step 3: Make time-dependent BD likelihood function
   BD_lambda_var_Lk_fn <- make.bd.t(tree = phylo_i,
@@ -1154,7 +1243,8 @@ for (i in 1:nrow(RISR_clades_for_OW_NW_0.95_df))
   # BD_lambda_var_MLE
   
   # Save model output
-  saveRDS(object = BD_lambda_var_MLE, file = paste0("./outputs/RISR/model_fits/BD_lambda_var_MLE_OW_NW_node_",node_i,".rds"))
+  # saveRDS(object = BD_lambda_var_MLE, file = paste0("./outputs/RISR/Ponerinae_rough_phylogeny_1534t/model_fits/BD_lambda_var_MLE_OW_NW_node_",node_i,".rds"))
+  saveRDS(object = BD_lambda_var_MLE, file = paste0("./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/model_fits/BD_lambda_var_MLE_OW_NW_node_",node_i,".rds"))
   
   # Extract MLE of parameters from our fitted model
   lambda_0 <- BD_lambda_var_MLE$par[1]
@@ -1185,7 +1275,9 @@ for (i in 1:nrow(RISR_clades_for_OW_NW_0.95_df))
   mu_t <- rep(mu, length(time_scale))
   max_rates <- max(lambda_t, mu_t)
   
-  pdf(file = paste0("./outputs/RISR/model_fits/BD_lambda_var_MLE_OW_NW_node_",node_i,".pdf"), width = 8, height = 6)
+  # pdf(file = paste0("./outputs/RISR/Ponerinae_rough_phylogeny_1534t/model_fits/BD_lambda_var_MLE_OW_NW_node_",node_i,".pdf"), width = 8, height = 6)
+  pdf(file = paste0("./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/model_fits/BD_lambda_var_MLE_OW_NW_node_",node_i,".pdf"), width = 8, height = 6)
+  
   # Set plotting parameters
   par(mar = c(5.1, 5.1, 2.6, 2.1))
   # Plot curves from the fitted model
@@ -1201,6 +1293,7 @@ for (i in 1:nrow(RISR_clades_for_OW_NW_0.95_df))
          legend = c(expression(paste("speciation (",lambda,")")),
                     expression(paste("extinction (",mu,")"))),
          cex = 0.8, bty = "n")
+  
   dev.off()
   
   ## Compare model fits
@@ -1240,7 +1333,8 @@ for (i in 1:nrow(RISR_clades_for_OW_NW_0.95_df))
 }
 
 # Save metadata df of RISR clades for Old World vs. New World for the selected endemicity threshold
-saveRDS(object = RISR_clades_for_OW_NW_0.95_df, file = "./outputs/RISR/RISR_clades_for_OW_NW_0.95_df.rds")
+# saveRDS(object = RISR_clades_for_OW_NW_0.95_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_OW_NW_0.95_df.rds")
+saveRDS(object = RISR_clades_for_OW_NW_0.95_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_OW_NW_0.95_df.rds")
 
 
 ##### 4/ Compare fits of models ####
@@ -1249,21 +1343,25 @@ saveRDS(object = RISR_clades_for_OW_NW_0.95_df, file = "./outputs/RISR/RISR_clad
 
 ## Count relative frequency of EB selection as the best fit
 
-Constant_count <- sum(RISR_clades_for_Bioregions_0.80_df$BD_Akaike_w > RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_Akaike_w)
-Decaying_count <- sum(RISR_clades_for_Bioregions_0.80_df$alpha[RISR_clades_for_Bioregions_0.80_df$BD_Akaike_w <= RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_Akaike_w] <= 0)
-Growth_count <- sum(RISR_clades_for_Bioregions_0.80_df$alpha[RISR_clades_for_Bioregions_0.80_df$BD_Akaike_w <= RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_Akaike_w] > 0)
+# Constant_count <- sum(RISR_clades_for_Bioregions_0.80_df$BD_Akaike_w > RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_Akaike_w)
+# Decaying_count <- sum(RISR_clades_for_Bioregions_0.80_df$alpha[RISR_clades_for_Bioregions_0.80_df$BD_Akaike_w <= RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_Akaike_w] <= 0)
+# Growth_count <- sum(RISR_clades_for_Bioregions_0.80_df$alpha[RISR_clades_for_Bioregions_0.80_df$BD_Akaike_w <= RISR_clades_for_Bioregions_0.80_df$BD_lambda_var_Akaike_w] > 0)
+Constant_count <- sum(RISR_clades_for_Bioregions_0.75_df$BD_Akaike_w > RISR_clades_for_Bioregions_0.75_df$BD_lambda_var_Akaike_w)
+Decaying_count <- sum(RISR_clades_for_Bioregions_0.75_df$alpha[RISR_clades_for_Bioregions_0.75_df$BD_Akaike_w <= RISR_clades_for_Bioregions_0.75_df$BD_lambda_var_Akaike_w] <= 0)
+Growth_count <- sum(RISR_clades_for_Bioregions_0.75_df$alpha[RISR_clades_for_Bioregions_0.75_df$BD_Akaike_w <= RISR_clades_for_Bioregions_0.75_df$BD_lambda_var_Akaike_w] > 0)
+
 
 RISR_clades_for_Bioregions_model_comparison_df <- data.frame(model_type = c("Constant", "Decaying", "Growth"),
                                                              counts = c(Constant_count, Decaying_count, Growth_count))
 RISR_clades_for_Bioregions_model_comparison_df
 
-## Khi² goodness of fit test
+## Khi² goodness of fit test for equal probabilities
 
 RISR_clades_for_Bioregions_model_comparison_chisq_test <- chisq.test(x = RISR_clades_for_Bioregions_model_comparison_df$counts)
 
 RISR_clades_for_Bioregions_model_comparison_chisq_test
-RISR_clades_for_Bioregions_model_comparison_chisq_test$statistic # Khi² = 66.4
-RISR_clades_for_Bioregions_model_comparison_chisq_test$p.value # p < 0.001
+RISR_clades_for_Bioregions_model_comparison_chisq_test$statistic # Khi² = 8.58
+RISR_clades_for_Bioregions_model_comparison_chisq_test$p.value # p = 0.014
 khi_Q95 <- qchisq(p = 0.95, df = RISR_clades_for_Bioregions_model_comparison_chisq_test$parameter) ; khi_Q95  # Q95% = 5.99
 
 ## Bar plot
@@ -1273,7 +1371,8 @@ model_types <- c("Decaying", "Constant", "Growth")
 RISR_clades_for_Bioregions_model_comparison_df$model_type <- factor(x = RISR_clades_for_Bioregions_model_comparison_df$model_type, levels = model_types, labels = model_types)
 
 # GGplot
-pdf(file = "./outputs/RISR/RISR_for_Bioregions_model_comparison_barplot.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_Bioregions_model_comparison_barplot.pdf", height = 6, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_Bioregions_model_comparison_barplot.pdf", height = 6, width = 8)
 
 RISR_for_Bioregions_model_comparison_barplot <- ggplot(data = RISR_clades_for_Bioregions_model_comparison_df) +
   
@@ -1352,8 +1451,8 @@ RISR_clades_for_OW_NW_model_comparison_df
 RISR_clades_for_OW_NW_model_comparison_chisq_test <- chisq.test(x = RISR_clades_for_OW_NW_model_comparison_df$counts)
 
 RISR_clades_for_OW_NW_model_comparison_chisq_test
-RISR_clades_for_OW_NW_model_comparison_chisq_test$statistic # Khi² = 34.16
-RISR_clades_for_OW_NW_model_comparison_chisq_test$p.value # p < 0.001
+RISR_clades_for_OW_NW_model_comparison_chisq_test$statistic # Khi² = 12.8
+RISR_clades_for_OW_NW_model_comparison_chisq_test$p.value # p = 0.002
 khi_Q95 <- qchisq(p = 0.95, df = RISR_clades_for_OW_NW_model_comparison_chisq_test$parameter) ; khi_Q95  # Q95% = 5.99
 
 ## Bar plot
@@ -1363,7 +1462,8 @@ model_types <- c("Decaying", "Constant", "Growth")
 RISR_clades_for_OW_NW_model_comparison_df$model_type <- factor(x = RISR_clades_for_OW_NW_model_comparison_df$model_type, levels = model_types, labels = model_types)
 
 # GGplot
-pdf(file = "./outputs/RISR/RISR_for_OW_NW_model_comparison_barplot.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_OW_NW_model_comparison_barplot.pdf", height = 6, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_OW_NW_model_comparison_barplot.pdf", height = 6, width = 8)
 
 RISR_for_OW_NW_model_comparison_barplot <- ggplot(data = RISR_clades_for_OW_NW_model_comparison_df) +
   
@@ -1428,31 +1528,36 @@ dev.off()
 ##### 5/ Compare model parameters of RISR per Bioregions #####
 
 # Load metadata df of RISR clades per Bioregions for the selected endemicity threshold
-RISR_clades_for_Bioregions_0.80_df <- readRDS(file = "./outputs/RISR/RISR_clades_for_Bioregions_0.80_df.rds")
+# RISR_clades_for_Bioregions_0.80_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Bioregions_0.80_df.rds")
+RISR_clades_for_Bioregions_0.75_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Bioregions_0.75_df.rds")
 
 # Set color scheme for Bioregions
-colors_list_for_areas <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_areas_light.rds")
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 names(colors_list_for_areas) <- bioregion_names
 colors_list_for_bioregions <- colors_list_for_areas[c("Afrotropics", "Australasia", "Indomalaya", "Neotropics")]
 
 # Reorder Bioregions
-RISR_clades_for_Bioregions_0.80_df$Region <- factor(x = RISR_clades_for_Bioregions_0.80_df$Region, levels = names(colors_list_for_bioregions), labels = names(colors_list_for_bioregions))
+# RISR_clades_for_Bioregions_0.80_df$Region <- factor(x = RISR_clades_for_Bioregions_0.80_df$Region, levels = names(colors_list_for_bioregions), labels = names(colors_list_for_bioregions))
+RISR_clades_for_Bioregions_0.75_df$Region <- factor(x = RISR_clades_for_Bioregions_0.75_df$Region, levels = names(colors_list_for_bioregions), labels = names(colors_list_for_bioregions))
 
 ### 5.1/ Plot current richness ~ Bioregions ####
 
 ## Overall Kruskal-Wallis test
 
-RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.80_df$nb_descendant_tips,
-                                                        g = RISR_clades_for_Bioregions_0.80_df$Region)
+# RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.80_df$nb_descendant_tips,
+#                                                         g = RISR_clades_for_Bioregions_0.80_df$Region)
+RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.75_df$nb_descendant_tips,
+                                                        g = RISR_clades_for_Bioregions_0.75_df$Region)
 RISR_clades_for_Bioregions_kruskal_test
-RISR_clades_for_Bioregions_kruskal_test$statistic # Khi² = 1.20
-RISR_clades_for_Bioregions_kruskal_test$p.value # p = 0.753
+RISR_clades_for_Bioregions_kruskal_test$statistic # Khi² = 11.76
+RISR_clades_for_Bioregions_kruskal_test$p.value # p = 0.008
 khi_Q95 <- qchisq(p = 0.95, df = RISR_clades_for_Bioregions_kruskal_test$parameter) ; khi_Q95  # Q95% = 7.81
 
 ## Pairwise Mann-Whitney tests
 
-bioregion_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Region)
+# bioregion_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Region)
+bioregion_levels <- levels(RISR_clades_for_Bioregions_0.75_df$Region)
 pairwise_bioregion_levels <- t(combn(x = bioregion_levels, m = 2))
 pairwise_bioregion_indices <- t(combn(x = 1:length(bioregion_levels), m = 2))
 pairwise_bioregion_list <- split(pairwise_bioregion_indices, row(pairwise_bioregion_indices))
@@ -1467,9 +1572,13 @@ for (i in 1:nrow(pairwise_bioregion_levels))
   bioregion_1 <- pairwise_bioregion_levels[i, 1]
   bioregion_2 <- pairwise_bioregion_levels[i, 2]
   
-  wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.80_df$nb_descendant_tips[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_1],
-                               y = RISR_clades_for_Bioregions_0.80_df$nb_descendant_tips[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_2],
+  # wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.80_df$nb_descendant_tips[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_1],
+  #                              y = RISR_clades_for_Bioregions_0.80_df$nb_descendant_tips[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_2],
+  #                              alternative = "two.sided")
+  wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.75_df$nb_descendant_tips[RISR_clades_for_Bioregions_0.75_df$Region == bioregion_1],
+                               y = RISR_clades_for_Bioregions_0.75_df$nb_descendant_tips[RISR_clades_for_Bioregions_0.75_df$Region == bioregion_2],
                                alternative = "two.sided")
+  
   
   RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests[[i]] <- wilcox_test_i
   names(RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests)[i] <- paste0("Wilcox_test_", bioregion_1, "_", bioregion_2)
@@ -1478,33 +1587,53 @@ for (i in 1:nrow(pairwise_bioregion_levels))
 RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests
 
 # Detect significant pairwise tests
+pairwise_p_values <- unlist(lapply(X = RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests, FUN = function (x) { x$p.value } ))
 pairwise_signif <- unlist(lapply(X = RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests, FUN = function (x) { x$p.value < 0.1 } ))
-pairwise_signif
-# No significant pairwise differences
-  
-## GGplot
-pdf(file = "./outputs/RISR/RISR_for_Bioregions_current_richness_boxplot.pdf", height = 6, width = 8)
+pairwise_p_values_signif <- round(pairwise_p_values[pairwise_signif], 3)
 
-RISR_for_Bioregions_current_richness_boxplot <- ggplot(data = RISR_clades_for_Bioregions_0.80_df,
+# Transform into letter groups
+names(pairwise_signif) <- str_remove(string = names(pairwise_signif), pattern = "Wilcox_test_")
+names(pairwise_signif) <- str_replace(string = names(pairwise_signif), pattern = "_", replacement = "-")
+letter_groups <- multcompView::multcompLetters(x = pairwise_signif)
+letter_groups_df <- data.frame(Bioregion = names(letter_groups$Letters), letters = letter_groups$Letters)
+# letter_groups_df <- RISR_clades_for_Bioregions_0.80_df %>% 
+letter_groups_df <- RISR_clades_for_Bioregions_0.75_df %>% 
+  group_by(Region) %>% 
+  summarize(quant_75 = quantile(nb_descendant_tips, probs = 0.75)) %>%
+  left_join(y = letter_groups_df, by = join_by(Region == Bioregion))
+
+# Two significant pairwise differences in two groups: (Afrotropics) vs. (Australasia, Indomalaya)
+
+## GGplot
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_Bioregions_current_richness_boxplot.pdf", height = 6, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_Bioregions_current_richness_boxplot.pdf", height = 6, width = 8)
+
+RISR_for_Bioregions_current_richness_boxplot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                       data = RISR_clades_for_Bioregions_0.75_df,
                                                        mapping = aes(y = nb_descendant_tips, x = Region)) +
   
   geom_boxplot(mapping = aes(y = nb_descendant_tips, x = Region, fill = Region),
                col = "black", alpha = 1.0, show.legend = F) +
   
-  # Add pairwise comparisons
-  ggpubr::stat_compare_means(method = "wilcox.test", p.adjust.method = "none",
-                             comparisons = pairwise_bioregion_list[pairwise_signif],
-                             hide.ns = TRUE,
-                             label = NULL,  label.x = NULL, label.y = NULL) +
+  # # Add pairwise comparisons
+  # ggpubr::stat_compare_means(method = "wilcox.test", p.adjust.method = "none",
+  #                            comparisons = pairwise_bioregion_list[pairwise_signif],
+  #                            hide.ns = TRUE,
+  #                            label = NULL,  label.x = NULL, label.y = NULL) +
+  
+  # Add group letters
+  geom_text(data = letter_groups_df,
+            mapping = aes(label = letters, y = quant_75, x = Region),
+            vjust = -1, hjust = c(-2.2, -2, -2, -2.0), size = 7, fontface = "bold") +
   
   # Adjust fill scheme and legend
   scale_fill_manual("Bioregion", breaks = names(colors_list_for_bioregions), labels = names(colors_list_for_bioregions), values = colors_list_for_bioregions) +
   
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 155, label = "Kruskal-Wallis test",
+  annotate(geom = "text", x = 0.55, y = 160, label = "Kruskal-Wallis test",
            hjust = 0, fontface = "bold", size = 5) +
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 145,
+  annotate(geom = "text", x = 0.55, y = 150,
            label = paste0("Khi² = ", format(x = round(RISR_clades_for_Bioregions_kruskal_test$statistic, 2), nsmall = 2), "\n",
                           "Q95 = ",  format(round(khi_Q95, 2), nsmall = 2), "\n",
                           "p = ", format(round(RISR_clades_for_Bioregions_kruskal_test$p.value, 3), nsmall = 3)),
@@ -1541,16 +1670,20 @@ dev.off()
 
 ## Overall Kruskal-Wallis test
 
-RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.80_df$node_age,
-                                                        g = RISR_clades_for_Bioregions_0.80_df$Region)
+# RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.80_df$node_age,
+#                                                         g = RISR_clades_for_Bioregions_0.80_df$Region)
+RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.75_df$node_age,
+                                                        g = RISR_clades_for_Bioregions_0.75_df$Region)
+
 RISR_clades_for_Bioregions_kruskal_test
-RISR_clades_for_Bioregions_kruskal_test$statistic # Khi² = 5.38
-RISR_clades_for_Bioregions_kruskal_test$p.value # p = 0.146
+RISR_clades_for_Bioregions_kruskal_test$statistic # Khi² = 10.03
+RISR_clades_for_Bioregions_kruskal_test$p.value # p = 0.018
 khi_Q95 <- qchisq(p = 0.95, df = RISR_clades_for_Bioregions_kruskal_test$parameter) ; khi_Q95  # Q95% = 7.81
 
 ## Pairwise Mann-Whitney tests
 
-bioregion_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Region)
+# bioregion_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Region)
+bioregion_levels <- levels(RISR_clades_for_Bioregions_0.75_df$Region)
 pairwise_bioregion_levels <- t(combn(x = bioregion_levels, m = 2))
 
 RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests <- list()
@@ -1562,10 +1695,13 @@ for (i in 1:nrow(pairwise_bioregion_levels))
   bioregion_1 <- pairwise_bioregion_levels[i, 1]
   bioregion_2 <- pairwise_bioregion_levels[i, 2]
   
-  wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_1],
-                               y = RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_2],
+  # wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_1],
+  #                              y = RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_2],
+  #                              alternative = "two.sided")
+  wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Region == bioregion_1],
+                               y = RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Region == bioregion_2],
                                alternative = "two.sided")
-  
+
   RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests[[i]] <- wilcox_test_i
   names(RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests)[i] <- paste0("Wilcox_test_", bioregion_1, "_", bioregion_2)
 }
@@ -1577,13 +1713,26 @@ pairwise_p_values <- unlist(lapply(X = RISR_clades_for_Bioregions_pairwise_Mann_
 pairwise_signif <- unlist(lapply(X = RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests, FUN = function (x) { x$p.value < 0.1 } ))
 pairwise_p_values_signif <- round(pairwise_p_values[pairwise_signif], 3)
 
-# Two slightly significant pairwise differences
+# Transform into letter groups
+names(pairwise_signif) <- str_remove(string = names(pairwise_signif), pattern = "Wilcox_test_")
+names(pairwise_signif) <- str_replace(string = names(pairwise_signif), pattern = "_", replacement = "-")
+letter_groups <- multcompView::multcompLetters(x = pairwise_signif)
+letter_groups_df <- data.frame(Bioregion = names(letter_groups$Letters), letters = letter_groups$Letters)
+# letter_groups_df <- RISR_clades_for_Bioregions_0.80_df %>% 
+letter_groups_df <- RISR_clades_for_Bioregions_0.75_df %>% 
+  group_by(Region) %>% 
+  summarize(quant_75 = quantile(node_age, probs = 0.75)) %>%
+  left_join(y = letter_groups_df, by = join_by(Region == Bioregion))
+  
+# Four significant pairwise differences in two groups: (Afrotropics, Neotropics) vs. (Australasia, Indomalaya)
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_Bioregions_crown_age_boxplot.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_Bioregions_crown_age_boxplot.pdf", height = 6, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_Bioregions_crown_age_boxplot.pdf", height = 6, width = 8)
 
-RISR_for_Bioregions_crown_age_boxplot <- ggplot(data = RISR_clades_for_Bioregions_0.80_df,
+RISR_for_Bioregions_crown_age_boxplot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                data = RISR_clades_for_Bioregions_0.75_df,
                                                        aes(y = node_age, x = Region)) +
   
   geom_boxplot(mapping = aes(y = node_age, x = Region, fill = Region),
@@ -1595,26 +1744,40 @@ RISR_for_Bioregions_crown_age_boxplot <- ggplot(data = RISR_clades_for_Bioregion
   #                            bracket.size = 0.5, # label = "p.signif",
   #                            hide.ns = TRUE) +
   
-  # Add pairwise comparisons manually
-  geom_bracket(xmin = c("Afrotropics", "Australasia"), xmax = c("Australasia", "Neotropics"),
-               y.position = c(80, 120),
-               label.size = 5, size = 0.3,
-               vjust = -0.5,
-               label = pairwise_p_values_signif,
-               # label = c(".", "*"),
-               tip.length = 0.02) +
+  # # Add pairwise comparisons manually
+  # geom_bracket(# xmin = c("Afrotropics", "Australasia"), xmax = c("Australasia", "Neotropics"),
+  #              xmin = c("Afrotropics", "Afrotropics", "Australasia", "Indomalaya"), xmax = c("Australasia", "Indomalaya", "Neotropics", "Neotropics"),
+  #              # y.position = c(80, 120),
+  #              y.position = c(35, 42, 58, 67),
+  #              label.size = 4, size = 0.3,
+  #              vjust = -0.5,
+  #              # label = pairwise_p_values_signif,
+  #              label = rep("< 0.001", 4),
+  #              # label = c(".", "*"),
+  #              tip.length = 0.02) +
   
+  # Add group letters
+  geom_text(data = letter_groups_df,
+            mapping = aes(label = letters, y = quant_75, x = Region),
+            vjust = -1, hjust = -2, size = 7, fontface = "bold") +
+
   # Adjust fill scheme and legend
   scale_fill_manual("Bioregion", breaks = names(colors_list_for_bioregions), labels = names(colors_list_for_bioregions), values = colors_list_for_bioregions) +
   
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 125, label = "Kruskal-Wallis test",
+  annotate(geom = "text", x = 0.55,
+           # y = 125,
+           y = 52,
+           label = "Kruskal-Wallis test",
            hjust = 0, fontface = "bold", size = 5) +
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 115,
+  annotate(geom = "text", x = 0.55,
+           # y = 115,
+           y = 47,
            label = paste0("Khi² = ", format(round(RISR_clades_for_Bioregions_kruskal_test$statistic, 2), nsmall = 2), "\n",
                           "Q95 = ",  format(round(khi_Q95, 2), nsmall = 2), "\n",
-                          "p = ", format(round(RISR_clades_for_Bioregions_kruskal_test$p.value, 3), nsmall = 3)),
+                          # "p = ", format(round(RISR_clades_for_Bioregions_kruskal_test$p.value, 3), nsmall = 3)),
+                          "p < 0.001"),
            hjust = 0, vjust = 1, fontface = "plain", size = 5) +
   
   # Set plot title +
@@ -1648,16 +1811,20 @@ dev.off()
 
 ## Overall Kruskal-Wallis test
 
-RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.80_df$net_div_0,
-                                                        g = RISR_clades_for_Bioregions_0.80_df$Region)
+# RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.80_df$net_div_0,
+#                                                         g = RISR_clades_for_Bioregions_0.80_df$Region)
+RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.75_df$net_div_0,
+                                                        g = RISR_clades_for_Bioregions_0.75_df$Region)
+
 RISR_clades_for_Bioregions_kruskal_test
-RISR_clades_for_Bioregions_kruskal_test$statistic # Khi² = 5.53
-RISR_clades_for_Bioregions_kruskal_test$p.value # p = 0.137
+RISR_clades_for_Bioregions_kruskal_test$statistic # Khi² = 4.47
+RISR_clades_for_Bioregions_kruskal_test$p.value # p = 0.215
 khi_Q95 <- qchisq(p = 0.95, df = RISR_clades_for_Bioregions_kruskal_test$parameter) ; khi_Q95  # Q95% = 7.81
 
 ## Pairwise Mann-Whitney tests
 
-bioregion_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Region)
+# bioregion_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Region)
+bioregion_levels <- levels(RISR_clades_for_Bioregions_0.75_df$Region)
 pairwise_bioregion_levels <- t(combn(x = bioregion_levels, m = 2))
 
 RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests <- list()
@@ -1669,9 +1836,13 @@ for (i in 1:nrow(pairwise_bioregion_levels))
   bioregion_1 <- pairwise_bioregion_levels[i, 1]
   bioregion_2 <- pairwise_bioregion_levels[i, 2]
   
-  wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.80_df$net_div_0[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_1],
-                               y = RISR_clades_for_Bioregions_0.80_df$net_div_0[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_2],
+  # wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.80_df$net_div_0[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_1],
+  #                              y = RISR_clades_for_Bioregions_0.80_df$net_div_0[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_2],
+  #                              alternative = "two.sided")
+  wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.75_df$net_div_0[RISR_clades_for_Bioregions_0.75_df$Region == bioregion_1],
+                               y = RISR_clades_for_Bioregions_0.75_df$net_div_0[RISR_clades_for_Bioregions_0.75_df$Region == bioregion_2],
                                alternative = "two.sided")
+  
   
   RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests[[i]] <- wilcox_test_i
   names(RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests)[i] <- paste0("Wilcox_test_", bioregion_1, "_", bioregion_2)
@@ -1684,14 +1855,30 @@ pairwise_p_values <- unlist(lapply(X = RISR_clades_for_Bioregions_pairwise_Mann_
 pairwise_signif <- unlist(lapply(X = RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests, FUN = function (x) { x$p.value < 0.1 } ))
 pairwise_p_values_signif <- round(pairwise_p_values[pairwise_signif], 3)
 
-# Two slighly significant pairwise differences
+# Transform into letter groups
+names(pairwise_signif) <- str_remove(string = names(pairwise_signif), pattern = "Wilcox_test_")
+names(pairwise_signif) <- str_replace(string = names(pairwise_signif), pattern = "_", replacement = "-")
+letter_groups <- multcompView::multcompLetters(x = pairwise_signif)
+letter_groups_df <- data.frame(Bioregion = names(letter_groups$Letters), letters = letter_groups$Letters)
+# letter_groups_df <- RISR_clades_for_Bioregions_0.80_df %>% 
+letter_groups_df <- RISR_clades_for_Bioregions_0.75_df %>% 
+  filter(net_div_0 > -0.5) %>% # Filter out the two outliers with non-credible fits leading to highly negative initial rates followed by strong increase
+  group_by(Region) %>% 
+  summarize(quant_75 = quantile(net_div_0, probs = 0.75)) %>%
+  left_join(y = letter_groups_df, by = join_by(Region == Bioregion))
+
+# Two differences Australasia vs. (Afrotropics and Indomalaya) 
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_Bioregions_net_div_crown_boxplot.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_Bioregions_net_div_crown_boxplot.pdf", height = 6, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_Bioregions_net_div_crown_boxplot.pdf", height = 6, width = 8)
 
-RISR_for_Bioregions_net_div_crown_boxplot <- ggplot(data = RISR_clades_for_Bioregions_0.80_df,
-                                                aes(y = net_div_0, x = Region)) +
+RISR_for_Bioregions_net_div_crown_boxplot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                    # data = RISR_clades_for_Bioregions_0.75_df,
+                                                    # Filter out the two outliers with non-credible fits leading to highly negative initial rates followed by strong increase
+                                                    data = RISR_clades_for_Bioregions_0.75_df[RISR_clades_for_Bioregions_0.75_df$net_div_0 > -0.5,],
+                                                    aes(y = net_div_0, x = Region)) +
   
   geom_boxplot(mapping = aes(y = net_div_0, x = Region, fill = Region),
                col = "black", alpha = 1.0, show.legend = F) +
@@ -1699,29 +1886,37 @@ RISR_for_Bioregions_net_div_crown_boxplot <- ggplot(data = RISR_clades_for_Biore
   # Horizontal line for Rate = 0
   geom_hline(yintercept = 0, linewidth = 1.0, linetype = "dashed", col = "grey") +
   
+  # Convert Y-axis to log(rates)
+  # scale_y_continuous(transform = "log1p") +
+  
   # # Add pairwise comparisons automatically
   # ggpubr::stat_compare_means(method = "wilcox.test", p.adjust.method = "none",
   #                            comparisons = pairwise_bioregion_list[pairwise_signif],
   #                            bracket.size = 0.5, # label = "p.signif",
   #                            hide.ns = TRUE) +
   
-  # Add pairwise comparisons manually
-  geom_bracket(xmin = c("Afrotropics", "Australasia"), xmax = c("Australasia", "Indomalaya"),
-               y.position = c(0.38, 0.42),
-               label.size = 5, size = 0.3,
-               vjust = -0.5,
-               label = pairwise_p_values_signif,
-               # label = c(".", "*"),
-               tip.length = 0.02) +
+  # # Add pairwise comparisons manually
+  # geom_bracket(xmin = c("Afrotropics", "Australasia"), xmax = c("Australasia", "Indomalaya"),
+  #              y.position = c(0.38, 0.42),
+  #              label.size = 5, size = 0.3,
+  #              vjust = -0.5,
+  #              label = pairwise_p_values_signif,
+  #              # label = c(".", "*"),
+  #              tip.length = 0.02) +
+  
+  # Add group letters
+  geom_text(data = letter_groups_df,
+            mapping = aes(label = letters, y = quant_75, x = Region),
+            vjust = -1, hjust = c(-2.2, -2, -2, -0.7), size = 7, fontface = "bold") +
   
   # Adjust fill scheme and legend
   scale_fill_manual("Bioregion", breaks = names(colors_list_for_bioregions), labels = names(colors_list_for_bioregions), values = colors_list_for_bioregions) +
   
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.65, label = "Kruskal-Wallis test",
+  annotate(geom = "text", x = 0.55, y = 0.50, label = "Kruskal-Wallis test",
            hjust = 0, fontface = "bold", size = 5) +
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.60,
+  annotate(geom = "text", x = 0.55, y = 0.45,
            label = paste0("Khi² = ", format(round(RISR_clades_for_Bioregions_kruskal_test$statistic, 2), nsmall = 2), "\n",
                           "Q95 = ",  format(round(khi_Q95, 2), nsmall = 2), "\n",
                           "p = ", format(round(RISR_clades_for_Bioregions_kruskal_test$p.value, 3), nsmall = 3)),
@@ -1757,16 +1952,20 @@ dev.off()
 
 ## Overall Kruskal-Wallis test
 
-RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.80_df$alpha,
-                                                        g = RISR_clades_for_Bioregions_0.80_df$Region)
+# RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.80_df$alpha,
+#                                                         g = RISR_clades_for_Bioregions_0.80_df$Region)
+RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.75_df$alpha,
+                                                        g = RISR_clades_for_Bioregions_0.75_df$Region)
+
 RISR_clades_for_Bioregions_kruskal_test
-RISR_clades_for_Bioregions_kruskal_test$statistic # Khi² = 2.82
-RISR_clades_for_Bioregions_kruskal_test$p.value # p = 0.421
+RISR_clades_for_Bioregions_kruskal_test$statistic # Khi² = 11.46
+RISR_clades_for_Bioregions_kruskal_test$p.value # p = 0.009
 khi_Q95 <- qchisq(p = 0.95, df = RISR_clades_for_Bioregions_kruskal_test$parameter) ; khi_Q95  # Q95% = 7.81
 
 ## Pairwise Mann-Whitney tests
 
-bioregion_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Region)
+# bioregion_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Region)
+bioregion_levels <- levels(RISR_clades_for_Bioregions_0.75_df$Region)
 pairwise_bioregion_levels <- t(combn(x = bioregion_levels, m = 2))
 
 RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests <- list()
@@ -1778,9 +1977,13 @@ for (i in 1:nrow(pairwise_bioregion_levels))
   bioregion_1 <- pairwise_bioregion_levels[i, 1]
   bioregion_2 <- pairwise_bioregion_levels[i, 2]
   
-  wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.80_df$alpha[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_1],
-                               y = RISR_clades_for_Bioregions_0.80_df$alpha[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_2],
+  # wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.80_df$alpha[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_1],
+  #                              y = RISR_clades_for_Bioregions_0.80_df$alpha[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_2],
+  #                              alternative = "two.sided")
+  wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.75_df$alpha[RISR_clades_for_Bioregions_0.75_df$Region == bioregion_1],
+                               y = RISR_clades_for_Bioregions_0.75_df$alpha[RISR_clades_for_Bioregions_0.75_df$Region == bioregion_2],
                                alternative = "two.sided")
+  
   
   RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests[[i]] <- wilcox_test_i
   names(RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests)[i] <- paste0("Wilcox_test_", bioregion_1, "_", bioregion_2)
@@ -1793,14 +1996,27 @@ pairwise_p_values <- unlist(lapply(X = RISR_clades_for_Bioregions_pairwise_Mann_
 pairwise_signif <- unlist(lapply(X = RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests, FUN = function (x) { x$p.value < 0.1 } ))
 pairwise_p_values_signif <- round(pairwise_p_values[pairwise_signif], 3)
 
-# No significant pairwise differences
+# Transform into letter groups
+names(pairwise_signif) <- str_remove(string = names(pairwise_signif), pattern = "Wilcox_test_")
+names(pairwise_signif) <- str_replace(string = names(pairwise_signif), pattern = "_", replacement = "-")
+letter_groups <- multcompView::multcompLetters(x = pairwise_signif)
+letter_groups_df <- data.frame(Bioregion = names(letter_groups$Letters), letters = letter_groups$Letters)
+# letter_groups_df <- RISR_clades_for_Bioregions_0.80_df %>% 
+letter_groups_df <- RISR_clades_for_Bioregions_0.75_df %>% 
+  group_by(Region) %>% 
+  summarize(quant_75 = quantile(alpha, probs = 0.75)) %>%
+  left_join(y = letter_groups_df, by = join_by(Region == Bioregion))
+
+# Three significant differences. Australasia vs. all others
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_Bioregions_alpha_boxplot.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_Bioregions_alpha_boxplot.pdf", height = 6, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_Bioregions_alpha_boxplot.pdf", height = 6, width = 8)
 
-RISR_for_Bioregions_alpha_boxplot <- ggplot(data = RISR_clades_for_Bioregions_0.80_df,
-                                                    aes(y = alpha, x = Region)) +
+RISR_for_Bioregions_alpha_boxplot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_df,
+                                            data = RISR_clades_for_Bioregions_0.75_df,
+                                            aes(y = alpha, x = Region)) +
   
   geom_boxplot(mapping = aes(y = alpha, x = Region, fill = Region),
                col = "black", alpha = 1.0, show.legend = F) +
@@ -1823,14 +2039,19 @@ RISR_for_Bioregions_alpha_boxplot <- ggplot(data = RISR_clades_for_Bioregions_0.
   #              # label = c(".", "*"),
   #              tip.length = 0.02) +
   
+  # Add group letters
+  geom_text(data = letter_groups_df,
+          mapping = aes(label = letters, y = quant_75, x = Region),
+          vjust = -1, hjust = c(-2.2, -2, -2, -2.0), size = 7, fontface = "bold") +
+  
   # Adjust fill scheme and legend
   scale_fill_manual("Bioregion", breaks = names(colors_list_for_bioregions), labels = names(colors_list_for_bioregions), values = colors_list_for_bioregions) +
   
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.12, label = "Kruskal-Wallis test",
+  annotate(geom = "text", x = 0.55, y = 0.48, label = "Kruskal-Wallis test",
            hjust = 0, fontface = "bold", size = 5) +
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.105,
+  annotate(geom = "text", x = 0.55, y = 0.43,
            label = paste0("Khi² = ", format(round(RISR_clades_for_Bioregions_kruskal_test$statistic, 2), nsmall = 2), "\n",
                           "Q95 = ",  format(round(khi_Q95, 2), nsmall = 2), "\n",
                           "p = ", format(round(RISR_clades_for_Bioregions_kruskal_test$p.value, 3), nsmall = 3)),
@@ -1862,20 +2083,25 @@ print(RISR_for_Bioregions_alpha_boxplot)
 
 dev.off()
 
+
 ### 5.5/ Plot current net div. rates ~ Bioregions => current source/sinks of biodiversity ####
 
 ## Overall Kruskal-Wallis test
 
-RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.80_df$net_div_current,
-                                                        g = RISR_clades_for_Bioregions_0.80_df$Region)
+# RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.80_df$net_div_current,
+#                                                         g = RISR_clades_for_Bioregions_0.80_df$Region)
+RISR_clades_for_Bioregions_kruskal_test <- kruskal.test(x = RISR_clades_for_Bioregions_0.75_df$net_div_current,
+                                                        g = RISR_clades_for_Bioregions_0.75_df$Region)
 RISR_clades_for_Bioregions_kruskal_test
-RISR_clades_for_Bioregions_kruskal_test$statistic # Khi² = 2.29
-RISR_clades_for_Bioregions_kruskal_test$p.value # p = 0.515
+RISR_clades_for_Bioregions_kruskal_test$statistic # Khi² = 9.64
+RISR_clades_for_Bioregions_kruskal_test$p.value # p = 0.022
 khi_Q95 <- qchisq(p = 0.95, df = RISR_clades_for_Bioregions_kruskal_test$parameter) ; khi_Q95  # Q95% = 7.81
 
 ## Pairwise Mann-Whitney tests
 
-bioregion_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Region)
+# bioregion_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Region)
+bioregion_levels <- levels(RISR_clades_for_Bioregions_0.75_df$Region)
+
 pairwise_bioregion_levels <- t(combn(x = bioregion_levels, m = 2))
 
 RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests <- list()
@@ -1887,9 +2113,13 @@ for (i in 1:nrow(pairwise_bioregion_levels))
   bioregion_1 <- pairwise_bioregion_levels[i, 1]
   bioregion_2 <- pairwise_bioregion_levels[i, 2]
   
-  wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.80_df$net_div_current[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_1],
-                               y = RISR_clades_for_Bioregions_0.80_df$net_div_current[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_2],
+  # wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.80_df$net_div_current[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_1],
+  #                              y = RISR_clades_for_Bioregions_0.80_df$net_div_current[RISR_clades_for_Bioregions_0.80_df$Region == bioregion_2],
+  #                              alternative = "two.sided")
+  wilcox_test_i <- wilcox.test(x = RISR_clades_for_Bioregions_0.75_df$net_div_current[RISR_clades_for_Bioregions_0.75_df$Region == bioregion_1],
+                               y = RISR_clades_for_Bioregions_0.75_df$net_div_current[RISR_clades_for_Bioregions_0.75_df$Region == bioregion_2],
                                alternative = "two.sided")
+  
   
   RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests[[i]] <- wilcox_test_i
   names(RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests)[i] <- paste0("Wilcox_test_", bioregion_1, "_", bioregion_2)
@@ -1902,14 +2132,30 @@ pairwise_p_values <- unlist(lapply(X = RISR_clades_for_Bioregions_pairwise_Mann_
 pairwise_signif <- unlist(lapply(X = RISR_clades_for_Bioregions_pairwise_Mann_Whitney_tests, FUN = function (x) { x$p.value < 0.1 } ))
 pairwise_p_values_signif <- round(pairwise_p_values[pairwise_signif], 3)
 
-# No significant pairwise differences
+# Transform into letter groups
+names(pairwise_signif) <- str_remove(string = names(pairwise_signif), pattern = "Wilcox_test_")
+names(pairwise_signif) <- str_replace(string = names(pairwise_signif), pattern = "_", replacement = "-")
+letter_groups <- multcompView::multcompLetters(x = pairwise_signif)
+letter_groups_df <- data.frame(Bioregion = names(letter_groups$Letters), letters = letter_groups$Letters)
+# letter_groups_df <- RISR_clades_for_Bioregions_0.80_df %>% 
+letter_groups_df <- RISR_clades_for_Bioregions_0.75_df %>% 
+  filter(net_div_current < 1.0) %>% # Filter out the two outliers with non-credible fits leading to very high current rates
+  group_by(Region) %>% 
+  summarize(quant_75 = quantile(net_div_current, probs = 0.75)) %>%
+  left_join(y = letter_groups_df, by = join_by(Region == Bioregion))
 
+# Three significant differences. Australasia vs. all others
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_Bioregions_net_div_current_boxplot.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_Bioregions_net_div_current_boxplot.pdf", height = 6, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_Bioregions_net_div_current_boxplot.pdf", height = 6, width = 8)
 
-RISR_for_Bioregions_net_div_current_boxplot <- ggplot(data = RISR_clades_for_Bioregions_0.80_df,
-                                            aes(y = net_div_current, x = Region)) +
+
+RISR_for_Bioregions_net_div_current_boxplot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                      # data = RISR_clades_for_Bioregions_0.75_df,
+                                                      # Filter out the two outliers with non-credible fits leading to very high current rates
+                                                      data = RISR_clades_for_Bioregions_0.75_df[RISR_clades_for_Bioregions_0.75_df$net_div_current < 1.0, ],
+                                                      aes(y = net_div_current, x = Region)) +
   
   geom_boxplot(mapping = aes(y = net_div_current, x = Region, fill = Region),
                col = "black", alpha = 1.0, show.legend = F) +
@@ -1932,14 +2178,20 @@ RISR_for_Bioregions_net_div_current_boxplot <- ggplot(data = RISR_clades_for_Bio
   #              # label = c(".", "*"),
   #              tip.length = 0.02) +
 
+  # Add group letters
+  geom_text(data = letter_groups_df,
+            mapping = aes(label = letters, y = quant_75, x = Region),
+            vjust = -1, hjust = c(-2.2, -2, -2, -2.0), size = 7, fontface = "bold") +
+  
+
   # Adjust fill scheme and legend
   scale_fill_manual("Bioregion", breaks = names(colors_list_for_bioregions), labels = names(colors_list_for_bioregions), values = colors_list_for_bioregions) +
   
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.35, label = "Kruskal-Wallis test",
+  annotate(geom = "text", x = 0.55, y = 0.83, label = "Kruskal-Wallis test",
            hjust = 0, fontface = "bold", size = 5) +
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.31,
+  annotate(geom = "text", x = 0.55, y = 0.78,
            label = paste0("Khi² = ", format(round(RISR_clades_for_Bioregions_kruskal_test$statistic, 2), nsmall = 2), "\n",
                           "Q95 = ", format(round(khi_Q95, 2), nsmall = 2), "\n",
                           "p = ", format(round(RISR_clades_for_Bioregions_kruskal_test$p.value, 3), nsmall = 3)),
@@ -1976,43 +2228,68 @@ dev.off()
 
 ## Fit regression lines per Bioregions with a GLM Poisson
 
-RISR_clades_for_Bioregions_richness_age_GLM <- glm(data = RISR_clades_for_Bioregions_0.80_df,
+RISR_clades_for_Bioregions_richness_age_GLM <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                   data = RISR_clades_for_Bioregions_0.75_df,
                                                    formula = nb_descendant_tips ~ node_age * Region,
                                                    family = "poisson")
 
-summary(RISR_clades_for_Bioregions_richness_age_GLM) ; RISR_clades_for_Bioregions_richness_age_GLM_summary_table
+summary(RISR_clades_for_Bioregions_richness_age_GLM)
 RISR_clades_for_Bioregions_richness_age_GLM_coefs <- coefficients(RISR_clades_for_Bioregions_richness_age_GLM)
 RISR_clades_for_Bioregions_richness_age_GLM_anova_table <- anova(RISR_clades_for_Bioregions_richness_age_GLM, test = 'LRT') ; RISR_clades_for_Bioregions_richness_age_GLM_anova_table
 
 Q95 <- qchisq(p = 0.95, df = RISR_clades_for_Bioregions_richness_age_GLM_anova_table$Df[3])
 
-## Compute segments for regression lines
+# ## Compute segments for regression lines (80% threshold)
+# # For Afrotropics (base level)
+# Afrotropics_xmin <- min(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Afrotropics"]) * 0.9
+# Afrotropics_xmax <- max(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Afrotropics"]) * 1.1
+# Afrotropics_ymin <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + Afrotropics_xmin * RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"]
+# Afrotropics_ymax <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + Afrotropics_xmax * RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"]
+# # For Australasia
+# Australasia_xmin <- min(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Australasia"]) * 0.9
+# Australasia_xmax <- max(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Australasia"]) * 1.1
+# Australasia_ymin <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["RegionAustralasia"] + Australasia_xmin * (RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age:RegionAustralasia"])
+# Australasia_ymax <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["RegionAustralasia"] + Australasia_xmax * (RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age:RegionAustralasia"])
+# # For Indomalaya
+# Indomalaya_xmin <- min(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Indomalaya"]) * 0.9
+# Indomalaya_xmax <- max(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Indomalaya"]) * 1.1
+# Indomalaya_ymin <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["RegionIndomalaya"] + Indomalaya_xmin * (RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age:RegionIndomalaya"])
+# Indomalaya_ymax <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["RegionIndomalaya"] + Indomalaya_xmax * (RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age:RegionIndomalaya"])
+# # For Neotropics
+# Neotropics_xmin <- min(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Neotropics"]) * 0.9
+# Neotropics_xmax <- max(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Neotropics"]) * 1.1
+# Neotropics_ymin <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["RegionNeotropics"] + Neotropics_xmin * (RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age:RegionNeotropics"])
+# Neotropics_ymax <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["RegionNeotropics"] + Neotropics_xmax * (RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age:RegionNeotropics"])
+
+## Compute segments for regression lines (75% threshold)
 # For Afrotropics (base level)
-Afrotropics_xmin <- min(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Afrotropics"]) * 0.9
-Afrotropics_xmax <- max(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Afrotropics"]) * 1.1
+Afrotropics_xmin <- min(RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Region == "Afrotropics"]) * 0.9
+Afrotropics_xmax <- max(RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Region == "Afrotropics"]) * 1.02
 Afrotropics_ymin <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + Afrotropics_xmin * RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"]
 Afrotropics_ymax <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + Afrotropics_xmax * RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"]
 # For Australasia
-Australasia_xmin <- min(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Australasia"]) * 0.9
-Australasia_xmax <- max(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Australasia"]) * 1.1
+Australasia_xmin <- min(RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Region == "Australasia"]) * 0.9
+Australasia_xmax <- max(RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Region == "Australasia"]) * 1.1
 Australasia_ymin <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["RegionAustralasia"] + Australasia_xmin * (RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age:RegionAustralasia"])
 Australasia_ymax <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["RegionAustralasia"] + Australasia_xmax * (RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age:RegionAustralasia"])
 # For Indomalaya
-Indomalaya_xmin <- min(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Indomalaya"]) * 0.9
-Indomalaya_xmax <- max(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Indomalaya"]) * 1.1
+Indomalaya_xmin <- min(RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Region == "Indomalaya"]) * 0.9
+Indomalaya_xmax <- max(RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Region == "Indomalaya"]) * 1.05
 Indomalaya_ymin <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["RegionIndomalaya"] + Indomalaya_xmin * (RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age:RegionIndomalaya"])
 Indomalaya_ymax <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["RegionIndomalaya"] + Indomalaya_xmax * (RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age:RegionIndomalaya"])
 # For Neotropics
-Neotropics_xmin <- min(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Neotropics"]) * 0.9
-Neotropics_xmax <- max(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Region == "Neotropics"]) * 1.1
+Neotropics_xmin <- min(RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Region == "Neotropics"]) * 0.9
+Neotropics_xmax <- max(RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Region == "Neotropics"]) * 1.01
 Neotropics_ymin <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["RegionNeotropics"] + Neotropics_xmin * (RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age:RegionNeotropics"])
 Neotropics_ymax <- RISR_clades_for_Bioregions_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["RegionNeotropics"] + Neotropics_xmax * (RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age"] + RISR_clades_for_Bioregions_richness_age_GLM_coefs["node_age:RegionNeotropics"])
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_Bioregions_current_richness_per_crown_ages_plot.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_Bioregions_current_richness_per_crown_ages_plot.pdf", height = 6, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_Bioregions_current_richness_per_crown_ages_plot.pdf", height = 6, width = 8)
 
-RISR_for_Bioregions_current_richness_per_crown_ages_plot <- ggplot(data = RISR_clades_for_Bioregions_0.80_df,
+RISR_for_Bioregions_current_richness_per_crown_ages_plot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                                   data = RISR_clades_for_Bioregions_0.75_df,
                                                                    aes(y = nb_descendant_tips, x = node_age)) +
   
   geom_point(mapping = aes(y = nb_descendant_tips, x = node_age, col = Region),
@@ -2020,7 +2297,7 @@ RISR_for_Bioregions_current_richness_per_crown_ages_plot <- ggplot(data = RISR_c
              alpha = 1.0, show.legend = T) +
   
   # Adjust col scheme and legend
-  scale_color_manual("Bioregion", breaks = names(colors_list_for_bioregions), labels = names(colors_list_for_bioregions), values = colors_list_for_bioregions) +
+  scale_color_manual("Bioregions", breaks = names(colors_list_for_bioregions), labels = names(colors_list_for_bioregions), values = colors_list_for_bioregions) +
   
   # Convert Y-scale to log
   scale_y_continuous(transform = "log",
@@ -2067,16 +2344,16 @@ RISR_for_Bioregions_current_richness_per_crown_ages_plot <- ggplot(data = RISR_c
                col = colors_list_for_bioregions["Neotropics"], linewidth  = 1.5) +
   
   # Add test results
-  annotate(geom = "label", x = 125, y = 80, label = "LRT Bioregions",
+  annotate(geom = "label", x = 2, y = 155, label = "LRT Bioregions",
            fill = "white", col = "black", label.size = 0, label.padding = unit(0.0, "lines"), 
-           hjust = 1, fontface = "bold", size = 4.5) +
+           hjust = 0, fontface = "bold", size = 4.5) +
   # Add test results
-  annotate(geom = "label", x = 125, y = 65,
+  annotate(geom = "label", x = 2, y = 135,
            fill = "white", col = "black", label.size = 0, label.padding = unit(0.0, "lines"),
            label = paste0("Khi² = ", format(round(RISR_clades_for_Bioregions_richness_age_GLM_anova_table$Deviance[3], 2), nsmall = 2), "\n",
                           "Q95 = ",  format(round(khi_Q95, 2), nsmall = 2), "\n",
                           "p < 0.001"),
-           hjust = 1, vjust = 1, fontface = "plain", size = 4.5) +
+           hjust = 0, vjust = 1, fontface = "plain", size = 4.5) +
   
   # Set plot title +
   ggtitle(label = paste0("Current richness ~ Crown ages\nRISR clades per Bioregions")) +
@@ -2092,7 +2369,7 @@ RISR_for_Bioregions_current_richness_per_crown_ages_plot <- ggplot(data = RISR_c
         plot.title = element_text(size = 20, hjust = 0.5, color = "black", margin = margin(b = 15, t = 5)),
         legend.position = c(0.85, 0.25),
         legend.background = element_rect(fill = "white", color = "white"),
-        legend.title = element_text(size  = 14, margin = margin(b = 10), hjust = 0.8), 
+        legend.title = element_text(size  = 14, margin = margin(b = 10), hjust = 0.2), 
         legend.text = element_text(size = 12),
         legend.key = element_rect(colour = NA, fill = NA, linewidth = 5),
         legend.key.size = unit(1.5, "line"),
@@ -2126,7 +2403,8 @@ RISR_for_Bioregions_all_plots_list <- list(RISR_for_Bioregions_current_richness_
   # Rows = type of events
   # Columns = Time-strata
 
-pdf(file = paste0("./outputs/RISR/RISR_for_Bioregions_all_plots.pdf"),
+# pdf(file = paste0("./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_Bioregions_all_plots.pdf"),
+pdf(file = paste0("./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_Bioregions_all_plots.pdf"),
     height = 6*2, width = 8*3)
 
 gridExtra::grid.arrange(
@@ -2142,12 +2420,18 @@ dev.off()
 ##### 6/ Compare model parameters of RISR for aggregated Old World vs. New World #####
 
 # Load metadata df of RISR clades per Bioregions for the selected endemicity threshold
-RISR_clades_for_Bioregions_0.80_df <- readRDS(file = "./outputs/RISR/RISR_clades_for_Bioregions_0.80_df.rds")
+# RISR_clades_for_Bioregions_0.80_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Bioregions_0.80_df.rds")
+RISR_clades_for_Bioregions_0.75_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Bioregions_0.75_df.rds")
+
+# # Assign Old World vs. New World groups
+# RISR_clades_for_Bioregions_0.80_df$Hemisphere <- "Old World"
+# RISR_clades_for_Bioregions_0.80_df$Hemisphere[RISR_clades_for_Bioregions_0.80_df$Region %in% c("Nearctic", "Neotropics")] <- "New World"
+# table(RISR_clades_for_Bioregions_0.80_df$Hemisphere)
 
 # Assign Old World vs. New World groups
-RISR_clades_for_Bioregions_0.80_df$Hemisphere <- "Old World"
-RISR_clades_for_Bioregions_0.80_df$Hemisphere[RISR_clades_for_Bioregions_0.80_df$Region %in% c("Nearctic", "Neotropics")] <- "New World"
-table(RISR_clades_for_Bioregions_0.80_df$Hemisphere)
+RISR_clades_for_Bioregions_0.75_df$Hemisphere <- "Old World"
+RISR_clades_for_Bioregions_0.75_df$Hemisphere[RISR_clades_for_Bioregions_0.75_df$Region %in% c("Nearctic", "Neotropics")] <- "New World"
+table(RISR_clades_for_Bioregions_0.75_df$Hemisphere)
 
 # Set color scheme for Old World vs. New World
 colors_list_for_OW_NW <- c("mediumpurple2", "peachpuff2")
@@ -2155,32 +2439,39 @@ OW_NW_names <- c("Old World", "New World")
 names(colors_list_for_OW_NW) <- OW_NW_names
 
 # Reorder Hemispheres
-RISR_clades_for_Bioregions_0.80_df$Hemisphere <- factor(x = RISR_clades_for_Bioregions_0.80_df$Hemisphere, levels = OW_NW_names, labels = OW_NW_names)
+# RISR_clades_for_Bioregions_0.80_df$Hemisphere <- factor(x = RISR_clades_for_Bioregions_0.80_df$Hemisphere, levels = OW_NW_names, labels = OW_NW_names)
+RISR_clades_for_Bioregions_0.75_df$Hemisphere <- factor(x = RISR_clades_for_Bioregions_0.75_df$Hemisphere, levels = OW_NW_names, labels = OW_NW_names)
 
 # Save metadata df of RISR clades per Bioregions for the selected endemicity threshold
-saveRDS(RISR_clades_for_Bioregions_0.80_df, file = "./outputs/RISR/RISR_clades_for_Bioregions_0.80_df.rds")
+# saveRDS(RISR_clades_for_Bioregions_0.80_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Bioregions_0.80_df.rds")
+saveRDS(RISR_clades_for_Bioregions_0.75_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Bioregions_0.75_df.rds")
 
 ### 6.1/ Plot current richness ~ aggregated OW vs. NW ####
 
 ## Overall Wilcox-Mann-Whitney test
 
-OW_data <- RISR_clades_for_Bioregions_0.80_df$nb_descendant_tips[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]
-NW_data <- RISR_clades_for_Bioregions_0.80_df$nb_descendant_tips[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]
+# OW_data <- RISR_clades_for_Bioregions_0.80_df$nb_descendant_tips[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]
+# NW_data <- RISR_clades_for_Bioregions_0.80_df$nb_descendant_tips[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]
+OW_data <- RISR_clades_for_Bioregions_0.75_df$nb_descendant_tips[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "Old World"]
+NW_data <- RISR_clades_for_Bioregions_0.75_df$nb_descendant_tips[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "New World"]
 
-RISR_clades_for_aggregated_OW_NW_wilcox_test <- wilcox.test(x = OW_data,
-                                                          y = NW_data,
-                                                          alternative = "two.sided")
+# Test if the group with the highest median is statistically higher than the other group
+RISR_clades_for_aggregated_OW_NW_wilcox_test <- wilcox.test(x = list(OW_data, NW_data)[[(median(OW_data) < median(NW_data)) + 1]],
+                                                            y = list(OW_data, NW_data)[[(median(OW_data) >= median(NW_data)) + 1]],
+                                                            alternative = "greater")
 RISR_clades_for_aggregated_OW_NW_wilcox_test
-RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic # W = 127.5
-RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value # p = 0.427
+RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic # W = 111.5
+RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value # p = 0.013
 W_Q95 <- qnorm(p = 0.95, mean = length(OW_data)*length(NW_data)/2, sd = sqrt(length(OW_data)*length(NW_data)*(length(OW_data)+length(NW_data)+1) / 12))
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_aggregated_OW_NW_current_richness_boxplot.pdf", height = 6, width = 6)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_aggregated_OW_NW_current_richness_boxplot.pdf", height = 6, width = 6)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_aggregated_OW_NW_current_richness_boxplot.pdf", height = 6, width = 6)
 
-RISR_for_aggregated_OW_NW_current_richness_boxplot <- ggplot(data = RISR_clades_for_Bioregions_0.80_df,
-                                                       mapping = aes(y = nb_descendant_tips, x = Hemisphere)) +
+RISR_for_aggregated_OW_NW_current_richness_boxplot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                             data = RISR_clades_for_Bioregions_0.75_df,
+                                                             mapping = aes(y = nb_descendant_tips, x = Hemisphere)) +
   
   geom_boxplot(mapping = aes(y = nb_descendant_tips, x = Hemisphere, fill = Hemisphere),
                col = "black", alpha = 1.0, show.legend = F) +
@@ -2189,10 +2480,10 @@ RISR_for_aggregated_OW_NW_current_richness_boxplot <- ggplot(data = RISR_clades_
   scale_fill_manual("Hemisphere", breaks = names(colors_list_for_OW_NW), labels = names(colors_list_for_OW_NW), values = colors_list_for_OW_NW) +
   
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 155, label = "Mann-Whitney test",
+  annotate(geom = "text", x = 0.55, y = 160, label = "Mann-Whitney test",
            hjust = 0, fontface = "bold", size = 5) +
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 145,
+  annotate(geom = "text", x = 0.55, y = 150,
            label = paste0("W = ", format(round(RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic, 1), nsmall = 1), "\n",
                           "Q95 = ",  format(round(W_Q95, 1), nsmall = 1), "\n",
                           "p = ", format(round(RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value, 3), nsmall = 3)),
@@ -2224,27 +2515,33 @@ print(RISR_for_aggregated_OW_NW_current_richness_boxplot)
 
 dev.off()
 
+
 ### 6.2/ Plot crown ages ~ aggregated OW vs. NW ####
 
 ## Overall Wilcox-Mann-Whitney test
 
-OW_data <- RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]
-NW_data <- RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]
+# OW_data <- RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]
+# NW_data <- RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]
+OW_data <- RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "Old World"]
+NW_data <- RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "New World"]
 
-RISR_clades_for_aggregated_OW_NW_wilcox_test <- wilcox.test(x = OW_data,
-                                                          y = NW_data,
-                                                          alternative = "two.sided")
+# Test if the group with the highest median is statistically higher than the other group
+RISR_clades_for_aggregated_OW_NW_wilcox_test <- wilcox.test(x = list(OW_data, NW_data)[[(median(OW_data) < median(NW_data)) + 1]],
+                                                            y = list(OW_data, NW_data)[[(median(OW_data) >= median(NW_data)) + 1]],
+                                                            alternative = "greater")
 RISR_clades_for_aggregated_OW_NW_wilcox_test
-RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic # W = 127.5
-RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value # p = 0.427
+RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic # W = 104
+RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value # p = 0.036
 W_Q95 <- qnorm(p = 0.95, mean = length(OW_data)*length(NW_data)/2, sd = sqrt(length(OW_data)*length(NW_data)*(length(OW_data)+length(NW_data)+1) / 12)) ; W_Q95
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_aggregated_OW_NW_crown_age_boxplot.pdf", height = 6, width = 6)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_aggregated_OW_NW_crown_age_boxplot.pdf", height = 6, width = 6)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_aggregated_OW_NW_crown_age_boxplot.pdf", height = 6, width = 6)
 
-RISR_for_aggregated_OW_NW_crown_age_boxplot <- ggplot(data = RISR_clades_for_Bioregions_0.80_df,
-                                                             mapping = aes(y = node_age, x = Hemisphere)) +
+RISR_for_aggregated_OW_NW_crown_age_boxplot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                      data = RISR_clades_for_Bioregions_0.75_df,
+                                                      mapping = aes(y = node_age, x = Hemisphere)) +
   
   geom_boxplot(mapping = aes(y = node_age, x = Hemisphere, fill = Hemisphere),
                col = "black", alpha = 1.0, show.legend = F) +
@@ -2292,23 +2589,30 @@ dev.off()
 
 ## Overall Wilcox-Mann-Whitney test
 
-OW_data <- RISR_clades_for_Bioregions_0.80_df$net_div_0[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]
-NW_data <- RISR_clades_for_Bioregions_0.80_df$net_div_0[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]
+# OW_data <- RISR_clades_for_Bioregions_0.80_df$net_div_0[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]
+# NW_data <- RISR_clades_for_Bioregions_0.80_df$net_div_0[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]
+OW_data <- RISR_clades_for_Bioregions_0.75_df$net_div_0[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "Old World"]
+NW_data <- RISR_clades_for_Bioregions_0.75_df$net_div_0[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "New World"]
 
-RISR_clades_for_aggregated_OW_NW_wilcox_test <- wilcox.test(x = OW_data,
-                                                          y = NW_data,
-                                                          alternative = "two.sided")
+# Test if the group with the highest median is statistically higher than the other group
+RISR_clades_for_aggregated_OW_NW_wilcox_test <- wilcox.test(x = list(OW_data, NW_data)[[(median(OW_data) < median(NW_data)) + 1]],
+                                                            y = list(OW_data, NW_data)[[(median(OW_data) >= median(NW_data)) + 1]],
+                                                            alternative = "greater")
 RISR_clades_for_aggregated_OW_NW_wilcox_test
-RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic # W = 162.0
-RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value # p = 0.87
+RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic # W = 71.0
+RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value # p = 0.77
 W_Q95 <- qnorm(p = 0.95, mean = length(OW_data)*length(NW_data)/2, sd = sqrt(length(OW_data)*length(NW_data)*(length(OW_data)+length(NW_data)+1) / 12)) ; W_Q95
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_aggregated_OW_NW_net_div_crown_boxplot.pdf", height = 6, width = 6)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_aggregated_OW_NW_net_div_crown_boxplot.pdf", height = 6, width = 6)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_aggregated_OW_NW_net_div_crown_boxplot.pdf", height = 6, width = 6)
 
-RISR_for_aggregated_OW_NW_net_div_crown_boxplot <- ggplot(data = RISR_clades_for_Bioregions_0.80_df,
-                                                      mapping = aes(y = net_div_0, x = Hemisphere)) +
+RISR_for_aggregated_OW_NW_net_div_crown_boxplot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                          # data = RISR_clades_for_Bioregions_0.75_df,
+                                                          # Filter out the two outliers with non-credible fits leading to highly negative initial rates followed by strong increase
+                                                          data = RISR_clades_for_Bioregions_0.75_df[RISR_clades_for_Bioregions_0.75_df$net_div_0 > -0.5,],
+                                                          mapping = aes(y = net_div_0, x = Hemisphere)) +
   
   geom_boxplot(mapping = aes(y = net_div_0, x = Hemisphere, fill = Hemisphere),
                col = "black", alpha = 1.0, show.legend = F) +
@@ -2320,7 +2624,7 @@ RISR_for_aggregated_OW_NW_net_div_crown_boxplot <- ggplot(data = RISR_clades_for
   scale_fill_manual("Hemisphere", breaks = names(colors_list_for_OW_NW), labels = names(colors_list_for_OW_NW), values = colors_list_for_OW_NW) +
   
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.50, label = "Mann-Whitney test",
+  annotate(geom = "text", x = 0.55, y = 0.51, label = "Mann-Whitney test",
            hjust = 0, fontface = "bold", size = 5) +
   # Add test results
   annotate(geom = "text", x = 0.55, y = 0.46,
@@ -2359,22 +2663,27 @@ dev.off()
 
 ## Overall Wilcox-Mann-Whitney test
 
-OW_data <- RISR_clades_for_Bioregions_0.80_df$alpha[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]
-NW_data <- RISR_clades_for_Bioregions_0.80_df$alpha[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]
+# OW_data <- RISR_clades_for_Bioregions_0.80_df$alpha[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]
+# NW_data <- RISR_clades_for_Bioregions_0.80_df$alpha[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]
+OW_data <- RISR_clades_for_Bioregions_0.75_df$alpha[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "Old World"]
+NW_data <- RISR_clades_for_Bioregions_0.75_df$alpha[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "New World"]
 
-RISR_clades_for_aggregated_OW_NW_wilcox_test <- wilcox.test(x = OW_data,
-                                                          y = NW_data,
-                                                          alternative = "two.sided")
+# Test if the group with the highest median is statistically higher than the other group
+RISR_clades_for_aggregated_OW_NW_wilcox_test <- wilcox.test(x = list(OW_data, NW_data)[[(median(OW_data) < median(NW_data)) + 1]],
+                                                            y = list(OW_data, NW_data)[[(median(OW_data) >= median(NW_data)) + 1]],
+                                                            alternative = "greater")
 RISR_clades_for_aggregated_OW_NW_wilcox_test
-RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic # W = 194.0
-RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value # p = 0.294
+RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic # W = 78.0
+RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value # p = 0.51
 W_Q95 <- qnorm(p = 0.95, mean = length(OW_data)*length(NW_data)/2, sd = sqrt(length(OW_data)*length(NW_data)*(length(OW_data)+length(NW_data)+1) / 12)) ; W_Q95
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_aggregated_OW_NW_alpha_boxplot.pdf", height = 6, width = 6)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_aggregated_OW_NW_alpha_boxplot.pdf", height = 6, width = 6)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_aggregated_OW_NW_alpha_boxplot.pdf", height = 6, width = 6)
 
-RISR_for_aggregated_OW_NW_alpha_boxplot <- ggplot(data = RISR_clades_for_Bioregions_0.80_df,
+RISR_for_aggregated_OW_NW_alpha_boxplot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                  data = RISR_clades_for_Bioregions_0.75_df,
                                                   mapping = aes(y = alpha, x = Hemisphere)) +
   
   geom_boxplot(mapping = aes(y = alpha, x = Hemisphere, fill = Hemisphere),
@@ -2387,10 +2696,10 @@ RISR_for_aggregated_OW_NW_alpha_boxplot <- ggplot(data = RISR_clades_for_Bioregi
   scale_fill_manual("Hemisphere", breaks = names(colors_list_for_OW_NW), labels = names(colors_list_for_OW_NW), values = colors_list_for_OW_NW) +
   
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.12, label = "Mann-Whitney test",
+  annotate(geom = "text", x = 0.55, y = 0.43, label = "Mann-Whitney test",
            hjust = 0, fontface = "bold", size = 5) +
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.10,
+  annotate(geom = "text", x = 0.55, y = 0.395,
            label = paste0("W = ", format(round(RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic, 1), nsmall = 1), "\n",
                           "Q95 = ",  format(round(W_Q95, 1), nsmall = 1), "\n",
                           "p = ", format(round(RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value, 3), nsmall = 3)),
@@ -2427,23 +2736,30 @@ dev.off()
 
 ## Overall Wilcox-Mann-Whitney test
 
-OW_data <- RISR_clades_for_Bioregions_0.80_df$net_div_current[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]
-NW_data <- RISR_clades_for_Bioregions_0.80_df$net_div_current[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]
+# OW_data <- RISR_clades_for_Bioregions_0.80_df$net_div_current[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]
+# NW_data <- RISR_clades_for_Bioregions_0.80_df$net_div_current[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]
+OW_data <- RISR_clades_for_Bioregions_0.75_df$net_div_current[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "Old World"]
+NW_data <- RISR_clades_for_Bioregions_0.75_df$net_div_current[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "New World"]
 
-RISR_clades_for_aggregated_OW_NW_wilcox_test <- wilcox.test(x = OW_data,
-                                                          y = NW_data,
-                                                          alternative = "two.sided")
+# Test if the group with the highest median is statistically higher than the other group
+RISR_clades_for_aggregated_OW_NW_wilcox_test <- wilcox.test(x = list(OW_data, NW_data)[[(median(OW_data) < median(NW_data)) + 1]],
+                                                            y = list(OW_data, NW_data)[[(median(OW_data) >= median(NW_data)) + 1]],
+                                                            alternative = "greater")
 RISR_clades_for_aggregated_OW_NW_wilcox_test
-RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic # W = 152.0
-RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value # p = 0.922
+RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic # W = 83
+RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value # p = 0.359
 W_Q95 <- qnorm(p = 0.95, mean = length(OW_data)*length(NW_data)/2, sd = sqrt(length(OW_data)*length(NW_data)*(length(OW_data)+length(NW_data)+1) / 12)) ; W_Q95
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_aggregated_OW_NW_net_div_current_boxplot.pdf", height = 6, width = 6)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_aggregated_OW_NW_net_div_current_boxplot.pdf", height = 6, width = 6)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_aggregated_OW_NW_net_div_current_boxplot.pdf", height = 6, width = 6)
 
-RISR_for_aggregated_OW_NW_net_div_current_boxplot <- ggplot(data = RISR_clades_for_Bioregions_0.80_df,
-                                                  mapping = aes(y = net_div_current, x = Hemisphere)) +
+RISR_for_aggregated_OW_NW_net_div_current_boxplot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                            # data = RISR_clades_for_Bioregions_0.75_df,
+                                                            # Filter out the two outliers with non-credible fits leading to very high current rates
+                                                            data = RISR_clades_for_Bioregions_0.75_df[RISR_clades_for_Bioregions_0.75_df$net_div_current < 1.0, ],
+                                                            mapping = aes(y = net_div_current, x = Hemisphere)) +
   
   geom_boxplot(mapping = aes(y = net_div_current, x = Hemisphere, fill = Hemisphere),
                col = "black", alpha = 1.0, show.legend = F) +
@@ -2455,10 +2771,10 @@ RISR_for_aggregated_OW_NW_net_div_current_boxplot <- ggplot(data = RISR_clades_f
   scale_fill_manual("Hemisphere", breaks = names(colors_list_for_OW_NW), labels = names(colors_list_for_OW_NW), values = colors_list_for_OW_NW) +
   
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.32, label = "Mann-Whitney test",
+  annotate(geom = "text", x = 0.55, y = 0.89, label = "Mann-Whitney test",
            hjust = 0, fontface = "bold", size = 5) +
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.29,
+  annotate(geom = "text", x = 0.55, y = 0.84,
            label = paste0("W = ", format(round(RISR_clades_for_aggregated_OW_NW_wilcox_test$statistic, 1), nsmall = 1), "\n",
                           "Q95 = ",  format(round(W_Q95, 1), nsmall = 1), "\n",
                           "p = ", format(round(RISR_clades_for_aggregated_OW_NW_wilcox_test$p.value, 3), nsmall = 3)),
@@ -2495,9 +2811,10 @@ dev.off()
 
 ## Fit regression lines per aggregated OW vs. NW with a GLM Poisson
 
-RISR_clades_for_aggregated_OW_NW_richness_age_GLM <- glm(data = RISR_clades_for_Bioregions_0.80_df,
-                                                   formula = nb_descendant_tips ~ node_age * Hemisphere,
-                                                   family = "poisson")
+RISR_clades_for_aggregated_OW_NW_richness_age_GLM <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                         data = RISR_clades_for_Bioregions_0.75_df,
+                                                         formula = nb_descendant_tips ~ node_age * Hemisphere,
+                                                         family = "poisson")
 
 summary(RISR_clades_for_aggregated_OW_NW_richness_age_GLM)
 RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs <- coefficients(RISR_clades_for_aggregated_OW_NW_richness_age_GLM)
@@ -2505,24 +2822,38 @@ RISR_clades_for_aggregated_OW_NW_richness_age_GLM_anova_table <- anova(RISR_clad
 
 khi_Q95 <- qchisq(p = 0.95, df = RISR_clades_for_aggregated_OW_NW_richness_age_GLM_anova_table$Df[3])
 
+# ## Compute segments for regression lines
+# # For Old World (base level)
+# Old_World_xmin <- min(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]) * 0.9
+# Old_World_xmax <- max(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]) * 1.1
+# Old_World_ymin <- RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["(Intercept)"] + Old_World_xmin * RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["node_age"]
+# Old_World_ymax <- RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["(Intercept)"] + Old_World_xmax * RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["node_age"]
+# # For New World
+# New_World_xmin <- min(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]) * 0.9
+# New_World_xmax <- max(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]) * 1.1
+# New_World_ymin <- RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["HemisphereNew World"] + New_World_xmin * (RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["node_age"] + RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["node_age:HemisphereNew World"])
+# New_World_ymax <- RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["HemisphereNew World"] + New_World_xmax * (RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["node_age"] + RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["node_age:HemisphereNew World"])
+
 ## Compute segments for regression lines
 # For Old World (base level)
-Old_World_xmin <- min(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]) * 0.9
-Old_World_xmax <- max(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "Old World"]) * 1.1
+Old_World_xmin <- min(RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "Old World"]) * 0.9
+Old_World_xmax <- max(RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "Old World"]) * 1.05
 Old_World_ymin <- RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["(Intercept)"] + Old_World_xmin * RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["node_age"]
 Old_World_ymax <- RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["(Intercept)"] + Old_World_xmax * RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["node_age"]
 # For New World
-New_World_xmin <- min(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]) * 0.9
-New_World_xmax <- max(RISR_clades_for_Bioregions_0.80_df$node_age[RISR_clades_for_Bioregions_0.80_df$Hemisphere == "New World"]) * 1.1
+New_World_xmin <- min(RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "New World"]) * 0.9
+New_World_xmax <- max(RISR_clades_for_Bioregions_0.75_df$node_age[RISR_clades_for_Bioregions_0.75_df$Hemisphere == "New World"]) * 1.05
 New_World_ymin <- RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["HemisphereNew World"] + New_World_xmin * (RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["node_age"] + RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["node_age:HemisphereNew World"])
 New_World_ymax <- RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["(Intercept)"] + RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["HemisphereNew World"] + New_World_xmax * (RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["node_age"] + RISR_clades_for_aggregated_OW_NW_richness_age_GLM_coefs["node_age:HemisphereNew World"])
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_aggregated_OW_NW_current_richness_per_crown_ages_plot.pdf", height = 6, width = 7)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_aggregated_OW_NW_current_richness_per_crown_ages_plot.pdf", height = 6, width = 7)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_aggregated_OW_NW_current_richness_per_crown_ages_plot.pdf", height = 6, width = 7)
 
-RISR_for_aggregated_OW_NW_current_richness_per_crown_ages_plot <- ggplot(data = RISR_clades_for_Bioregions_0.80_df,
-                                                                   aes(y = nb_descendant_tips, x = node_age)) +
+RISR_for_aggregated_OW_NW_current_richness_per_crown_ages_plot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                                         data = RISR_clades_for_Bioregions_0.75_df,
+                                                                         aes(y = nb_descendant_tips, x = node_age)) +
   
   geom_point(mapping = aes(y = nb_descendant_tips, x = node_age, col = Hemisphere),
              size = 3, alpha = 1.0, show.legend = T) +
@@ -2547,16 +2878,16 @@ RISR_for_aggregated_OW_NW_current_richness_per_crown_ages_plot <- ggplot(data = 
                col = colors_list_for_OW_NW["New World"], linewidth  = 1.5) +
   
   # Add test results
-  annotate(geom = "label", x = 125, y = 60, label = "LRT Bioregions",
+  annotate(geom = "label", x = 5, y = 150, label = "LRT Bioregions",
            fill = "white", col = "black", label.size = 0, label.padding = unit(0.0, "lines"), 
-           hjust = 1, fontface = "bold", size = 4.5) +
+           hjust = 0, fontface = "bold", size = 4.5) +
   # Add test results
-  annotate(geom = "label", x = 125, y = 45,
+  annotate(geom = "label", x = 5, y = 130,
            fill = "white", col = "black", label.size = 0, label.padding = unit(0.0, "lines"),
            label = paste0("Khi² = ", format(round(RISR_clades_for_aggregated_OW_NW_richness_age_GLM_anova_table$Deviance[3], 2), nsmall = 2), "\n",
                           "Q95 = ",  format(round(khi_Q95, 2), nsmall = 2), "\n",
                           "p < 0.001"),
-           hjust = 1, vjust = 1, fontface = "plain", size = 4.5) +
+           hjust = 0, vjust = 1, fontface = "plain", size = 4.5) +
   
   # Set plot title +
   ggtitle(label = paste0("Current richness ~ Crown ages\nRISR clades per aggregated OW vs. NW")) +
@@ -2606,7 +2937,8 @@ RISR_for_aggregated_OW_NW_all_plots_list <- list(RISR_for_aggregated_OW_NW_curre
 # Rows = type of events
 # Columns = Time-strata
 
-pdf(file = paste0("./outputs/RISR/RISR_for_aggregated_OW_NW_all_plots.pdf"),
+# pdf(file = paste0("./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_aggregated_OW_NW_all_plots.pdf"),
+pdf(file = paste0("./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_aggregated_OW_NW_all_plots.pdf"),
     height = 6*2, width = 6.5*3)
 
 gridExtra::grid.arrange(
@@ -2622,7 +2954,8 @@ dev.off()
 ##### 7/ Compare model parameters of RISR for independent Old World vs. New World #####
 
 # Load metadata df of RISR clades per independent for Old World vs. New World for the selected endemicity threshold
-RISR_clades_for_OW_NW_0.95_df <- readRDS(file = "./outputs/RISR/RISR_clades_for_OW_NW_0.95_df.rds")
+# RISR_clades_for_OW_NW_0.95_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_OW_NW_0.95_df.rds")
+RISR_clades_for_OW_NW_0.95_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_OW_NW_0.95_df.rds")
 
 
 # Assign Old World vs. New World groups
@@ -2645,17 +2978,19 @@ RISR_clades_for_OW_NW_0.95_df$Hemisphere <- factor(x = RISR_clades_for_OW_NW_0.9
 OW_data <- RISR_clades_for_OW_NW_0.95_df$nb_descendant_tips[RISR_clades_for_OW_NW_0.95_df$Hemisphere == "Old World"]
 NW_data <- RISR_clades_for_OW_NW_0.95_df$nb_descendant_tips[RISR_clades_for_OW_NW_0.95_df$Hemisphere == "New World"]
 
-RISR_clades_for_independent_OW_NW_wilcox_test <- wilcox.test(x = OW_data,
-                                                            y = NW_data,
-                                                            alternative = "two.sided")
+# Test if the group with the highest median is statistically higher than the other group
+RISR_clades_for_independent_OW_NW_wilcox_test <- wilcox.test(x = list(OW_data, NW_data)[[(median(OW_data) < median(NW_data)) + 1]],
+                                                             y = list(OW_data, NW_data)[[(median(OW_data) >= median(NW_data)) + 1]],
+                                                             alternative = "greater")
 RISR_clades_for_independent_OW_NW_wilcox_test
-RISR_clades_for_independent_OW_NW_wilcox_test$statistic # W = 92.5
-RISR_clades_for_independent_OW_NW_wilcox_test$p.value # p = 0.161
-W_Q95 <- qnorm(p = 0.95, mean = length(OW_data)*length(NW_data)/2, sd = sqrt(length(OW_data)*length(NW_data)*(length(OW_data)+length(NW_data)+1) / 12)) #  96.2
+RISR_clades_for_independent_OW_NW_wilcox_test$statistic # W = 165
+RISR_clades_for_independent_OW_NW_wilcox_test$p.value # p = 0.046
+W_Q95 <- qnorm(p = 0.95, mean = length(OW_data)*length(NW_data)/2, sd = sqrt(length(OW_data)*length(NW_data)*(length(OW_data)+length(NW_data)+1) / 12)) #  163.5
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_independent_OW_NW_current_richness_boxplot.pdf", height = 6, width = 6)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_independent_OW_NW_current_richness_boxplot.pdf", height = 6, width = 6)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_independent_OW_NW_current_richness_boxplot.pdf", height = 6, width = 6)
 
 RISR_for_independent_OW_NW_current_richness_boxplot <- ggplot(data = RISR_clades_for_OW_NW_0.95_df,
                                                              mapping = aes(y = nb_descendant_tips, x = Hemisphere)) +
@@ -2715,17 +3050,19 @@ dev.off()
 OW_data <- RISR_clades_for_OW_NW_0.95_df$node_age[RISR_clades_for_OW_NW_0.95_df$Hemisphere == "Old World"]
 NW_data <- RISR_clades_for_OW_NW_0.95_df$node_age[RISR_clades_for_OW_NW_0.95_df$Hemisphere == "New World"]
 
-RISR_clades_for_independent_OW_NW_wilcox_test <- wilcox.test(x = OW_data,
-                                                            y = NW_data,
-                                                            alternative = "two.sided")
+# Test if the group with the highest median is statistically higher than the other group
+RISR_clades_for_independent_OW_NW_wilcox_test <- wilcox.test(x = list(OW_data, NW_data)[[(median(OW_data) < median(NW_data)) + 1]],
+                                                             y = list(OW_data, NW_data)[[(median(OW_data) >= median(NW_data)) + 1]],
+                                                             alternative = "greater")
 RISR_clades_for_independent_OW_NW_wilcox_test
-RISR_clades_for_independent_OW_NW_wilcox_test$statistic # W = 101
-RISR_clades_for_independent_OW_NW_wilcox_test$p.value # p = 0.057
+RISR_clades_for_independent_OW_NW_wilcox_test$statistic # W = 151
+RISR_clades_for_independent_OW_NW_wilcox_test$p.value # p = 0.127
 W_Q95 <- qnorm(p = 0.95, mean = length(OW_data)*length(NW_data)/2, sd = sqrt(length(OW_data)*length(NW_data)*(length(OW_data)+length(NW_data)+1) / 12)) ; W_Q95
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_independent_OW_NW_crown_age_boxplot.pdf", height = 6, width = 6)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_independent_OW_NW_crown_age_boxplot.pdf", height = 6, width = 6)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_independent_OW_NW_crown_age_boxplot.pdf", height = 6, width = 6)
 
 RISR_for_independent_OW_NW_crown_age_boxplot <- ggplot(data = RISR_clades_for_OW_NW_0.95_df,
                                                       mapping = aes(y = node_age, x = Hemisphere)) +
@@ -2780,17 +3117,19 @@ dev.off()
 OW_data <- RISR_clades_for_OW_NW_0.95_df$net_div_0[RISR_clades_for_OW_NW_0.95_df$Hemisphere == "Old World"]
 NW_data <- RISR_clades_for_OW_NW_0.95_df$net_div_0[RISR_clades_for_OW_NW_0.95_df$Hemisphere == "New World"]
 
-RISR_clades_for_independent_OW_NW_wilcox_test <- wilcox.test(x = OW_data,
-                                                            y = NW_data,
-                                                            alternative = "two.sided")
+# Test if the group with the highest median is statistically higher than the other group
+RISR_clades_for_independent_OW_NW_wilcox_test <- wilcox.test(x = list(OW_data, NW_data)[[(median(OW_data) < median(NW_data)) + 1]],
+                                                             y = list(OW_data, NW_data)[[(median(OW_data) >= median(NW_data)) + 1]],
+                                                             alternative = "greater")
 RISR_clades_for_independent_OW_NW_wilcox_test
-RISR_clades_for_independent_OW_NW_wilcox_test$statistic # W = 44.0
-RISR_clades_for_independent_OW_NW_wilcox_test$p.value # p = 0.174
+RISR_clades_for_independent_OW_NW_wilcox_test$statistic # W = 136
+RISR_clades_for_independent_OW_NW_wilcox_test$p.value # p = 0.282
 W_Q95 <- qnorm(p = 0.95, mean = length(OW_data)*length(NW_data)/2, sd = sqrt(length(OW_data)*length(NW_data)*(length(OW_data)+length(NW_data)+1) / 12)) ; W_Q95
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_independent_OW_NW_net_div_crown_boxplot.pdf", height = 6, width = 6)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_independent_OW_NW_net_div_crown_boxplot.pdf", height = 6, width = 6)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_independent_OW_NW_net_div_crown_boxplot.pdf", height = 6, width = 6)
 
 RISR_for_independent_OW_NW_net_div_crown_boxplot <- ggplot(data = RISR_clades_for_OW_NW_0.95_df,
                                                           mapping = aes(y = net_div_0, x = Hemisphere)) +
@@ -2805,10 +3144,10 @@ RISR_for_independent_OW_NW_net_div_crown_boxplot <- ggplot(data = RISR_clades_fo
   scale_fill_manual("Hemisphere", breaks = names(colors_list_for_OW_NW), labels = names(colors_list_for_OW_NW), values = colors_list_for_OW_NW) +
   
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.17, label = "Mann-Whitney test",
+  annotate(geom = "text", x = 0.55, y = 0.58, label = "Mann-Whitney test",
            hjust = 0, fontface = "bold", size = 5) +
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.155,
+  annotate(geom = "text", x = 0.55, y = 0.53,
            label = paste0("W = ", format(round(RISR_clades_for_independent_OW_NW_wilcox_test$statistic, 1), nsmall = 1), "\n",
                           "Q95 = ",  format(round(W_Q95, 1), nsmall = 1), "\n",
                           "p = ", format(round(RISR_clades_for_independent_OW_NW_wilcox_test$p.value, 3), nsmall = 3)),
@@ -2848,17 +3187,19 @@ dev.off()
 OW_data <- RISR_clades_for_OW_NW_0.95_df$alpha[RISR_clades_for_OW_NW_0.95_df$Hemisphere == "Old World"]
 NW_data <- RISR_clades_for_OW_NW_0.95_df$alpha[RISR_clades_for_OW_NW_0.95_df$Hemisphere == "New World"]
 
-RISR_clades_for_independent_OW_NW_wilcox_test <- wilcox.test(x = OW_data,
-                                                            y = NW_data,
-                                                            alternative = "two.sided")
+# Test if the group with the highest median is statistically higher than the other group
+RISR_clades_for_independent_OW_NW_wilcox_test <- wilcox.test(x = list(OW_data, NW_data)[[(median(OW_data) < median(NW_data)) + 1]],
+                                                             y = list(OW_data, NW_data)[[(median(OW_data) >= median(NW_data)) + 1]],
+                                                             alternative = "greater")
 RISR_clades_for_independent_OW_NW_wilcox_test
-RISR_clades_for_independent_OW_NW_wilcox_test$statistic # W = 74.0
-RISR_clades_for_independent_OW_NW_wilcox_test$p.value # p = 0.754
+RISR_clades_for_independent_OW_NW_wilcox_test$statistic # W = 120
+RISR_clades_for_independent_OW_NW_wilcox_test$p.value # p = 0.51
 W_Q95 <- qnorm(p = 0.95, mean = length(OW_data)*length(NW_data)/2, sd = sqrt(length(OW_data)*length(NW_data)*(length(OW_data)+length(NW_data)+1) / 12)) ; W_Q95
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_independent_OW_NW_alpha_boxplot.pdf", height = 6, width = 6)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_independent_OW_NW_alpha_boxplot.pdf", height = 6, width = 6)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_independent_OW_NW_alpha_boxplot.pdf", height = 6, width = 6)
 
 RISR_for_independent_OW_NW_alpha_boxplot <- ggplot(data = RISR_clades_for_OW_NW_0.95_df,
                                                   mapping = aes(y = alpha, x = Hemisphere)) +
@@ -2873,10 +3214,10 @@ RISR_for_independent_OW_NW_alpha_boxplot <- ggplot(data = RISR_clades_for_OW_NW_
   scale_fill_manual("Hemisphere", breaks = names(colors_list_for_OW_NW), labels = names(colors_list_for_OW_NW), values = colors_list_for_OW_NW) +
   
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.10, label = "Mann-Whitney test",
+  annotate(geom = "text", x = 0.55, y = 0.40, label = "Mann-Whitney test",
            hjust = 0, fontface = "bold", size = 5) +
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.09,
+  annotate(geom = "text", x = 0.55, y = 0.35,
            label = paste0("W = ", format(round(RISR_clades_for_independent_OW_NW_wilcox_test$statistic, 1), nsmall = 1), "\n",
                           "Q95 = ",  format(round(W_Q95, 1), nsmall = 1), "\n",
                           "p = ", format(round(RISR_clades_for_independent_OW_NW_wilcox_test$p.value, 3), nsmall = 3)),
@@ -2916,17 +3257,19 @@ dev.off()
 OW_data <- RISR_clades_for_OW_NW_0.95_df$net_div_current[RISR_clades_for_OW_NW_0.95_df$Hemisphere == "Old World"]
 NW_data <- RISR_clades_for_OW_NW_0.95_df$net_div_current[RISR_clades_for_OW_NW_0.95_df$Hemisphere == "New World"]
 
-RISR_clades_for_independent_OW_NW_wilcox_test <- wilcox.test(x = OW_data,
-                                                            y = NW_data,
-                                                            alternative = "two.sided")
+# Test if the group with the highest median is statistically higher than the other group
+RISR_clades_for_independent_OW_NW_wilcox_test <- wilcox.test(x = list(OW_data, NW_data)[[(median(OW_data) < median(NW_data)) + 1]],
+                                                             y = list(OW_data, NW_data)[[(median(OW_data) >= median(NW_data)) + 1]],
+                                                             alternative = "greater")
 RISR_clades_for_independent_OW_NW_wilcox_test
-RISR_clades_for_independent_OW_NW_wilcox_test$statistic # W = 71.0
-RISR_clades_for_independent_OW_NW_wilcox_test$p.value # p = 0.887
+RISR_clades_for_independent_OW_NW_wilcox_test$statistic # W = 151.0
+RISR_clades_for_independent_OW_NW_wilcox_test$p.value # p = 0.127
 W_Q95 <- qnorm(p = 0.95, mean = length(OW_data)*length(NW_data)/2, sd = sqrt(length(OW_data)*length(NW_data)*(length(OW_data)+length(NW_data)+1) / 12)) ; W_Q95
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_independent_OW_NW_net_div_current_boxplot.pdf", height = 6, width = 6)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_independent_OW_NW_net_div_current_boxplot.pdf", height = 6, width = 6)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_independent_OW_NW_net_div_current_boxplot.pdf", height = 6, width = 6)
 
 RISR_for_independent_OW_NW_net_div_current_boxplot <- ggplot(data = RISR_clades_for_OW_NW_0.95_df,
                                                             mapping = aes(y = net_div_current, x = Hemisphere)) +
@@ -2941,10 +3284,10 @@ RISR_for_independent_OW_NW_net_div_current_boxplot <- ggplot(data = RISR_clades_
   scale_fill_manual("Hemisphere", breaks = names(colors_list_for_OW_NW), labels = names(colors_list_for_OW_NW), values = colors_list_for_OW_NW) +
   
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.40, label = "Mann-Whitney test",
+  annotate(geom = "text", x = 0.55, y = 0.85, label = "Mann-Whitney test",
            hjust = 0, fontface = "bold", size = 5) +
   # Add test results
-  annotate(geom = "text", x = 0.55, y = 0.37,
+  annotate(geom = "text", x = 0.55, y = 0.78,
            label = paste0("W = ", format(round(RISR_clades_for_independent_OW_NW_wilcox_test$statistic, 1), nsmall = 1), "\n",
                           "Q95 = ", format(round(W_Q95, 1), nsmall = 1), "\n",
                           "p = ", format(round(RISR_clades_for_independent_OW_NW_wilcox_test$p.value, 3), nsmall = 3)),
@@ -3005,7 +3348,8 @@ New_World_ymax <- RISR_clades_for_independent_OW_NW_richness_age_GLM_coefs["(Int
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_independent_OW_NW_current_richness_per_crown_ages_plot.pdf", height = 6, width = 7)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_independent_OW_NW_current_richness_per_crown_ages_plot.pdf", height = 6, width = 7)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_independent_OW_NW_current_richness_per_crown_ages_plot.pdf", height = 6, width = 7)
 
 RISR_for_independent_OW_NW_current_richness_per_crown_ages_plot <- ggplot(data = RISR_clades_for_OW_NW_0.95_df,
                                                                          aes(y = nb_descendant_tips, x = node_age)) +
@@ -3092,7 +3436,9 @@ RISR_for_independent_OW_NW_all_plots_list <- list(RISR_for_independent_OW_NW_cur
 # Rows = type of events
 # Columns = Time-strata
 
-pdf(file = paste0("./outputs/RISR/RISR_for_independent_OW_NW_all_plots.pdf"),
+# pdf(file = paste0("./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_independent_OW_NW_all_plots.pdf"),
+pdf(file = paste0("./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_independent_OW_NW_all_plots.pdf"),
+        
     height = 6*2, width = 6.5*3)
 
 gridExtra::grid.arrange(
@@ -3108,7 +3454,8 @@ dev.off()
 ##### 8/ Identify factors explaining current richness, for Bioregions #####
 
 # Load metadata df of RISR clades per Bioregions for the selected endemicity threshold
-RISR_clades_for_Bioregions_0.80_df <- readRDS(file = "./outputs/RISR/RISR_clades_for_Bioregions_0.80_df.rds")
+# RISR_clades_for_Bioregions_0.80_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Bioregions_0.80_df.rds")
+RISR_clades_for_Bioregions_0.75_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Bioregions_0.80_df.rds")
 
 # Current richness ~ Binomial GLM with model selection based on AICc
   # If crown age: "Time-for-accumulation hypothesis"
@@ -3117,7 +3464,8 @@ RISR_clades_for_Bioregions_0.80_df <- readRDS(file = "./outputs/RISR/RISR_clades
 
 ### 8.1/ Run unstandardized model ####
 
-RISR_clades_for_Bioregions_richness_model_GLM <- glm(data = RISR_clades_for_Bioregions_0.80_df,
+RISR_clades_for_Bioregions_richness_model_GLM <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                     data = RISR_clades_for_Bioregions_0.75_df,
                                                      formula = nb_descendant_tips ~ (node_age + net_div_0 + alpha + 0) * (Region),
                                                      family = "poisson")
 # Add + 0 to remove the Intercept and compute coefficients for each levels => RegionAfrotropics = (Intercept) ; RegionAustralasia = RegionAustralasia + (Intercept)
@@ -3137,7 +3485,8 @@ car::Anova(RISR_clades_for_Bioregions_richness_model_GLM, type = "II", test.stat
 
 # reghelper::beta(model = RISR_clades_for_Bioregions_richness_model_GLM, skip = "Region")
 
-RISR_clades_for_Bioregions_richness_model_GLM_scaled <- glm(data = RISR_clades_for_Bioregions_0.80_df,
+RISR_clades_for_Bioregions_richness_model_GLM_scaled <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                            data = RISR_clades_for_Bioregions_0.75_df,
                                                             formula = nb_descendant_tips ~ (scale(node_age) + scale(net_div_0) + scale(alpha) + 0) * (Region),
                                                             family = "poisson")
 
@@ -3146,8 +3495,57 @@ RISR_clades_for_Bioregions_richness_model_GLM_coefs_std <- coefficients(RISR_cla
 
 # Type I Anova (sequential)
 RISR_clades_for_Bioregions_richness_model_GLM_scaled_anova_table <- anova(RISR_clades_for_Bioregions_richness_model_GLM_scaled, test = 'LRT') ; RISR_clades_for_Bioregions_richness_model_GLM_scaled_anova_table
-# Type II Anova (marginal)
+# Type II Anova (marginal, ignoring higher rank terms, except it does not seem to work...)
 car::Anova(RISR_clades_for_Bioregions_richness_model_GLM_scaled, type = "II", test.statistic = "LR")
+
+# ## Manual type II ANOVAs
+# # Goal = evaluating which bioregion driven effect is the most important
+#   # Statistically speaking = testing effect of adding or not an interaction between bioregion and the predictors
+#   # However, still not telling if differences in current richness are due to differences in predictors, but only if the effect of those predictors is different across bioregions!
+# 
+# # Full model with all interactions
+# full_model <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+#                   data = RISR_clades_for_Bioregions_0.75_df,
+#                   formula = nb_descendant_tips ~ (scale(node_age) + scale(net_div_0) + scale(alpha) + 0) * (Region),
+#                   family = "poisson")
+# 
+# # Model with no effect of node ages
+# no_node_age_model <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+#   data = RISR_clades_for_Bioregions_0.75_df,
+#   formula = nb_descendant_tips ~ (scale(net_div_0) + scale(alpha) + 0) * (Region),
+#   family = "poisson")
+# 
+# # Model with no bioregional effect on node ages
+# no_node_age_model <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+#                          data = RISR_clades_for_Bioregions_0.75_df,
+#                          formula = nb_descendant_tips ~ (scale(net_div_0) + scale(alpha) + 0) * (Region) + scale(node_age),
+#                          family = "poisson")
+# 
+# no_crown_rate_model <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+#   data = RISR_clades_for_Bioregions_0.75_df,
+#   formula = nb_descendant_tips ~ (scale(node_age) + scale(alpha) + 0) * (Region),
+#   family = "poisson")
+# 
+# no_alpha_model <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+#   data = RISR_clades_for_Bioregions_0.75_df,
+#   formula = nb_descendant_tips ~ (scale(node_age) + scale(net_div_0) + 0) * (Region),
+#   family = "poisson")
+# 
+# no_bioregion_model <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+#   data = RISR_clades_for_Bioregions_0.75_df,
+#   formula = nb_descendant_tips ~ (scale(node_age) + scale(net_div_0) + scale(alpha) + 0),
+#   family = "poisson")
+# 
+# no_bioregion_interactions_model <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+#   data = RISR_clades_for_Bioregions_0.75_df,
+#   formula = nb_descendant_tips ~ (scale(node_age) + scale(net_div_0) + scale(alpha) + Region + 0),
+#   family = "poisson")
+# 
+# anova(no_node_age_model, full_model)
+# anova(no_crown_rate_model, full_model)
+# anova(no_alpha_model, full_model)
+# anova(no_bioregion_model, full_model)
+# anova(no_bioregion_interactions_model, full_model)
 
 # Compare design matrices
 model.matrix(RISR_clades_for_Bioregions_richness_model_GLM)
@@ -3200,20 +3598,22 @@ RISR_clades_for_Bioregions_richness_model_GLM_coefs_std_df <- RISR_clades_for_Bi
   dplyr::select(par_name, par_type, bioregion, mean, se, CI2.5, CI97.5)
 
 # Save std coeffs df
-saveRDS(RISR_clades_for_Bioregions_richness_model_GLM_coefs_std_df, file = "./outputs/RISR/RISR_clades_for_Bioregions_richness_model_GLM_coefs_std_df.rds")
+# saveRDS(RISR_clades_for_Bioregions_richness_model_GLM_coefs_std_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Bioregions_richness_model_GLM_coefs_std_df.rds")
+saveRDS(RISR_clades_for_Bioregions_richness_model_GLM_coefs_std_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Bioregions_richness_model_GLM_coefs_std_df.rds")
 
 
 ### 8.4/ Plot Beta coefficients ####
 
 # Set color scheme for Bioregions
-colors_list_for_areas <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_areas_light.rds")
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 names(colors_list_for_areas) <- bioregion_names
 colors_list_for_bioregions <- colors_list_for_areas[c("Afrotropics", "Australasia", "Indomalaya", "Neotropics")]
 bioregion_labels <- c("Afrotrp", "Austr", "IndoM", "Neotrp")
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_Bioregions_richness_model_coefs_plot.pdf", height = 8, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_Bioregions_richness_model_coefs_plot.pdf", height = 8, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_Bioregions_richness_model_coefs_plot.pdf", height = 8, width = 8)
 
 RISR_for_Bioregions_richness_model_coefs_plot <- ggplot(data = RISR_clades_for_Bioregions_richness_model_GLM_coefs_std_df) +
   
@@ -3291,11 +3691,14 @@ dev.off()
 ### 8.5/ Compare % of variance (deviance) explained by each factor in each bioregion ####
 
 # One model per Bioregion
-bioregion_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Region)
+# bioregion_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Region)
+bioregion_levels <- as.character(unique(RISR_clades_for_Bioregions_0.75_df$Region))
+bioregion_levels <- bioregion_levels[order(bioregion_levels)]
 
 ## 8.5.1/ Run GLM and extract Anova Type II outputs ####
 
-RISR_clades_for_Bioregions_0.80_Anova_df <- data.frame()
+# RISR_clades_for_Bioregions_0.80_Anova_df <- data.frame()
+RISR_clades_for_Bioregions_0.75_Anova_df <- data.frame()
 for (i in seq_along(bioregion_levels))
 {
   # i <- 1
@@ -3303,14 +3706,19 @@ for (i in seq_along(bioregion_levels))
   # Extract bioregion
   bioregion_i <- bioregion_levels[i]
   
+  # # Extract RISR data
+  # RISR_clades_for_Bioregions_0.80_df_i <- RISR_clades_for_Bioregions_0.80_df %>% 
+  #   filter(Region == bioregion_i)
+  
   # Extract RISR data
-  RISR_clades_for_Bioregions_0.80_df_i <- RISR_clades_for_Bioregions_0.80_df %>% 
+  RISR_clades_for_Bioregions_0.75_df_i <- RISR_clades_for_Bioregions_0.75_df %>% 
     filter(Region == bioregion_i)
   
   # Run GLM
-  RISR_clades_for_Bioregions_richness_model_GLM_scaled_i <- glm(data = RISR_clades_for_Bioregions_0.80_df_i,
-                                                              formula = nb_descendant_tips ~ scale(node_age) + scale(net_div_0) + scale(alpha),
-                                                              family = "poisson")
+  RISR_clades_for_Bioregions_richness_model_GLM_scaled_i <- glm(# data = RISR_clades_for_Bioregions_0.80_df_i,
+                                                                data = RISR_clades_for_Bioregions_0.75_df_i,
+                                                                formula = nb_descendant_tips ~ scale(node_age) + scale(net_div_0) + scale(alpha),
+                                                                family = "poisson")
   
   summary(RISR_clades_for_Bioregions_richness_model_GLM_scaled_i)
   
@@ -3328,29 +3736,38 @@ for (i in seq_along(bioregion_levels))
   
   # Extract % of marginal deviance explain by each factor
   # Convert to % using the Null Deviance
-  RISR_clades_for_Bioregions_richness_model_Anofa_df_i <- data.frame(bioregion = bioregion_i,
+  RISR_clades_for_Bioregions_richness_model_Anova_df_i <- data.frame(bioregion = bioregion_i,
                                                                      predictor = predictors,
                                                                      deviance_perc = round(RISR_clades_for_Bioregions_richness_model_GLM_scaled_anova_table_i$`LR Chisq` / RISR_clades_for_Bioregions_richness_model_GLM_scaled_i$null.deviance * 100, 1))
   
   # Store in final df
-  RISR_clades_for_Bioregions_0.80_Anova_df <- rbind(RISR_clades_for_Bioregions_0.80_Anova_df, RISR_clades_for_Bioregions_richness_model_Anofa_df_i)
+  # RISR_clades_for_Bioregions_0.80_Anova_df <- rbind(RISR_clades_for_Bioregions_0.80_Anova_df, RISR_clades_for_Bioregions_richness_model_Anova_df_i)
+  RISR_clades_for_Bioregions_0.75_Anova_df <- rbind(RISR_clades_for_Bioregions_0.75_Anova_df, RISR_clades_for_Bioregions_richness_model_Anova_df_i)
 }
 
+# # Adjust predictor levels
+# RISR_clades_for_Bioregions_0.80_Anova_df$predictor <- factor(x = RISR_clades_for_Bioregions_0.80_Anova_df$predictor,
+#                                                              levels = c("node_age", "net_div_0", "alpha"),
+#                                                              labels = c("Crown age", "Crown net div. rate", "Time variation"))
+
 # Adjust predictor levels
-RISR_clades_for_Bioregions_0.80_Anova_df$predictor <- factor(x = RISR_clades_for_Bioregions_0.80_Anova_df$predictor,
+RISR_clades_for_Bioregions_0.75_Anova_df$predictor <- factor(x = RISR_clades_for_Bioregions_0.75_Anova_df$predictor,
                                                              levels = c("node_age", "net_div_0", "alpha"),
                                                              labels = c("Crown age", "Crown net div. rate", "Time variation"))
 
 # Save Anova type II summary df for Bioregions
-saveRDS(object = RISR_clades_for_Bioregions_0.80_Anova_df, file = "./outputs/RISR/RISR_clades_for_Bioregions_0.80_Anova_df.rds")
+# saveRDS(object = RISR_clades_for_Bioregions_0.80_Anova_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Bioregions_0.80_Anova_df.rds")
+saveRDS(object = RISR_clades_for_Bioregions_0.75_Anova_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Bioregions_0.75_Anova_df.rds")
 
 
 ## 8.5.2/ Plot % of marginal deviance ~ predictors for Bioregions ####
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_Bioregions_richness_model_Anova_predictors_plot.pdf", height = 9, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_Bioregions_richness_model_Anova_predictors_plot.pdf", height = 9, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_Bioregions_richness_model_Anova_predictors_plot.pdf", height = 9, width = 8)
 
-RISR_for_Bioregions_richness_model_Anova_predictors_plot <- ggplot(data = RISR_clades_for_Bioregions_0.80_Anova_df) +
+RISR_for_Bioregions_richness_model_Anova_predictors_plot <- ggplot(# data = RISR_clades_for_Bioregions_0.80_Anova_df,
+                                                                   data = RISR_clades_for_Bioregions_0.75_Anova_df) +
   
   # Add column bars
   geom_col(mapping = aes(x = predictor, y = deviance_perc, fill = bioregion),
@@ -3399,11 +3816,14 @@ print(RISR_for_Bioregions_richness_model_Anova_predictors_plot)
 dev.off()
 
 
+### 8.6/ Run 
+
 
 ##### 9/ Identify factors explaining current richness, aggregated Old World vs. New World #####
 
 # Load metadata df of RISR clades per aggregated OW vs. NW for the selected endemicity threshold
-RISR_clades_for_Bioregions_0.80_df <- readRDS(file = "./outputs/RISR/RISR_clades_for_Bioregions_0.80_df.rds")
+# RISR_clades_for_Bioregions_0.80_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_Bioregions_0.80_df.rds")
+RISR_clades_for_Bioregions_0.75_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_Bioregions_0.75_df.rds")
 
 # Current richness ~ Binomial GLM with model selection based on AICc
 # If crown age: "Time-for-accumulation hypothesis"
@@ -3412,7 +3832,8 @@ RISR_clades_for_Bioregions_0.80_df <- readRDS(file = "./outputs/RISR/RISR_clades
 
 ### 9.1/ Run unstandardized model ####
 
-RISR_clades_for_aggregated_OW_NW_richness_model_GLM <- glm(data = RISR_clades_for_Bioregions_0.80_df,
+RISR_clades_for_aggregated_OW_NW_richness_model_GLM <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                           data = RISR_clades_for_Bioregions_0.75_df,
                                                            formula = nb_descendant_tips ~ (node_age + net_div_0 + alpha + 0) * (Hemisphere),
                                                            family = "poisson")
 # Add + 0 to remove the Intercept and compute coefficients for each levels => HemisphereOld World = (Intercept) ; HemisphereNew World = HemisphereNew World + (Intercept)
@@ -3432,9 +3853,10 @@ car::Anova(RISR_clades_for_aggregated_OW_NW_richness_model_GLM, type = "II", tes
 
 # reghelper::beta(model = RISR_clades_for_aggregated_OW_NW_richness_model_GLM, skip = "Hemisphere")
 
-RISR_clades_for_aggregated_OW_NW_richness_model_GLM_scaled <- glm(data = RISR_clades_for_Bioregions_0.80_df,
-                                                            formula = nb_descendant_tips ~ (scale(node_age) + scale(net_div_0) + scale(alpha) + 0) * (Hemisphere),
-                                                            family = "poisson")
+RISR_clades_for_aggregated_OW_NW_richness_model_GLM_scaled <- glm(# data = RISR_clades_for_Bioregions_0.80_df,
+                                                                  data = RISR_clades_for_Bioregions_0.75_df,
+                                                                  formula = nb_descendant_tips ~ (scale(node_age) + scale(net_div_0) + scale(alpha) + 0) * (Hemisphere),
+                                                                  family = "poisson")
 
 summary(RISR_clades_for_aggregated_OW_NW_richness_model_GLM_scaled)
 RISR_clades_for_aggregated_OW_NW_richness_model_GLM_coefs_std <- coefficients(RISR_clades_for_aggregated_OW_NW_richness_model_GLM_scaled)
@@ -3493,7 +3915,8 @@ RISR_clades_for_aggregated_OW_NW_richness_model_GLM_coefs_std_df <- RISR_clades_
   dplyr::select(par_name, par_type, hemisphere, mean, se, CI2.5, CI97.5)
 
 # Save std coeffs df
-saveRDS(object = RISR_clades_for_aggregated_OW_NW_richness_model_GLM_coefs_std_df, file = "./outputs/RISR/RISR_clades_for_aggregated_OW_NW_richness_model_GLM_coefs_std_df.rds")
+# saveRDS(object = RISR_clades_for_aggregated_OW_NW_richness_model_GLM_coefs_std_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_aggregated_OW_NW_richness_model_GLM_coefs_std_df.rds")
+saveRDS(object = RISR_clades_for_aggregated_OW_NW_richness_model_GLM_coefs_std_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_aggregated_OW_NW_richness_model_GLM_coefs_std_df.rds")
 
 
 ### 9.4/ Plot Beta coefficients ####
@@ -3512,7 +3935,8 @@ RISR_clades_for_aggregated_OW_NW_richness_model_GLM_coefs_std_df$par_type <- fac
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_aggregated_OW_NW_richness_model_coefs_plot.pdf", height = 8, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_aggregated_OW_NW_richness_model_coefs_plot.pdf", height = 8, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_aggregated_OW_NW_richness_model_coefs_plot.pdf", height = 8, width = 8)
 
 RISR_for_aggregated_OW_NW_richness_model_coefs_plot <- ggplot(data = RISR_clades_for_aggregated_OW_NW_richness_model_GLM_coefs_std_df) +
   
@@ -3589,27 +4013,36 @@ dev.off()
 
 ### 9.5/ Compare % of variance (deviance) explained by each factor in each aggregated Old World vs. New World ####
 
+## Does not tell us what predictors as the most effect overall...
+
 # One model per Hemisphere
-OW_NW_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Hemisphere)
+# OW_NW_levels <- levels(RISR_clades_for_Bioregions_0.80_df$Hemisphere)
+OW_NW_levels <- levels(RISR_clades_for_Bioregions_0.75_df$Hemisphere)
 
 ## 9.5.1/ Run GLM and extract Anova Type II outputs ####
 
-RISR_clades_for_aggregated_OW_NW_0.80_Anova_df <- data.frame()
+# RISR_clades_for_aggregated_OW_NW_0.80_Anova_df <- data.frame()
+RISR_clades_for_aggregated_OW_NW_0.75_Anova_df <- data.frame()
 for (i in seq_along(OW_NW_levels))
 {
-  # i <- 1
+  # i <- 2
   
   # Extract hemisphere
   hemisphere_i <- OW_NW_levels[i]
   
+  # # Extract RISR data
+  # RISR_clades_for_aggregated_OW_NW_0.80_df_i <- RISR_clades_for_Bioregions_0.80_df %>% 
+  #   filter(Hemisphere == hemisphere_i)
+  
   # Extract RISR data
-  RISR_clades_for_aggregated_OW_NW_0.80_df_i <- RISR_clades_for_Bioregions_0.80_df %>% 
+  RISR_clades_for_aggregated_OW_NW_0.75_df_i <- RISR_clades_for_Bioregions_0.75_df %>% 
     filter(Hemisphere == hemisphere_i)
   
   # Run GLM
-  RISR_clades_for_aggregated_OW_NW_richness_model_GLM_scaled_i <- glm(data = RISR_clades_for_aggregated_OW_NW_0.80_df_i,
-                                                                formula = nb_descendant_tips ~ scale(node_age) + scale(net_div_0) + scale(alpha),
-                                                                family = "poisson")
+  RISR_clades_for_aggregated_OW_NW_richness_model_GLM_scaled_i <- glm(# data = RISR_clades_for_aggregated_OW_NW_0.80_df_i,
+                                                                      data = RISR_clades_for_aggregated_OW_NW_0.75_df_i,
+                                                                      formula = nb_descendant_tips ~ scale(node_age) + scale(net_div_0) + scale(alpha),
+                                                                      family = "poisson")
   
   summary(RISR_clades_for_aggregated_OW_NW_richness_model_GLM_scaled_i)
   
@@ -3627,29 +4060,40 @@ for (i in seq_along(OW_NW_levels))
   
   # Extract % of marginal deviance explain by each factor
   # Convert to % using the Null Deviance
-  RISR_clades_for_aggregated_OW_NW_richness_model_Anofa_df_i <- data.frame(hemisphere = hemisphere_i,
+  RISR_clades_for_aggregated_OW_NW_richness_model_Anova_df_i <- data.frame(hemisphere = hemisphere_i,
                                                                      predictor = predictors,
                                                                      deviance_perc = round(RISR_clades_for_aggregated_OW_NW_richness_model_GLM_scaled_anova_table_i$`LR Chisq` / RISR_clades_for_aggregated_OW_NW_richness_model_GLM_scaled_i$null.deviance * 100, 1))
   
   # Store in final df
-  RISR_clades_for_aggregated_OW_NW_0.80_Anova_df <- rbind(RISR_clades_for_aggregated_OW_NW_0.80_Anova_df, RISR_clades_for_aggregated_OW_NW_richness_model_Anofa_df_i)
+  # RISR_clades_for_aggregated_OW_NW_0.80_Anova_df <- rbind(RISR_clades_for_aggregated_OW_NW_0.80_Anova_df, RISR_clades_for_aggregated_OW_NW_richness_model_Anova_df_i)
+  RISR_clades_for_aggregated_OW_NW_0.75_Anova_df <- rbind(RISR_clades_for_aggregated_OW_NW_0.75_Anova_df, RISR_clades_for_aggregated_OW_NW_richness_model_Anova_df_i)
+  
 }
 
+# # Adjust predictor levels
+# RISR_clades_for_aggregated_OW_NW_0.80_Anova_df$predictor <- factor(x = RISR_clades_for_aggregated_OW_NW_0.80_Anova_df$predictor,
+#                                                              levels = c("node_age", "net_div_0", "alpha"),
+#                                                              labels = c("Crown age", "Crown net div. rate", "Time variation"))
+
 # Adjust predictor levels
-RISR_clades_for_aggregated_OW_NW_0.80_Anova_df$predictor <- factor(x = RISR_clades_for_aggregated_OW_NW_0.80_Anova_df$predictor,
-                                                             levels = c("node_age", "net_div_0", "alpha"),
-                                                             labels = c("Crown age", "Crown net div. rate", "Time variation"))
+RISR_clades_for_aggregated_OW_NW_0.75_Anova_df$predictor <- factor(x = RISR_clades_for_aggregated_OW_NW_0.75_Anova_df$predictor,
+                                                                   levels = c("node_age", "net_div_0", "alpha"),
+                                                                   labels = c("Crown age", "Crown net div. rate", "Time variation"))
+
 
 # Save Anova type II summary df for aggregated Old World vs. New World
-saveRDS(object = RISR_clades_for_aggregated_OW_NW_0.80_Anova_df, file = "./outputs/RISR/RISR_clades_for_aggregated_OW_NW_0.80_Anova_df.rds")
+# saveRDS(object = RISR_clades_for_aggregated_OW_NW_0.80_Anova_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_aggregated_OW_NW_0.80_Anova_df.rds")
+saveRDS(object = RISR_clades_for_aggregated_OW_NW_0.75_Anova_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_aggregated_OW_NW_0.75_Anova_df.rds")
 
 
 ## 9.5.2/ Plot % of marginal deviance ~ predictors for aggregated Old World vs. New World ####
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_aggregated_OW_NW_richness_model_Anova_predictors_plot.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_aggregated_OW_NW_richness_model_Anova_predictors_plot.pdf", height = 6, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_aggregated_OW_NW_richness_model_Anova_predictors_plot.pdf", height = 6, width = 8)
 
-RISR_for_aggregated_OW_NW_richness_model_Anova_predictors_plot <- ggplot(data = RISR_clades_for_aggregated_OW_NW_0.80_Anova_df) +
+RISR_for_aggregated_OW_NW_richness_model_Anova_predictors_plot <- ggplot(# data = RISR_clades_for_aggregated_OW_NW_0.80_Anova_df,
+                                                                         data = RISR_clades_for_aggregated_OW_NW_0.75_Anova_df) +
   
   # Add column bars
   geom_col(mapping = aes(x = predictor, y = deviance_perc, fill = hemisphere),
@@ -3700,9 +4144,9 @@ dev.off()
 
 ##### 10/ Identify factors explaining current richness, for independent Old World vs. New World #####
 
-
 # Load metadata df of RISR clades per independent OW vs. NW for the selected endemicity threshold
-RISR_clades_for_OW_NW_0.95_df <- readRDS(file = "./outputs/RISR/RISR_clades_for_OW_NW_0.95_df.rds")
+# RISR_clades_for_OW_NW_0.95_df <- readRDS(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_OW_NW_0.95_df.rds")
+RISR_clades_for_OW_NW_0.95_df <- readRDS(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_OW_NW_0.95_df.rds")
 RISR_clades_for_OW_NW_0.95_df$Hemisphere <- as.factor(str_replace(string = RISR_clades_for_OW_NW_0.95_df$Region, pattern = "_", replacement = " "))
 
 # Current richness ~ Binomial GLM with model selection based on AICc
@@ -3793,7 +4237,8 @@ RISR_clades_for_independent_OW_NW_richness_model_GLM_coefs_std_df <- RISR_clades
   dplyr::select(par_name, par_type, hemisphere, mean, se, CI2.5, CI97.5)
 
 # Save std coeffs df
-saveRDS(object = RISR_clades_for_independent_OW_NW_richness_model_GLM_coefs_std_df, file = "./outputs/RISR/RISR_clades_for_independent_OW_NW_richness_model_GLM_coefs_std_df.rds")
+# saveRDS(object = RISR_clades_for_independent_OW_NW_richness_model_GLM_coefs_std_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_independent_OW_NW_richness_model_GLM_coefs_std_df.rds")
+saveRDS(object = RISR_clades_for_independent_OW_NW_richness_model_GLM_coefs_std_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_independent_OW_NW_richness_model_GLM_coefs_std_df.rds")
 
 
 ### 10.4/ Plot Beta coefficients ####
@@ -3812,7 +4257,8 @@ RISR_clades_for_independent_OW_NW_richness_model_GLM_coefs_std_df$par_type <- fa
 
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_independent_OW_NW_richness_model_coefs_plot.pdf", height = 8, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_independent_OW_NW_richness_model_coefs_plot.pdf", height = 8, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_independent_OW_NW_richness_model_coefs_plot.pdf", height = 8, width = 8)
 
 RISR_for_independent_OW_NW_richness_model_coefs_plot <- ggplot(data = RISR_clades_for_independent_OW_NW_richness_model_GLM_coefs_std_df) +
   
@@ -3927,12 +4373,12 @@ for (i in seq_along(OW_NW_levels))
   
   # Extract % of marginal deviance explain by each factor
   # Convert to % using the Null Deviance
-  RISR_clades_for_independent_OW_NW_richness_model_Anofa_df_i <- data.frame(hemisphere = hemisphere_i,
+  RISR_clades_for_independent_OW_NW_richness_model_Anova_df_i <- data.frame(hemisphere = hemisphere_i,
                                                                            predictor = predictors,
                                                                            deviance_perc = round(RISR_clades_for_independent_OW_NW_richness_model_GLM_scaled_anova_table_i$`LR Chisq` / RISR_clades_for_independent_OW_NW_richness_model_GLM_scaled_i$null.deviance * 100, 1))
   
   # Store in final df
-  RISR_clades_for_independent_OW_NW_0.80_Anova_df <- rbind(RISR_clades_for_independent_OW_NW_0.80_Anova_df, RISR_clades_for_independent_OW_NW_richness_model_Anofa_df_i)
+  RISR_clades_for_independent_OW_NW_0.80_Anova_df <- rbind(RISR_clades_for_independent_OW_NW_0.80_Anova_df, RISR_clades_for_independent_OW_NW_richness_model_Anova_df_i)
 }
 
 # Adjust predictor levels
@@ -3941,13 +4387,15 @@ RISR_clades_for_independent_OW_NW_0.80_Anova_df$predictor <- factor(x = RISR_cla
                                                                    labels = c("Crown age", "Crown net div. rate", "Time variation"))
 
 # Save Anova type II summary df for independent Old World vs. New World
-saveRDS(object = RISR_clades_for_independent_OW_NW_0.80_Anova_df, file = "./outputs/RISR/RISR_clades_for_independent_OW_NW_0.80_Anova_df.rds")
+# saveRDS(object = RISR_clades_for_independent_OW_NW_0.80_Anova_df, file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_clades_for_independent_OW_NW_0.80_Anova_df.rds")
+saveRDS(object = RISR_clades_for_independent_OW_NW_0.80_Anova_df, file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_clades_for_independent_OW_NW_0.80_Anova_df.rds")
 
 
 ## 10.5.2/ Plot % of marginal deviance ~ predictors for independent Old World vs. New World ####
 
 ## GGplot
-pdf(file = "./outputs/RISR/RISR_for_independent_OW_NW_richness_model_Anova_predictors_plot.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/RISR/Ponerinae_rough_phylogeny_1534t/RISR_for_independent_OW_NW_richness_model_Anova_predictors_plot.pdf", height = 6, width = 8)
+pdf(file = "./outputs/RISR/Ponerinae_MCC_phylogeny_1534t/RISR_for_independent_OW_NW_richness_model_Anova_predictors_plot.pdf", height = 6, width = 8)
 
 RISR_for_independent_OW_NW_richness_model_Anova_predictors_plot <- ggplot(data = RISR_clades_for_independent_OW_NW_0.80_Anova_df) +
   
@@ -4002,8 +4450,5 @@ dev.off()
 ### Bonus in other scripts (?)
 
 # For a more smooth model with many small cladogenetic changes, see CLaDS
-# GeoSSE, GeoHiSSE for Old World vs. New world. See Kawahara ?
-
-
 
 

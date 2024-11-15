@@ -52,10 +52,12 @@ library(phytools)
 library(ape)
 library(TreeSim)
 library(GGally)    # To plot nice correlograms
+library(magick)
+library(qpdf)
 
 ### 1.2/ Load backbone phylogeny ####
 
-# Use temporary non-calibrated phylogeny
+## 1.2.1/ Use temporary non-calibrated phylogeny ####
 
 Ponerinae_uncalibrated_phylogeny_792t <- read.tree(file = "./input_data/Phylogenies/ponerinae-792t-spruce-75p-iqtree-swscmerge-mfp_v2_v2.tre")
 Ponerinae_uncalibrated_phylogeny_792t$tip.label
@@ -67,7 +69,55 @@ Ponerinae_uncalibrated_phylogeny_789t <- tidytree::drop.tip(object = Ponerinae_u
 saveRDS(object = Ponerinae_uncalibrated_phylogeny_789t, file = "./input_data/Phylogenies/Ponerinae_uncalibrated_phylogeny_789t.rds")
 Ponerinae_uncalibrated_phylogeny_789t <- readRDS(file = "./input_data/Phylogenies/Ponerinae_uncalibrated_phylogeny_789t.rds")
 
-# May load set of backbone phylogenies if using bootstrap phylogenies to account for uncertainty in phylogenetic inference (due to site sampling)
+## 1.2.2/ Load Maximum Clade Credibility tree from TreePL "posteriors" ####
+
+# Load as treedata to keep HPD ranges
+Ponerinae_MCC_phylogeny_792t_treedata <- treeio::read.beast(file = "./input_data/Phylogenies/Maximum_Clade_Credibility_tree_from_TreePL_792t.tre")
+Ponerinae_MCC_phylogeny_792t_treedata@phylo$tip.label
+View(Ponerinae_MCC_phylogeny_792t_treedata@data) # View node metadata
+dim(Ponerinae_MCC_phylogeny_792t_treedata@data)
+
+# Remove data in useless slots
+Ponerinae_MCC_phylogeny_792t_treedata@file <- ""
+Ponerinae_MCC_phylogeny_792t_treedata@treetext <- ""
+
+# Prune outgroups
+outgroups <- c("Amblyopone_australis_D0872_CASENT0106229", "Paraponera_clavata_EX1573_CASENT0633292", "Proceratium_google_MAMI0434_CASENT0035028")
+Ponerinae_MCC_phylogeny_789t_treedata <- drop.tip(object = Ponerinae_MCC_phylogeny_792t_treedata, tip = outgroups)
+dim(Ponerinae_MCC_phylogeny_789t_treedata@data)
+
+saveRDS(object = Ponerinae_MCC_phylogeny_789t_treedata, file = "./input_data/Phylogenies/Ponerinae_MCC_phylogeny_789t_treedata.rds")
+Ponerinae_MCC_phylogeny_789t_treedata <- readRDS(file = "./input_data/Phylogenies/Ponerinae_MCC_phylogeny_789t_treedata.rds")
+
+# Export Nexus file
+ape::write.tree(phy = Ponerinae_MCC_phylogeny_789t_treedata@phylo, file = "./input_data/Phylogenies/Ponerinae_MCC_phylogeny_789t.tree")
+
+## 1.2.3/ Load set of backbone phylogenies from TreePL to account for uncertainty in divergence dating ####
+
+path_prefix <- "./BASH_scripts_for_treePL/treepl_configs/tree"
+path_suffix <- ".dated.tre"
+TreePL_posterior_dated_trees_path <- paste0(path_prefix, 1:1000, path_suffix)
+
+Ponerinae_all_posteriors_phylogeny_792t <- list()
+for (i in seq_along(TreePL_posterior_dated_trees_path))
+{
+  Ponerinae_posterior_phylogeny_792t_i <- read.tree(file = TreePL_posterior_dated_trees_path[i])
+  Ponerinae_all_posteriors_phylogeny_792t[[i]] <- Ponerinae_posterior_phylogeny_792t_i
+}
+# Assign ape multiPhylo class
+class(Ponerinae_all_posteriors_phylogeny_792t) <- "multiPhylo"
+table(unlist(lapply(X = Ponerinae_all_posteriors_phylogeny_792t, FUN = function (x) { length(x$tip.label) } )))
+
+# Prune outgroups
+outgroups <- c("Amblyopone_australis_D0872_CASENT0106229", "Paraponera_clavata_EX1573_CASENT0633292", "Proceratium_google_MAMI0434_CASENT0035028")
+Ponerinae_all_posteriors_phylogeny_789t <- ape::drop.tip(phy = Ponerinae_all_posteriors_phylogeny_792t, tip = outgroups)
+table(unlist(lapply(X = Ponerinae_all_posteriors_phylogeny_789t, FUN = function (x) { length(x$tip.label) } )))
+
+saveRDS(object = Ponerinae_all_posteriors_phylogeny_789t, file = "./input_data/Phylogenies/Ponerinae_all_posteriors_phylogeny_789t.rds")
+Ponerinae_all_posteriors_phylogeny_789t <- readRDS(file = "./input_data/Phylogenies/Ponerinae_all_posteriors_phylogeny_789t.rds")
+
+# Export in NEXUS format
+write.tree(phy = Ponerinae_all_posteriors_phylogeny_789t, file = "./input_data/Phylogenies/Ponerinae_all_posteriors_phylogeny_789t.tree")
 
 ### 1.3/ Load grafting information ####
 
@@ -278,6 +328,10 @@ saveRDS(object = Ponerinae_phylogeny_789t_calibrated, "./input_data/Phylogenies/
 
 ### 3.1/ Clean phylogeny tip names ####
 
+## 3.1.1/ For rough calibrated phylogeny
+
+Ponerinae_phylogeny_789t_calibrated <- readRDS("./input_data/Phylogenies/Ponerinae_phylogeny_789t_calibrated.rds")
+
 Ponerinae_phylogeny_789t_calibrated$tip.label
 
 Ponerinae_phylogeny_789t_calibrated_short_names <- Ponerinae_phylogeny_789t_calibrated
@@ -292,6 +346,63 @@ tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_BEB\\d
 tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_D\\d{4}.*")
 
 Ponerinae_phylogeny_789t_calibrated_short_names$tip.label <- tips_short_names
+
+# Save roughly calibrated phylo with short names
+saveRDS(object = Ponerinae_phylogeny_789t_calibrated_short_names, file = "./input_data/Phylogenies/Ponerinae_phylogeny_789t_calibrated_short_names.rds")
+
+## 3.1.2/ For MCC phylogeny
+
+Ponerinae_MCC_phylogeny_789t_treedata@phylo$tip.label
+
+Ponerinae_MCC_phylogeny_789t_treedata_short_names <- Ponerinae_MCC_phylogeny_789t_treedata
+tips_short_names <- Ponerinae_MCC_phylogeny_789t_treedata_short_names@phylo$tip.label
+
+# Remove extraction and specimen codes
+tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_EX.*")
+tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_CASENT.*")
+tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_MAMI.*")
+tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_BBX\\d{3}.*")
+tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_BEB\\d{3}.*")
+tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_D\\d{4}.*")
+
+Ponerinae_MCC_phylogeny_789t_treedata_short_names@phylo$tip.label <- tips_short_names
+
+# Save MCC phylo with short names
+saveRDS(object = Ponerinae_MCC_phylogeny_789t_treedata_short_names, file = "./input_data/Phylogenies/Ponerinae_MCC_phylogeny_789t_treedata_short_names.rds")
+
+## 3.1.3/ For TreePL posterior phylogenies
+
+Ponerinae_all_posteriors_phylogeny_789t[[1]]$tip.label
+
+Ponerinae_all_posteriors_phylogeny_789t_short_names <- Ponerinae_all_posteriors_phylogeny_789t
+tips_short_names <- Ponerinae_all_posteriors_phylogeny_789t_short_names[[1]]$tip.label
+
+# Remove extraction and specimen codes
+tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_EX.*")
+tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_CASENT.*")
+tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_MAMI.*")
+tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_BBX\\d{3}.*")
+tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_BEB\\d{3}.*")
+tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_D\\d{4}.*")
+
+Ponerinae_all_posteriors_phylogeny_789t_short_names <- list()
+for (i in seq_along(Ponerinae_all_posteriors_phylogeny_789t))
+{
+  Phylo_i <- Ponerinae_all_posteriors_phylogeny_789t[[i]]
+  Phylo_i$tip.label <- tips_short_names
+  Ponerinae_all_posteriors_phylogeny_789t_short_names[[i]] <- Phylo_i
+}
+class(Ponerinae_all_posteriors_phylogeny_789t) <- "multiPhylo" 
+
+Ponerinae_all_posteriors_phylogeny_789t[[i]]$tip.label
+Ponerinae_all_posteriors_phylogeny_789t_short_names[[i]]$tip.label
+
+# Save TreePL posterior phylogenies with short names
+saveRDS(object = Ponerinae_all_posteriors_phylogeny_789t_short_names, file = "./input_data/Phylogenies/Ponerinae_all_posteriors_phylogeny_789t_short_names.rds")
+
+View(cbind(Ponerinae_phylogeny_789t_calibrated$tip.label, Ponerinae_MCC_phylogeny_789t_treedata@phylo$tip.label, Ponerinae_all_posteriors_phylogeny_789t[[1]]$tip.label))
+View(cbind(Ponerinae_phylogeny_789t_calibrated_short_names$tip.label, Ponerinae_MCC_phylogeny_789t_treedata_short_names@phylo$tip.label, Ponerinae_all_posteriors_phylogeny_789t_short_names[[1]]$tip.label))
+
 
 ### 3.2/ Clean grafting MRCA tips information ####
 
@@ -1215,11 +1326,6 @@ grafting_from_divergence_age <- function (phy, # Backbone phylogeny
 }
 
 
-
-  
-
-
-
 ##### 5/ Run one random grafting to create main imputed phylogeny #####
 
 ### 5.1/ On reduced toyset phylogeny ####
@@ -1315,7 +1421,13 @@ names(tip_col) <- phy_test_BD_clades$tip.label
 plot(phy_test_BD_clades, tip.color = tip_col)
 
 
-### 5.3/ On Ponerinae backbone phylogeny ####
+### 5.3/ On roughly calibrated Ponerinae backbone phylogeny ####
+
+# Load backbone phylogeny, calibrated with rough ages
+Ponerinae_phylogeny_789t_calibrated <- readRDS(file = "./input_data/Phylogenies/Ponerinae_phylogeny_789t_calibrated.rds")
+
+# Load Missing_taxa_list
+Missing_taxa_list <- readRDS(file = "./outputs/Grafting_missing_taxa/Missing_taxa_list.rds")
 
 Ponerinae_phylogeny_1534t <- grafting_missing_taxa(phy = Ponerinae_phylogeny_789t_calibrated, # Backbone phylogeny
                                                    missing_taxa_list = Missing_taxa_list, # List with taxa to graft. Items: Taxa_name as c(), MRCA_tips as list(c(), c(), ...), Exclusive_subclades as list(list(c(), c()), list(c()), ...)
@@ -1344,8 +1456,303 @@ par(mar = c(5, 5, 5, 5))
 plot(Ponerinae_phylogeny_1534t, tip.color = tip_col)
 dev.off()
 
+### 5.4/ On MCC phylogeny calibrated with TreePL ####
+
+# Load MCC phylogeny calibrated with TreePL
+Ponerinae_MCC_phylogeny_789t_treedata <- readRDS(file = "./input_data/Phylogenies/Ponerinae_MCC_phylogeny_789t_treedata.rds")
+
+# Load Missing_taxa_list
+Missing_taxa_list <- readRDS(file = "./outputs/Grafting_missing_taxa/Missing_taxa_list.rds")
+
+# Graft missing taxa
+Ponerinae_MCC_phylogeny_1534t <- grafting_missing_taxa(phy = Ponerinae_MCC_phylogeny_789t_treedata@phylo, # Backbone phylogeny
+                                                       missing_taxa_list = Missing_taxa_list, # List with taxa to graft. Items: Taxa_name as c(), MRCA_tips as list(c(), c(), ...), Exclusive_subclades as list(list(c(), c()), list(c()), ...)
+                                                       include_stem = T, # Include or not the stem of the total clade when grafting?
+                                                       use_exclusive_subclades = T, # Use Exclusive_subclades to avoid grafting within specific subclades
+                                                       method = "BD_clades", # Either "uniform", "BD_taxa", or "BD_clades"
+                                                       verbose = T, # To print progress every 100 taxa or every 10 stem clades
+                                                       seed = 1234) # Set the seed
+# May get warnings from fit.bd when BD parameter optimization fails at first attempts
+
+Ponerinae_MCC_phylogeny_1534t
+length(Ponerinae_MCC_phylogeny_1534t$tip.label)
+
+# Save imputed phylogeny
+saveRDS(object = Ponerinae_MCC_phylogeny_1534t, file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_MCC_1534t.rds")
+# Save NEXUS format
+write.tree(phy = Ponerinae_MCC_phylogeny_1534t, file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_MCC_1534t.tree")
+
+## Manual tweaking of volatile taxa to avoid weird placements
+
+# None required?
+
+## Initiate new treedata object for the grafted tree
+Ponerinae_MCC_phylogeny_1534t_treedata <- Ponerinae_MCC_phylogeny_789t_treedata
+Ponerinae_MCC_phylogeny_1534t_treedata@phylo <- Ponerinae_MCC_phylogeny_1534t # Replace phylogeny
+Ponerinae_MCC_phylogeny_1534t_treedata@data$backbone_node <- Ponerinae_MCC_phylogeny_1534t_treedata@data$node # Save backbone node ID
+Ponerinae_MCC_phylogeny_1534t_treedata@data$node <- NA # Initiate new node ID
+
+## Add metadata for backbone nodes
+
+# Need to find correspondence between previous nodes and current nodes using matching descendant tips and age
+
+# Get node ages for backbone tree
+root_age_789t <- max(phytools::nodeHeights(Ponerinae_MCC_phylogeny_789t_treedata@phylo))
+Ponerinae_MCC_phylogeny_789t_edges_ages_df <- as.data.frame(round(-1 * phytools::nodeHeights(tree = Ponerinae_MCC_phylogeny_789t_treedata@phylo) + root_age_789t, 5))
+names(Ponerinae_MCC_phylogeny_789t_edges_ages_df) <- c("rootward_age", "tipward_age")
+Ponerinae_MCC_phylogeny_789t_edges_ages_df$edge_ID <- 1:nrow(Ponerinae_MCC_phylogeny_789t_edges_ages_df)
+Ponerinae_MCC_phylogeny_789t_edges_ages_df <- Ponerinae_MCC_phylogeny_789t_edges_ages_df[, c("edge_ID", "rootward_age", "tipward_age")]
+Ponerinae_MCC_phylogeny_789t_edges_ages_df <- cbind(Ponerinae_MCC_phylogeny_789t_edges_ages_df, Ponerinae_MCC_phylogeny_789t_treedata@phylo$edge)
+names(Ponerinae_MCC_phylogeny_789t_edges_ages_df) <- c("edge_ID", "rootward_age", "tipward_age", "rootward_node_ID", "tipward_node_ID")
+Ponerinae_MCC_phylogeny_789t_nodes_ages_df <- Ponerinae_MCC_phylogeny_789t_edges_ages_df %>% 
+  select(rootward_node_ID, rootward_age) %>% 
+  arrange(rootward_node_ID) %>% 
+  distinct(rootward_node_ID, rootward_age) %>%
+  rename(node_ID = rootward_node_ID,
+         node_age = rootward_age)
+Ponerinae_MCC_phylogeny_789t_tips_ages_df <- data.frame(node_ID = 1:length(Ponerinae_MCC_phylogeny_789t_treedata@phylo$tip.label),
+                                                         node_age = 0)
+Ponerinae_MCC_phylogeny_789t_nodes_ages_df <- rbind(Ponerinae_MCC_phylogeny_789t_tips_ages_df, Ponerinae_MCC_phylogeny_789t_nodes_ages_df)
+
+# Get node ages for grafted tree
+root_age_1534t <- max(phytools::nodeHeights(Ponerinae_MCC_phylogeny_1534t))
+Ponerinae_MCC_phylogeny_1534t_edges_ages_df <- as.data.frame(round(-1 * phytools::nodeHeights(tree = Ponerinae_MCC_phylogeny_1534t) + root_age_1534t, 5))
+names(Ponerinae_MCC_phylogeny_1534t_edges_ages_df) <- c("rootward_age", "tipward_age")
+Ponerinae_MCC_phylogeny_1534t_edges_ages_df$edge_ID <- 1:nrow(Ponerinae_MCC_phylogeny_1534t_edges_ages_df)
+Ponerinae_MCC_phylogeny_1534t_edges_ages_df <- Ponerinae_MCC_phylogeny_1534t_edges_ages_df[, c("edge_ID", "rootward_age", "tipward_age")]
+Ponerinae_MCC_phylogeny_1534t_edges_ages_df <- cbind(Ponerinae_MCC_phylogeny_1534t_edges_ages_df, Ponerinae_MCC_phylogeny_1534t$edge)
+names(Ponerinae_MCC_phylogeny_1534t_edges_ages_df) <- c("edge_ID", "rootward_age", "tipward_age", "rootward_node_ID", "tipward_node_ID")
+Ponerinae_MCC_phylogeny_1534t_nodes_ages_df <- Ponerinae_MCC_phylogeny_1534t_edges_ages_df %>% 
+  select(rootward_node_ID, rootward_age) %>% 
+  arrange(rootward_node_ID) %>% 
+  distinct(rootward_node_ID, rootward_age) %>%
+  rename(node_ID = rootward_node_ID,
+         node_age = rootward_age)
+Ponerinae_MCC_phylogeny_1534t_tips_ages_df <- data.frame(node_ID = 1:length(Ponerinae_MCC_phylogeny_1534t$tip.label),
+                                                         node_age = 0)
+Ponerinae_MCC_phylogeny_1534t_nodes_ages_df <- rbind(Ponerinae_MCC_phylogeny_1534t_tips_ages_df, Ponerinae_MCC_phylogeny_1534t_nodes_ages_df)
+
+# Extract descendants for all nodes in backbone tree
+Ponerinae_MCC_phylogeny_789t_descendants_list <- list()
+nb_nodes_789t <- dim(Ponerinae_MCC_phylogeny_789t_treedata@data)[1]
+for (i in 1:nb_nodes_789t)
+{
+  # Extract nodes and tips
+  all_descendants_i <- getDescendants(Ponerinae_MCC_phylogeny_789t_treedata@phylo, node = i)
+  # Keep only tips
+  all_descendants_i <- all_descendants_i[all_descendants_i <= length(Ponerinae_MCC_phylogeny_789t_treedata@phylo$tip.label)] 
+  # Convert to labels
+  all_descendants_i <- Ponerinae_MCC_phylogeny_789t_treedata@phylo$tip.label[all_descendants_i]
+  
+  # Store in list
+  Ponerinae_MCC_phylogeny_789t_descendants_list[[i]] <- all_descendants_i
+}
+
+# Extract descendants for all nodes in grafted tree
+Ponerinae_MCC_phylogeny_1534t_descendants_list <- list()
+nb_nodes_1534t <- Ponerinae_MCC_phylogeny_1534t$Nnode + length(Ponerinae_MCC_phylogeny_1534t$tip.label)
+for (i in 1:nb_nodes_1534t)
+{
+  # Extract nodes and tips
+  all_descendants_i <- getDescendants(Ponerinae_MCC_phylogeny_1534t, node = i)
+  # Keep only tips
+  all_descendants_i <- all_descendants_i[all_descendants_i <= length(Ponerinae_MCC_phylogeny_1534t$tip.label)] 
+  # Convert to labels
+  all_descendants_i <- Ponerinae_MCC_phylogeny_1534t$tip.label[all_descendants_i]
+  # Keep only tips from the backbone
+  all_descendants_i <- all_descendants_i[all_descendants_i %in% Ponerinae_MCC_phylogeny_789t_treedata@phylo$tip.label]
+  # Reorder alphabetically
+  all_descendants_i <- all_descendants_i[order(all_descendants_i)]
+  
+  # Store in list
+  Ponerinae_MCC_phylogeny_1534t_descendants_list[[i]] <- all_descendants_i
+}
+
+# Find corresponding node in the grafted tree based on list of descending tips and node age
+for (i in 1:nb_nodes_789t)
+{
+  # Extract descending tips from backbone node
+  all_descendants_backbone_i <- Ponerinae_MCC_phylogeny_789t_descendants_list[[i]]
+  # Reorder alphabetically
+  all_descendants_backbone_i <- all_descendants_backbone_i[order(all_descendants_backbone_i)]
+  # Find the matches among list of descendants from grafted tree
+  descendant_match_test_i <- unlist(lapply(X = Ponerinae_MCC_phylogeny_1534t_descendants_list, FUN = function (x) { identical(x, all_descendants_backbone_i) }))
+  descendant_match_nodes_ID <- which(descendant_match_test_i)
+
+  # Extract node age in the backbone tree
+  focal_node_age <- Ponerinae_MCC_phylogeny_789t_nodes_ages_df$node_age[i]
+  # Extract node ages of the matching nodes in the grafted tree
+  descendant_match_nodes_ages <- Ponerinae_MCC_phylogeny_1534t_nodes_ages_df$node_age[descendant_match_nodes_ID]
+  # Find the matching node age
+  age_matching_node_ID <- descendant_match_nodes_ID[abs(focal_node_age - descendant_match_nodes_ages) < 0.001]
+  
+  # Store matching ID in treedata object
+  Ponerinae_MCC_phylogeny_1534t_treedata@data$node[i] <- age_matching_node_ID
+}
+
+# Create template for all nodes (height = age, length of parental edge, posterior (tips = NA, non-tips = 1))
+Ponerinae_MCC_phylogeny_1534t_nodes_data_df <- Ponerinae_MCC_phylogeny_1534t_nodes_ages_df %>% 
+  rename(node = node_ID,
+         height = node_age)
+Ponerinae_MCC_phylogeny_1534t_nodes_data_df$posterior <- NA
+Ponerinae_MCC_phylogeny_1534t_nodes_data_df$posterior[Ponerinae_MCC_phylogeny_1534t_nodes_data_df$node > length(Ponerinae_MCC_phylogeny_1534t$tip.label)] <- 1
+Ponerinae_MCC_phylogeny_1534t_nodes_data_df$length <- Ponerinae_MCC_phylogeny_1534t$edge.length[match(x = Ponerinae_MCC_phylogeny_1534t_nodes_data_df$node, table = Ponerinae_MCC_phylogeny_1534t$edge[,2])]
+  
+# Join backbone data with template data
+Ponerinae_MCC_phylogeny_1534t_treedata@data <- left_join(Ponerinae_MCC_phylogeny_1534t_nodes_data_df, Ponerinae_MCC_phylogeny_1534t_treedata@data, by = "node") %>% 
+  rename(height = height.x) %>% # Keep the height/age as measured in the grafted tree
+  select(-height.y) %>% # Remove height as measured in the backbone tree (should be equal modulo numerical precision)
+  rename(posterior = posterior.x) %>% # Keep info on non-tips from the grafted tree
+  select(-posterior.y) %>% # Remove info on non-tips from the backbone tree as some nodes are missing
+  rename(length = length.x) %>% # Keep parental branch length from the grafted tree as the current length
+  rename(length_backbone = length.y) %>% # Record parental branch length from the backbone tree (may be different due to grafting)
+  rename(length_median_backbone = length_median,
+         length_0.95_HPD_backbone = length_0.95_HPD,
+         length_range_backbone = length_range,
+         height_median_backbone = height_median,
+         height_0.95_HPD_backbone = height_0.95_HPD,
+         height_range_backbone = height_range) %>% 
+  mutate(new_node = is.na(backbone_node)) %>%
+  select(node, backbone_node, posterior, height, height_median_backbone, height_0.95_HPD_backbone, height_range_backbone, length, length_backbone, length_median_backbone, length_0.95_HPD_backbone, length_range_backbone, new_node) %>% 
+  as_tibble()
+
+# Record nodes with new parental edge
+all_missing_taxa_ID <- which(Ponerinae_MCC_phylogeny_1534t_treedata@data$new_node)
+all_missing_taxa_ID <- all_missing_taxa_ID[all_missing_taxa_ID <= length(Ponerinae_MCC_phylogeny_1534t_treedata@phylo$tip.label)]
+Ponerinae_MCC_phylogeny_1534t_treedata@data$new_parental_edge <- FALSE
+
+for (i in 1:nrow(Ponerinae_MCC_phylogeny_1534t_treedata@data))
+{
+  # i <- 1
+  
+  # Extract node ID
+  node_ID_i <- Ponerinae_MCC_phylogeny_1534t_treedata@data$node[i]
+  
+  # Extract all current descendants
+  all_descendants_i <- phytools::getDescendants(tree = Ponerinae_MCC_phylogeny_1534t_treedata@phylo, node = node_ID_i)
+  all_descendants_i <- all_descendants_i[all_descendants_i <= length(Ponerinae_MCC_phylogeny_1534t_treedata@phylo$tip.label)]
+  
+  # Check if all current descendants are missing taxa
+  missing_i <- all(all_descendants_i %in% all_missing_taxa_ID)
+  
+  # Record status
+  Ponerinae_MCC_phylogeny_1534t_treedata@data$new_parental_edge[i] <- missing_i
+}
+table(Ponerinae_MCC_phylogeny_1534t_treedata@data$new_parental_edge)
+
+View(Ponerinae_MCC_phylogeny_1534t_treedata@data)
+View(Ponerinae_MCC_phylogeny_789t_treedata@data)
+
+## Save grafted MCC phylogeny with node metadata
+saveRDS(object = Ponerinae_MCC_phylogeny_1534t_treedata, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata.rds")
+
+## Plot result
+
+# Detect grafted tips on the phylogeny
+missing_taxa_ID <- which(Ponerinae_MCC_phylogeny_1534t_treedata@phylo$tip.label %in% Missing_taxa_list$Taxa_name)
+# Adjust tip color scheme
+tip_col <- c("black", "red")[as.numeric(Ponerinae_MCC_phylogeny_1534t_treedata@phylo$tip.label %in% Missing_taxa_list$Taxa_name) + 1]
+names(tip_col) <- Ponerinae_MCC_phylogeny_1534t_treedata@phylo$tip.label
+
+pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_BD_clades.pdf", width = 20, height = 200)
+par(mar = c(5, 5, 5, 5))
+plot(Ponerinae_MCC_phylogeny_1534t_treedata@phylo, tip.color = tip_col)
+dev.off()
+
+## Plot result with node/tip labels
+
+# Use ggtree
+pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_node_labels.pdf", height = 100, width = 30)
+
+Ponerinae_phylogeny_plot <- ggtree(Ponerinae_MCC_phylogeny_1534t_treedata,
+                                   layout = "rectangular") +
+  
+  coord_cartesian(clip = 'off') + 
+  
+  geom_tree(mapping = aes(colour = new_parental_edge),
+            # color = branches_color,
+            linewidth = 0.5) +
+  
+  geom_tiplab(# mapping = aes(colour = missing_node),
+    color = tip_col,
+    align = T,     # To align all tip label rather than move them aside each tips (useful for non-ultrametric tree where tips can be all over the x-axis)
+    linetype = 0, 
+    size = 2, 
+    offset = 0.3,   # To move to the exterior. Useful if you wish to put mulitple layer of labels with different offsets.
+    hjust = 0) +    # To center, left-align, right-aligned text
+  
+  # Adjust tip/edge color scheme
+  scale_colour_manual("Taxa source", breaks = c(F, T), values = c("black", "red"), labels = c("UCE data", "Grafted")) +
+  guides(colour = guide_legend(override.aes = list(linewidth = 8))) +
+  
+  # Add ID labels to nodes
+  geom_label(aes(label = node),
+             fill = 'steelblue', size = 1) +
+  
+  # # Add ID labels to edges
+  # geom_label(aes(x = branch, label = parental_edge_ID),
+  #            fill = 'lightgreen', size = 1) +
+  
+  # Adjust legend for taxa source
+  theme(plot.margin = unit(c(0.002,0.12,0.002,0), "npc"), # trbl
+        legend.position = c(1.09, 0.5),
+        legend.title = element_text(size  = 25, margin = margin(b = 10)), 
+        legend.text = element_text(size = 20, margin = margin(b = 5, t = 5, l = 20)),
+        # legend.key.size = unit(1.8, "lines"),
+        # legend.spacing.y = unit(1.0, "lines")
+  )
+
+print(Ponerinae_phylogeny_plot)
+
+dev.off()
+
+## Plot result with 95% HPD interval on backbone nodes 
+
+# Use ggtree
+pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_95HPD.pdf", height = 100, width = 30)
+
+Ponerinae_phylogeny_plot <- ggtree(Ponerinae_MCC_phylogeny_1534t_treedata,
+                                   layout = "rectangular") +
+  
+  coord_cartesian(clip = 'off') + 
+  
+  geom_tree(mapping = aes(colour = new_parental_edge),
+            # color = branches_color,
+            linewidth = 0.5) +
+  
+  geom_tiplab(# mapping = aes(colour = missing_node),
+    color = tip_col,
+    align = T,     # To align all tip label rather than move them aside each tips (useful for non-ultrametric tree where tips can be all over the x-axis)
+    linetype = 0, 
+    size = 2, 
+    offset = 0.3,   # To move to the exterior. Useful if you wish to put mulitple layer of labels with different offsets.
+    hjust = 0) +    # To center, left-align, right-aligned text
+  
+  # Adjust tip/edge color scheme
+  scale_colour_manual("Taxa source", breaks = c(F, T), values = c("black", "red"), labels = c("UCE data", "Grafted")) +
+  guides(colour = guide_legend(override.aes = list(linewidth = 8))) +
+  
+  # Add HPD 95% intervals on backbone nodes
+  geom_range(range = "height_0.95_HPD_backbone", center = "height",
+             color = "steelblue", size = 2, alpha = 0.5) +
+  
+  # Adjust legend for taxa source
+  theme(plot.margin = unit(c(0.002,0.12,0.002,0), "npc"), # trbl
+        legend.position = c(1.09, 0.5),
+        legend.title = element_text(size  = 25, margin = margin(b = 10)), 
+        legend.text = element_text(size = 20, margin = margin(b = 5, t = 5, l = 20)),
+        # legend.key.size = unit(1.8, "lines"),
+        # legend.spacing.y = unit(1.0, "lines")
+  )
+
+print(Ponerinae_phylogeny_plot)
+
+dev.off()
+
 
 ##### 6/ Run 1000 random grafting to create robustness set of imputed phylogenies ####
+
+### 6.1/ On the same backbone phylogeny ####
 
 N_phylo <- 2
 
@@ -1358,7 +1765,7 @@ set.seed(seed = 1234)
 for (i in 1:N_phylo)
 {
   # Graft randomly missing taxa on the phylogeny
-  imputed_phylo_i <- grafting_missing_taxa(phy = Ponerinae_phylogeny_789t_calibrated, # Backbone phylogeny
+  imputed_phylo_i <- grafting_missing_taxa(phy = Ponerinae_MCC_phylogeny_1534t_treedata@phylo, # Backbone phylogeny
                                            missing_taxa_list = Missing_taxa_list, # List with taxa to graft. Items: Taxa_name as c(), MRCA_tips as list(c(), c(), ...), Exclusive_subclades as list(list(c(), c()), list(c()), ...)
                                            include_stem = T, # Include or not the stem of the total clade when grafting?
                                            use_exclusive_subclades = T, # Use Exclusive_subclades to avoid grafting within specific subclades
@@ -1387,3 +1794,154 @@ test1 <- test1[test1 <= length(imputed_phylogenies_1000[[1]]$tip.label)]
   
 test2 <- phytools::getDescendants(tree = imputed_phylogenies_1000[[2]], node = 2000)
 test2 <- test2[test2 <= length(imputed_phylogenies_1000[[2]]$tip.label)]
+
+### 6.2/ On the 1000 posterior backbone phylogenies ####
+
+# Load the 1000 posterior backbone phylogenies from TreePL
+Ponerinae_all_posteriors_phylogeny_789t <- readRDS(file = "./input_data/Phylogenies/Ponerinae_all_posteriors_phylogeny_789t.rds")
+
+N_phylo <- length(Ponerinae_all_posteriors_phylogeny_789t)
+
+Ponerinae_all_posteriors_phylogeny_1534t <- list()
+
+# Set seed for reproducibility outside of the loop!
+set.seed(seed = 1234)
+
+# Loop per imputed phylogeny to generate
+for (i in 1:N_phylo)
+# for (i in 1:2)
+{
+  # Graft randomly missing taxa on the phylogeny
+  imputed_phylo_i <- grafting_missing_taxa(phy = Ponerinae_all_posteriors_phylogeny_789t[[i]], # Backbone phylogeny n°i
+                                           missing_taxa_list = Missing_taxa_list, # List with taxa to graft. Items: Taxa_name as c(), MRCA_tips as list(c(), c(), ...), Exclusive_subclades as list(list(c(), c()), list(c()), ...)
+                                           include_stem = T, # Include or not the stem of the total clade when grafting?
+                                           use_exclusive_subclades = T, # Use Exclusive_subclades to avoid grafting within specific subclades
+                                           method = "BD_clades", # Either "uniform", "BD_taxa", or "BD_clades"
+                                           verbose = T, # To print progress every 100 taxa or every 10 stem clades
+                                           seed = NULL) # DO NOT set the seed inside the function, but outside of the loop, otherwise all phylogenies will be identical (if using the same backbone)!
+  
+  # Store output
+  old_names <- names(Ponerinae_all_posteriors_phylogeny_1534t)
+  Ponerinae_all_posteriors_phylogeny_1534t <- append(x = Ponerinae_all_posteriors_phylogeny_1534t, values = list(imputed_phylo_i))
+  names(c(Ponerinae_all_posteriors_phylogeny_1534t, paste0("Phylo_", i)))
+  
+  # Print progress every 1 phylogenies
+  if (i %% 1 == 0)
+  {
+    # Save imputed posterior phylogenies
+    saveRDS(object = Ponerinae_all_posteriors_phylogeny_1534t, file = "./outputs/Grafting_missing_taxa/Ponerinae_all_posteriors_phylogeny_1534t.rds")
+    
+    cat(paste0(Sys.time(), " - Missing taxa grafted on phylogeny n°",i,"/",N_phylo,"\n"))
+  }
+}
+
+# Assign ape multiPhylo class
+class(Ponerinae_all_posteriors_phylogeny_1534t) <- "multiPhylo"
+table(unlist(lapply(X = Ponerinae_all_posteriors_phylogeny_1534t, FUN = function (x) { length(x$tip.label) } )))
+
+# Save imputed posterior phylogenies
+saveRDS(object = Ponerinae_all_posteriors_phylogeny_1534t, file = "./outputs/Grafting_missing_taxa/Ponerinae_all_posteriors_phylogeny_1534t.rds")
+# Save NEXUS format
+write.tree(phy = Ponerinae_all_posteriors_phylogeny_1534t, file = "./outputs/Grafting_missing_taxa/Ponerinae_all_posteriors_phylogeny_1534t.tree")
+
+plot(Ponerinae_all_posteriors_phylogeny_1534t[[1]])
+plot(Ponerinae_all_posteriors_phylogeny_1534t[[200]])
+
+# Descendants nodes should (not) be similar if (not) using the same seed
+test1 <- phytools::getDescendants(tree = Ponerinae_all_posteriors_phylogeny_1534t[[1]], node = 2000)
+test1 <- test1[test1 <= length(Ponerinae_all_posteriors_phylogeny_1534t[[1]]$tip.label)]
+test1
+
+test2 <- phytools::getDescendants(tree = Ponerinae_all_posteriors_phylogeny_1534t[[200]], node = 2000)
+test2 <- test2[test2 <= length(Ponerinae_all_posteriors_phylogeny_1534t[[200]]$tip.label)]
+test2
+
+### 6.3/ Plot all grafted phylogenies (base plot version) ####
+
+for (i in 1:N_phylo)
+# for (i in 1:2)
+{
+  # Detect grafted tips on the phylogeny
+  missing_taxa_ID <- which(Ponerinae_all_posteriors_phylogeny_1534t[[i]]$tip.label %in% Missing_taxa_list$Taxa_name)
+  # Adjust tip color scheme
+  tip_col <- c("black", "red")[as.numeric(Ponerinae_all_posteriors_phylogeny_1534t[[i]]$tip.label %in% Missing_taxa_list$Taxa_name) + 1]
+  names(tip_col) <- Ponerinae_all_posteriors_phylogeny_1534t[[i]]$tip.label
+  
+  pdf(file = paste0("./outputs/Grafting_missing_taxa/All_posterior_phylo_1534t/Ponerinae_phylogeny_1534t_posterior_",i,".pdf"), width = 20, height = 200)
+  par(mar = c(5, 5, 5, 5))
+  plot(Ponerinae_all_posteriors_phylogeny_1534t[[i]], tip.color = tip_col)
+  
+  dev.off()
+}
+
+## Aggregate all posterior phylo in a unique PDF
+
+Ponerinae_all_posteriors_phylogeny_1534t_path <- list.files(path = "./outputs/Grafting_missing_taxa/All_posterior_phylo_1534t/", pattern = "Ponerinae_phylogeny_1534t_posterior_", full.names = T)
+Ponerinae_all_posteriors_phylogeny_1534t_path <- Ponerinae_all_posteriors_phylogeny_1534t_path[str_detect(string = Ponerinae_all_posteriors_phylogeny_1534t_path, pattern = ".pdf")]
+nb_phylos <- length(Ponerinae_all_posteriors_phylogeny_1534t_path)
+
+# Reorder in numerical rather than alphabetic order
+prefix <- str_remove(string = Ponerinae_all_posteriors_phylogeny_1534t_path[1], pattern = "_\\d+.pdf")
+Ponerinae_all_posteriors_phylogeny_1534t_path <- paste0(prefix,"_",1:nb_phylos,".pdf")
+
+qpdf::pdf_combine(input = Ponerinae_all_posteriors_phylogeny_1534t_path, output = paste0("./outputs/Grafting_missing_taxa/All_posterior_phylo_1534t_",nb_phylos,"_phylos.pdf"))
+
+## Do it by smaller batch to avoid saturating RAM
+
+batch_size <- 100
+start_i <- seq(from = 1, to = nb_phylos, by = batch_size)
+
+for (i in seq_along(start_i))
+{
+  subset_indices_i <- start_i[i]:(start_i[i] + batch_size - 1)
+  
+  all_grafted_phylos_path_i <- Ponerinae_all_posteriors_phylogeny_1534t_path[subset_indices_i]
+  nb_maps_i <- length(all_grafted_phylos_path_i)
+  subset_label <- paste0(subset_indices_i[1],"_",subset_indices_i[nb_maps_i])
+  
+  qpdf::pdf_combine(input = all_grafted_phylos_path_i, output = paste0("./outputs/Grafting_missing_taxa/All_posterior_phylo_1534t/All_posterior_phylo_1534t_batch_",subset_label,"_phylos.pdf"))
+  
+  # Print progress
+  cat(paste0(Sys.time(), " - Grafted phylos aggregated from n°", subset_indices_i[1], " to ", subset_indices_i[nb_maps_i],"\n"))
+}
+
+## Aggregate batches in a single PDF
+
+all_grafted_phylos_batches_path <- list.files(path = "./outputs/Grafting_missing_taxa/All_posterior_phylo_1534t/", pattern = "All_posterior_phylo_1534t_batch_", full.names = T)
+
+nb_batches <- length(all_grafted_phylos_batches_path)
+
+# # Reorder in numerical rather than alphabetic order
+# prefix <- str_remove(string = all_grafted_phylos_batches_path[1], pattern = "_\\d+.pdf")
+# all_grafted_phylos_batches_path <- paste0(prefix,"_",1:nb_maps,".pdf")
+
+qpdf::pdf_combine(input = all_grafted_phylos_batches_path, output = paste0("./outputs/Grafting_missing_taxa/All_posterior_phylo_1534t_",nb_phylos,"_phylos.pdf"))
+
+
+## Make a GIF
+
+# Limit number of phylos to reduce GIF size and avoid crashing because of memory allocation limits
+nb_phylos_in_GIF <- nb_phylos
+nb_phylos_in_GIF <- 100
+
+source("./functions/image_resize_and_write_gif.R")
+
+# Set fps
+# fps <- 1
+fps <- 5
+# fps <- 10
+
+# Load pdf as image frames
+pdf_pointer_posterior_phylos <- magick::image_read_pdf(path = paste0("./outputs/Grafting_missing_taxa/All_posterior_phylo_1534t_",nb_phylos_in_GIF,"_phylos.pdf"),
+                                                  pages = NULL, density = 75)
+magick::image_info(pdf_pointer_posterior_phylos)
+
+image_resize_and_write_gif(image = pdf_pointer_posterior_phylos,
+                           path =  paste0("./outputs/Grafting_missing_taxa/All_posterior_phylo_1534t_",nb_phylos_in_GIF,"_phylos.gif"),
+                           delay = 1/fps, # Time between frames in seconds
+                           width = 300, height = 3000,
+                           loop = FALSE,
+                           progress = TRUE)
+
+
+

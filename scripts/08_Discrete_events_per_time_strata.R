@@ -89,10 +89,12 @@ library(igraph)     # For network plots
 ### 1.2/ Load modeling results from best model (DEC+J) #####
 
 # Load time-stratified DEC+J model output
-DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
+DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
 
 # Load BSM outputs
-DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/DEC_J_BSM_output.rds")
+# DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_output.rds")
+DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_output.rds")
 
 # Extract records of events
 DEC_J_clado_events_tables <- DEC_J_BSM_output$RES_clado_events_tables
@@ -237,8 +239,10 @@ DEC_J_clado_events_tables_with_unique_source <- DEC_J_BSM_sourceAreas$clado_even
 DEC_J_ana_events_tables_with_unique_source <- DEC_J_BSM_sourceAreas$ana_events_tables
 
 # Save clado/ana events tables with unique source
-saveRDS(object = DEC_J_clado_events_tables_with_unique_source, "./outputs/BSM/DEC_J_clado_events_tables_with_unique_source.rds")
-saveRDS(object = DEC_J_ana_events_tables_with_unique_source, "./outputs/BSM/DEC_J_ana_events_tables_with_unique_source.rds")
+# saveRDS(object = DEC_J_clado_events_tables_with_unique_source, "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/Ponerinae_MCC_phylogeny_1534t/DEC_J_clado_events_tables_with_unique_source.rds")
+# saveRDS(object = DEC_J_ana_events_tables_with_unique_source, "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_ana_events_tables_with_unique_source.rds")
+saveRDS(object = DEC_J_clado_events_tables_with_unique_source, "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_clado_events_tables_with_unique_source.rds")
+saveRDS(object = DEC_J_ana_events_tables_with_unique_source, "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_ana_events_tables_with_unique_source.rds")
 
 # Count all anagenetic and cladogenetic events
 DEC_J_BSM_counts_list <- count_ana_clado_events(clado_events_tables = DEC_J_clado_events_tables_with_unique_source,
@@ -252,7 +256,8 @@ str(DEC_J_BSM_counts_list)
 names(DEC_J_BSM_counts_list)
 
 # Save summary lists of event counts
-saveRDS(object = DEC_J_BSM_counts_list, "./outputs/BSM/DEC_J_BSM_counts_list.rds")
+# saveRDS(object = DEC_J_BSM_counts_list, "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_list.rds")
+saveRDS(object = DEC_J_BSM_counts_list, "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_counts_list.rds")
 
 # Summarize counts per type of events
 DEC_J_summary_counts_BSMs <- DEC_J_BSM_counts_list$summary_counts_BSMs
@@ -264,7 +269,8 @@ DEC_J_summary_counts_BSMs["means", c("subset", "founder", "vicariance", "sympatr
 
 # Plot histogram of event counts (generate PDF directly)
 hist_event_counts(counts_list = DEC_J_BSM_counts_list, 
-                  pdffn = paste0("./outputs/BSM/DEC_J_Histo_event_counts.pdf"))
+                  # pdffn = paste0("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_Histo_event_counts.pdf"))
+                  pdffn = paste0("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_Histo_event_counts.pdf"))
 
 # Convert to arrays for clarity
 DEC_J_BSM_counts_arrays <- convert_BSM_counts_lists_to_arrays(DEC_J_BSM_counts_list)
@@ -273,9 +279,12 @@ str(DEC_J_BSM_counts_arrays, max.level = 2)
 DEC_J_BSM_counts_arrays$all_events_summary_df
 
 # Save summary arrays of event counts
-saveRDS(object = DEC_J_BSM_counts_arrays, file = "./outputs/BSM/DEC_J_BSM_counts_arrays.rds")
+# saveRDS(object = DEC_J_BSM_counts_arrays, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_arrays.rds")
+saveRDS(object = DEC_J_BSM_counts_arrays, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_counts_arrays.rds")
+
 # Load summary arrays of event counts
-DEC_J_BSM_counts_arrays <- readRDS(file = "./outputs/BSM/DEC_J_BSM_counts_arrays.rds")
+# DEC_J_BSM_counts_arrays <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_arrays.rds")
+DEC_J_BSM_counts_arrays <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_counts_arrays.rds")
 
 
 ### 2.3/ Summary events per time stratum ####
@@ -406,9 +415,12 @@ str(DEC_J_BSM_counts_arrays_all_strata)
 
 
 # Save summary arrays of event counts across all time-strata
-saveRDS(object = DEC_J_BSM_counts_arrays_all_strata, file = "./outputs/BSM/DEC_J_BSM_counts_arrays_all_strata.rds")
+# saveRDS(object = DEC_J_BSM_counts_arrays_all_strata, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_strata.rds")
+saveRDS(object = DEC_J_BSM_counts_arrays_all_strata, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_strata.rds")
+
 # Load summary arrays of event counts across all time-strata
-DEC_J_BSM_counts_arrays_all_strata <- readRDS(file = "./outputs/BSM/DEC_J_BSM_counts_arrays_all_strata.rds")
+# DEC_J_BSM_counts_arrays_all_strata <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_strata.rds")
+DEC_J_BSM_counts_arrays_all_strata <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_strata.rds")
 
 
 
@@ -436,11 +448,11 @@ max_counts <- max(all_events_count_per_maps_ggplot$counts)
 # Color scheme for events
 event_types_col <- setNames(object = c("limegreen", "darkgoldenrod1", "dodgerblue", "darkorchid"), nm = event_types_list)
 event_types_labels <- str_to_sentence(names(event_types_col))
-event_types_labels[event_types_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
 
 ### 3.1/ Unique density curves per type of events plot ####
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_density_curves_overall_single.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_density_curves_overall_single.pdf", width = 10, height = 6)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_density_curves_overall_single.pdf", width = 10, height = 6)
 
 density_curve_ggplot <- ggplot(data = all_events_count_per_maps_ggplot,
                                mapping = aes(x = counts, fill = event_type)) +
@@ -525,7 +537,8 @@ for ( i in seq_along(event_types_list))
 #           # labels = c("A", "B", "C", "D"),   # Add labels
 #           ncol = 1, nrow = length(density_curve_ggplot_list)) # Define window division
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_density_curves_overall_multifaceted.pdf", width = 6, height = length(density_curve_ggplot_list) * 4)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_density_curves_overall_multifaceted.pdf", width = 6, height = length(density_curve_ggplot_list) * 4)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_density_curves_overall_multifaceted.pdf", width = 6, height = length(density_curve_ggplot_list) * 4)
 
 gridExtra::grid.arrange(
   grobs = density_curve_ggplot_list, # List of ggplots
@@ -557,13 +570,14 @@ all_events_mean_count_per_maps_ggplot <- all_events_count_per_maps_ggplot %>%
 # Color scheme for events
 event_types_col <- c("limegreen", "darkgoldenrod1", "dodgerblue", "darkorchid")
 event_types_legend_labels <- str_to_sentence(event_types_list)
-event_types_legend_labels[event_types_legend_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
+# event_types_legend_labels[event_types_legend_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
 event_types_axis_labels <- paste0("(", str_remove(string = event_types_legend_labels, pattern = ".* \\("))
 
 # Adjust order of event types
 all_events_mean_count_per_maps_ggplot$event_type <- factor(all_events_mean_count_per_maps_ggplot$event_type, levels = event_types_list, labels = event_types_axis_labels)
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_barplots_overall.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_barplots_overall.pdf", width = 10, height = 6)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_barplots_overall.pdf", width = 10, height = 6)
 
 barplot_mean_count_per_events_ggplot <- ggplot(data = all_events_mean_count_per_maps_ggplot,
                                                mapping = aes(y = mean_counts, x = event_type, fill = event_type)) +
@@ -621,7 +635,7 @@ time_strata_labels <- c("PPHo", "Miocene", "Oligocene", "Eocene", "Paleocene", "
 # Color scheme for events
 event_types_col <- c("limegreen", "darkgoldenrod1", "dodgerblue", "darkorchid")
 event_types_legend_labels <- str_to_sentence(event_types_list)
-event_types_legend_labels[event_types_legend_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
+# event_types_legend_labels[event_types_legend_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
 event_types_axis_labels <- paste0("(", str_remove(string = event_types_legend_labels, pattern = ".* \\("))
 
 
@@ -686,7 +700,8 @@ for ( i in seq_along(event_types_list))
 #           # labels = c("A", "B", "C", "D"),   # Add labels
 #           ncol = 1, nrow = length(density_curve_ggplot_list)) # Define window division
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_density_curves_all_strata.pdf", width = 10, height = length(density_curve_all_strata_ggplot_list) * 6)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_density_curves_all_strata.pdf", width = 10, height = length(density_curve_all_strata_ggplot_list) * 6)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_density_curves_all_strata.pdf", width = 10, height = length(density_curve_all_strata_ggplot_list) * 6)
 
 gridExtra::grid.arrange(
   grobs = density_curve_all_strata_ggplot_list, # List of ggplots
@@ -718,7 +733,8 @@ time_strata_labels <- c("PPHo", "Miocene", "Oligo.", "Eocene", "Paleo.", "Late C
 all_events_mean_count_per_maps_all_strata_ggplot$stratum <- factor(all_events_mean_count_per_maps_all_strata_ggplot$stratum, levels = rev(time_strata_list), labels = rev(time_strata_labels))
 
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_barplots_all_strata.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_barplots_all_strata.pdf", width = 10, height = 6)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_barplots_all_strata.pdf", width = 10, height = 6)
 
 barplot_mean_count_per_events_all_strata_ggplot <- ggplot(data = all_events_mean_count_per_maps_all_strata_ggplot,
                                                           mapping = aes(y = mean_counts, x = stratum, fill = event_type)) +
@@ -771,7 +787,8 @@ time_strata_labels <- c("PPHo", "Miocene", "Oligo.", "Eocene", "Paleo.", "Late C
 all_events_mean_count_per_maps_all_strata_ggplot$stratum <- factor(all_events_mean_count_per_maps_all_strata_ggplot$stratum, levels = rev(time_strata_list), labels = rev(time_strata_labels))
 
 # Plot
-pdf(file = "./outputs/Discrete_events_counts/Events_perc_per_types_barplots_all_strata.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_perc_per_types_barplots_all_strata.pdf", width = 10, height = 6)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_perc_per_types_barplots_all_strata.pdf", width = 10, height = 6)
 
 barplot_mean_perc_per_events_all_strata_ggplot <- ggplot(data = all_events_mean_count_per_maps_all_strata_ggplot,
                                                           mapping = aes(y = mean_perc, x = stratum, fill = event_type)) +
@@ -999,13 +1016,15 @@ DEC_J_BSM_all_unique_events_source_dest_array[ , ,"jump-dispersal (j)", , ] <- a
 # DEC_J_BSM_all_unique_events_source_dest_array[ , , , "Map_1" , "Stratum_1"]
 
 ## Save the final array of counts of events per source/dest areas
-saveRDS(object = DEC_J_BSM_all_unique_events_source_dest_array, file = "./outputs/BSM/DEC_J_BSM_counts_all_unique_events_source_dest_array.rds")
+# saveRDS(object = DEC_J_BSM_all_unique_events_source_dest_array, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_all_unique_events_source_dest_array.rds")
+saveRDS(object = DEC_J_BSM_all_unique_events_source_dest_array, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_counts_all_unique_events_source_dest_array.rds")
 
 
 ### 5.3/ Build ggplot dataframe of events per source/dest areas ####
 
 ## Load the array of counts of events per source/dest areas
-DEC_J_BSM_all_unique_events_source_dest_array <- readRDS(file = "./outputs/BSM/DEC_J_BSM_counts_all_unique_events_source_dest_array.rds")
+# DEC_J_BSM_all_unique_events_source_dest_array <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_all_unique_events_source_dest_array.rds")
+DEC_J_BSM_all_unique_events_source_dest_array <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_counts_all_unique_events_source_dest_array.rds")
 
 ## List event types for plots
 
@@ -1022,14 +1041,15 @@ dim(all_events_count_matrices_per_maps_all_strata)
 # Rows = Sources
 # Cols = Dest
 
-
 ## Format data for ggplot
 all_events_count_per_maps_all_bioregions_all_strata_ggplot <- all_events_count_matrices_per_maps_all_strata %>%
   reshape2::melt()
 names(all_events_count_per_maps_all_bioregions_all_strata_ggplot) <- c("source", "dest", "event_type", "map", "stratum", "counts")
 
 # Save ggplot df
-saveRDS(object = all_events_count_per_maps_all_bioregions_all_strata_ggplot, file = "./outputs/Discrete_events_counts/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
+# saveRDS(object = all_events_count_per_maps_all_bioregions_all_strata_ggplot, file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
+saveRDS(object = all_events_count_per_maps_all_bioregions_all_strata_ggplot, file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
+
 
 ### 5.4/ Aggregate per ggplot dataframe of events per source areas ####
 
@@ -1039,7 +1059,8 @@ all_events_count_per_maps_all_source_bioregions_ggplot <- all_events_count_per_m
   ungroup()
 
 # Save ggplot df
-saveRDS(object = all_events_count_per_maps_all_source_bioregions_ggplot, file = "./outputs/Discrete_events_counts/DEC_J_all_events_count_per_maps_all_source_bioregions_ggplot.rds")
+# saveRDS(object = all_events_count_per_maps_all_source_bioregions_ggplot, file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_source_bioregions_ggplot.rds")
+saveRDS(object = all_events_count_per_maps_all_source_bioregions_ggplot, file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_source_bioregions_ggplot.rds")
 
 ### 5.5/ Aggregate per ggplot dataframe of events per destination areas ####
 
@@ -1049,7 +1070,8 @@ all_events_count_per_maps_all_dest_bioregions_ggplot <- all_events_count_per_map
   ungroup()
   
 # Save ggplot df
-saveRDS(object = all_events_count_per_maps_all_dest_bioregions_ggplot, file = "./outputs/Discrete_events_counts/DEC_J_all_events_count_per_maps_all_dest_bioregions_ggplot.rds")
+# saveRDS(object = all_events_count_per_maps_all_dest_bioregions_ggplot, file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_dest_bioregions_ggplot.rds")
+saveRDS(object = all_events_count_per_maps_all_dest_bioregions_ggplot, file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_dest_bioregions_ggplot.rds")
 
 ### 5.6/ Aggregate per ggplot dataframe of events per source areas x time-strata ####
 
@@ -1059,7 +1081,8 @@ all_events_count_per_maps_all_source_bioregions_all_strata_ggplot <- all_events_
   ungroup()
 
 # Save ggplot df
-saveRDS(object = all_events_count_per_maps_all_source_bioregions_all_strata_ggplot, file = "./outputs/Discrete_events_counts/DEC_J_all_events_count_per_maps_all_source_bioregions_all_strata_ggplot.rds")
+# saveRDS(object = all_events_count_per_maps_all_source_bioregions_all_strata_ggplot, file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_source_bioregions_all_strata_ggplot.rds")
+saveRDS(object = all_events_count_per_maps_all_source_bioregions_all_strata_ggplot, file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_source_bioregions_all_strata_ggplot.rds")
 
 ### 5.7/ Aggregate per ggplot dataframe of events per destination areas x time-strata ####
 
@@ -1069,7 +1092,8 @@ all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot <- all_events_co
   ungroup()
 
 # Save ggplot df
-saveRDS(object = all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot, file = "./outputs/Discrete_events_counts/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot.rds")
+# saveRDS(object = all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot, file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot.rds")
+saveRDS(object = all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot, file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot.rds")
 
 
 ##### 6/ Plot global summary of events counts per bioregion #####
@@ -1084,8 +1108,9 @@ saveRDS(object = all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot
 max_counts <- max(all_events_count_per_maps_all_source_bioregions_ggplot$counts)
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 
 # Set levels of areas in defined order
@@ -1145,7 +1170,8 @@ for ( i in seq_along(plot_event_types_list))
 #           # labels = c("A", "B", "C", "D"),   # Add labels
 #           ncol = 1, nrow = length(density_curve_ggplot_list)) # Define window division
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_density_curves_all_source_bioregions.pdf", width = 10, height = length(density_curve_all_source_bioregions_ggplot_list) * 6)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_density_curves_all_source_bioregions.pdf", width = 10, height = length(density_curve_all_source_bioregions_ggplot_list) * 6)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_density_curves_all_source_bioregions.pdf", width = 10, height = length(density_curve_all_source_bioregions_ggplot_list) * 6)
 
 gridExtra::grid.arrange(
   grobs = density_curve_all_source_bioregions_ggplot_list, # List of ggplots
@@ -1173,7 +1199,7 @@ all_events_mean_count_per_maps_all_source_bioregions_ggplot <- all_events_count_
 # Color scheme for events
 event_types_col <- c("limegreen", "darkgoldenrod1", "dodgerblue", "darkorchid")
 event_types_legend_labels <- str_to_sentence(plot_event_types_list)
-event_types_legend_labels[event_types_legend_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
+# event_types_legend_labels[event_types_legend_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
 event_types_axis_labels <- paste0("(", str_remove(string = event_types_legend_labels, pattern = ".* \\("))
 
 # Adjust order of event types
@@ -1184,7 +1210,8 @@ bioregion_names_reduced <- c("Afrotr.", "Austr.", "IndoM", "Nearct.", "Neotr.", 
 all_events_mean_count_per_maps_all_source_bioregions_ggplot$source <- factor(all_events_mean_count_per_maps_all_source_bioregions_ggplot$source, levels = areas_list, labels = bioregion_names_reduced)
 
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_barplots_all_source_bioregions.pdf", width = 10, height = 7)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_barplots_all_source_bioregions.pdf", width = 10, height = 7)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_barplots_all_source_bioregions.pdf", width = 10, height = 7)
 
 barplot_mean_count_per_events_all_source_bioregions_ggplot <- ggplot(data = all_events_mean_count_per_maps_all_source_bioregions_ggplot,
                                                                      mapping = aes(y = mean_counts, x = source, fill = event_type)) +
@@ -1223,7 +1250,8 @@ dev.off()
   # Fill = type of events
   # X = bioregions
 
-pdf(file = "./outputs/Discrete_events_counts/Events_perc_per_types_barplots_all_source_bioregions.pdf", width = 10, height = 7)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_perc_per_types_barplots_all_source_bioregions.pdf", width = 10, height = 7)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_perc_per_types_barplots_all_source_bioregions.pdf", width = 10, height = 7)
 
 barplot_mean_perc_per_events_all_source_bioregions_ggplot <- ggplot(data = all_events_mean_count_per_maps_all_source_bioregions_ggplot,
                                                                      mapping = aes(y = mean_perc, x = source, fill = event_type)) +
@@ -1255,6 +1283,7 @@ print(barplot_mean_perc_per_events_all_source_bioregions_ggplot)
 
 dev.off()
 
+
 ### 6.4/ Plot density curves of events, per bioregion destination ####
 
 # Multifaceted: 
@@ -1265,8 +1294,9 @@ dev.off()
 max_counts <- max(all_events_count_per_maps_all_dest_bioregions_ggplot$counts)
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 
 # Set levels of areas in defined order
@@ -1330,7 +1360,8 @@ for ( i in seq_along(plot_event_types_list))
 #           # labels = c("A", "B", "C", "D"),   # Add labels
 #           ncol = 1, nrow = length(density_curve_ggplot_list)) # Define window division
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_density_curves_all_dest_bioregions.pdf", width = 10, height = length(density_curve_all_dest_bioregions_ggplot_list) * 6)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_density_curves_all_dest_bioregions.pdf", width = 10, height = length(density_curve_all_dest_bioregions_ggplot_list) * 6)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_density_curves_all_dest_bioregions.pdf", width = 10, height = length(density_curve_all_dest_bioregions_ggplot_list) * 6)
 
 gridExtra::grid.arrange(
   grobs = density_curve_all_dest_bioregions_ggplot_list, # List of ggplots
@@ -1358,7 +1389,7 @@ all_events_mean_count_per_maps_all_dest_bioregions_ggplot <- all_events_count_pe
 # Color scheme for events
 event_types_col <- c("limegreen", "darkgoldenrod1", "dodgerblue", "darkorchid")
 event_types_legend_labels <- str_to_sentence(plot_event_types_list)
-event_types_legend_labels[event_types_legend_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
+# event_types_legend_labels[event_types_legend_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
 event_types_axis_labels <- paste0("(", str_remove(string = event_types_legend_labels, pattern = ".* \\("))
 
 # Adjust order of event types
@@ -1369,7 +1400,8 @@ bioregion_names_reduced <- c("Afrotr.", "Austr.", "IndoM", "Nearct.", "Neotr.", 
 all_events_mean_count_per_maps_all_dest_bioregions_ggplot$dest <- factor(all_events_mean_count_per_maps_all_dest_bioregions_ggplot$dest, levels = areas_list, labels = bioregion_names_reduced)
 
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_barplots_all_dest_bioregions.pdf", width = 10, height = 7)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_barplots_all_dest_bioregions.pdf", width = 10, height = 7)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_barplots_all_dest_bioregions.pdf", width = 10, height = 7)
 
 barplot_mean_count_per_events_all_dest_bioregions_ggplot <- ggplot(data = all_events_mean_count_per_maps_all_dest_bioregions_ggplot,
                                                                      mapping = aes(y = mean_counts, x = dest, fill = event_type)) +
@@ -1408,7 +1440,8 @@ dev.off()
   # Fill = type of events
   # X = bioregions
 
-pdf(file = "./outputs/Discrete_events_counts/Events_perc_per_types_barplots_all_dest_bioregions.pdf", width = 10, height = 7)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_perc_per_types_barplots_all_dest_bioregions.pdf", width = 10, height = 7)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_perc_per_types_barplots_all_dest_bioregions.pdf", width = 10, height = 7)
 
 barplot_mean_perc_per_events_all_dest_bioregions_ggplot <- ggplot(data = all_events_mean_count_per_maps_all_dest_bioregions_ggplot,
                                                                     mapping = aes(y = mean_perc, x = dest, fill = event_type)) +
@@ -1458,8 +1491,9 @@ max_dest_counts <- max(all_events_count_per_maps_all_dest_bioregions_ggplot$coun
 max_counts <- max(max_source_counts, max_dest_counts)
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 
 # Set levels of areas in defined order
@@ -1570,7 +1604,8 @@ density_curve_all_source_dest_bioregions_ggplot_list <- append(x = density_curve
 
 
 # Export plot
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_density_curves_all_source_dest_bioregions.pdf", width = 15, height = length(density_curve_all_source_bioregions_ggplot_list) * 6)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_density_curves_all_source_dest_bioregions.pdf", width = 15, height = length(density_curve_all_source_bioregions_ggplot_list) * 6)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_density_curves_all_source_dest_bioregions.pdf", width = 15, height = length(density_curve_all_source_bioregions_ggplot_list) * 6)
 
 gridExtra::grid.arrange(
   grobs = density_curve_all_source_dest_bioregions_ggplot_list, # List of ggplots
@@ -1614,16 +1649,16 @@ max_cum_counts <- max(cum_source_counts, cum_dest_counts)
 # Color scheme for events
 event_types_col <- c("limegreen", "darkgoldenrod1", "dodgerblue", "darkorchid")
 event_types_legend_labels <- str_to_sentence(plot_event_types_list)
-event_types_legend_labels[event_types_legend_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
+# event_types_legend_labels[event_types_legend_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
 event_types_axis_labels <- paste0("(", str_remove(string = event_types_legend_labels, pattern = ".* \\("))
 
-# Adjust order of event types
-all_events_mean_count_per_maps_all_source_bioregions_ggplot$event_type <- factor(all_events_mean_count_per_maps_all_source_bioregions_ggplot$event_type, levels = plot_event_types_list, labels = event_types_axis_labels)
-all_events_mean_count_per_maps_all_dest_bioregions_ggplot$event_type <- factor(all_events_mean_count_per_maps_all_dest_bioregions_ggplot$event_type, levels = plot_event_types_list, labels = event_types_axis_labels)
+# # Adjust order of event types
+# all_events_mean_count_per_maps_all_source_bioregions_ggplot$event_type <- factor(all_events_mean_count_per_maps_all_source_bioregions_ggplot$event_type, levels = plot_event_types_list, labels = event_types_axis_labels)
+# all_events_mean_count_per_maps_all_dest_bioregions_ggplot$event_type <- factor(all_events_mean_count_per_maps_all_dest_bioregions_ggplot$event_type, levels = plot_event_types_list, labels = event_types_axis_labels)
 
-# Adjust order of Bioregions
-bioregion_names_reduced <- c("Afrotr.", "Austr.", "IndoM", "Nearct.", "Neotr.", "East. PA", "West. PA")
-all_events_mean_count_per_maps_all_source_bioregions_ggplot$source <- factor(all_events_mean_count_per_maps_all_source_bioregions_ggplot$source, levels = areas_list, labels = bioregion_names_reduced)
+# # Adjust order of Bioregions
+# bioregion_names_reduced <- c("Afrotr.", "Austr.", "IndoM", "Nearct.", "Neotr.", "East. PA", "West. PA")
+# all_events_mean_count_per_maps_all_source_bioregions_ggplot$source <- factor(all_events_mean_count_per_maps_all_source_bioregions_ggplot$source, levels = areas_list, labels = bioregion_names_reduced)
 
 
 ## Generate ggplot per type of event for Source Bioregions (remove legend)
@@ -1700,7 +1735,8 @@ barplot_mean_count_per_events_all_source_dest_bioregions_ggplot <- append(x = li
 
 ## Export multifaceted plot
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_barplots_all_source_dest_bioregions.pdf", width = 17, height = 7)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_barplots_all_source_dest_bioregions.pdf", width = 17, height = 7)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_barplots_all_source_dest_bioregions.pdf", width = 17, height = 7)
 
 gridExtra::grid.arrange(
   grobs = barplot_mean_count_per_events_all_source_dest_bioregions_ggplot, # List of ggplots
@@ -1791,7 +1827,8 @@ barplot_mean_perc_per_events_all_source_dest_bioregions_ggplot <- append(x = lis
 
 ## Export multifaceted plot
 
-pdf(file = "./outputs/Discrete_events_counts/Events_perc_per_types_barplots_all_source_dest_bioregions.pdf", width = 17, height = 7)
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_perc_per_types_barplots_all_source_dest_bioregions.pdf", width = 17, height = 7)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_perc_per_types_barplots_all_source_dest_bioregions.pdf", width = 17, height = 7)
 
 gridExtra::grid.arrange(
   grobs = barplot_mean_perc_per_events_all_source_dest_bioregions_ggplot, # List of ggplots
@@ -1804,11 +1841,14 @@ gridExtra::grid.arrange(
 
 dev.off()
 
+
 ##### 7/ Plot global summary of events counts per time strata x bioregion #####
 
 # Load ggplot df
-all_events_count_per_maps_all_source_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/DEC_J_all_events_count_per_maps_all_source_bioregions_all_strata_ggplot.rds")
-all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot.rds")
+# all_events_count_per_maps_all_source_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_source_bioregions_all_strata_ggplot.rds")
+# all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot.rds")
+all_events_count_per_maps_all_source_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_source_bioregions_all_strata_ggplot.rds")
+all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot.rds")
 
 ### 7.1/ Plot the density curves of number of each type of events, per time strata x bioregion sources ####
 
@@ -1821,8 +1861,9 @@ all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot <- readRDS(file 
 max_counts <- max(all_events_count_per_maps_all_source_bioregions_all_strata_ggplot$counts)
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 
 # Set levels of areas in defined order
@@ -1901,7 +1942,8 @@ for ( i in seq_along(plot_event_types_list))
   # Rows = type of events
   # Columns = Time-strata
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_density_curves_all_source_bioregions_all_strata.pdf",
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_density_curves_all_source_bioregions_all_strata.pdf",
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_density_curves_all_source_bioregions_all_strata.pdf",
     width = length(time_strata_labels) * 10, height = length(plot_event_types_list) * 6)
 
 gridExtra::grid.arrange(
@@ -1947,8 +1989,9 @@ time_strata_full_names <- c("PPHo (5.33-0 My)", "Miocene (23.03-5.33 My)", "Olig
 all_events_mean_count_per_maps_all_source_bioregions_all_strata_ggplot$stratum <- factor(all_events_mean_count_per_maps_all_source_bioregions_all_strata_ggplot$stratum, levels = time_strata_list, labels = rev(time_strata_labels))
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 
 # Adjust order of Bioregions
@@ -2006,7 +2049,8 @@ for ( i in seq_along(plot_event_types_list))
   # Rows = type of events
   # Columns = Time-strata
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_barplots_all_source_bioregions_all_strata.pdf",
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_barplots_all_source_bioregions_all_strata.pdf",
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_barplots_all_source_bioregions_all_strata.pdf",
     width = 10, height = length(plot_event_types_list) * 7)
 
 gridExtra::grid.arrange(
@@ -2079,7 +2123,8 @@ for ( i in seq_along(plot_event_types_list))
 ## Multifaceted plot
   # Rows = type of events
 
-pdf(file = "./outputs/Discrete_events_counts/Events_perc_per_types_barplots_all_source_bioregions_all_strata.pdf",
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_perc_per_types_barplots_all_source_bioregions_all_strata.pdf",
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_perc_per_types_barplots_all_source_bioregions_all_strata.pdf",
     width = 10, height = length(plot_event_types_list) * 7)
 
 gridExtra::grid.arrange(
@@ -2093,22 +2138,24 @@ gridExtra::grid.arrange(
 dev.off()
 
 
-# Load ggplot df
-all_events_count_per_maps_all_source_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/DEC_J_all_events_count_per_maps_all_source_bioregions_all_strata_ggplot.rds")
-
-### 7.4/ Plot the density curves of number of each type of events, per time strata x bioregion sources ####
+### 7.4/ Plot the density curves of number of each type of events, per time strata x dest bioregions  ####
 
 # Multifaceted: 
   # Rows = type of events
   # Columns = Time-strata
   # Fill of the overlaying histogram/density curve = bioregions
 
+# Load ggplot df
+# all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot.rds")
+all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot.rds")
+
 # Extract maximum count number
 max_counts <- max(all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot$counts)
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 
 # Set levels of areas in defined order
@@ -2187,7 +2234,8 @@ for ( i in seq_along(plot_event_types_list))
 # Rows = type of events
 # Columns = Time-strata
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_density_curves_all_dest_bioregions_all_strata.pdf",
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_density_curves_all_dest_bioregions_all_strata.pdf",
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_density_curves_all_dest_bioregions_all_strata.pdf",
     width = length(time_strata_labels) * 10, height = length(plot_event_types_list) * 6)
 
 gridExtra::grid.arrange(
@@ -2233,8 +2281,9 @@ time_strata_full_names <- c("PPHo (5.33-0 My)", "Miocene (23.03-5.33 My)", "Olig
 all_events_mean_count_per_maps_all_dest_bioregions_all_strata_ggplot$stratum <- factor(all_events_mean_count_per_maps_all_dest_bioregions_all_strata_ggplot$stratum, levels = time_strata_list, labels = rev(time_strata_labels))
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 
 # Adjust order of Bioregions
@@ -2292,7 +2341,8 @@ for ( i in seq_along(plot_event_types_list))
   # Rows = type of events
   # Columns = Time-strata
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_barplots_all_dest_bioregions_all_strata.pdf",
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_barplots_all_dest_bioregions_all_strata.pdf",
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_barplots_all_dest_bioregions_all_strata.pdf",
     width = 10, height = length(plot_event_types_list) * 7)
 
 gridExtra::grid.arrange(
@@ -2364,7 +2414,8 @@ for ( i in seq_along(plot_event_types_list))
 ## Multifaceted plot
   # Rows = type of events
 
-pdf(file = "./outputs/Discrete_events_counts/Events_perc_per_types_barplots_all_dest_bioregions_all_strata.pdf",
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_perc_per_types_barplots_all_dest_bioregions_all_strata.pdf",
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_perc_per_types_barplots_all_dest_bioregions_all_strata.pdf",
     width = 10, height = length(plot_event_types_list) * 7)
 
 gridExtra::grid.arrange(
@@ -2390,8 +2441,10 @@ dev.off()
   # Fill = bioregions
   
 # Load ggplot df
-all_events_count_per_maps_all_source_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/DEC_J_all_events_count_per_maps_all_source_bioregions_all_strata_ggplot.rds")
-all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot.rds")
+# all_events_count_per_maps_all_source_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_source_bioregions_all_strata_ggplot.rds")
+# all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot.rds")
+all_events_count_per_maps_all_source_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_source_bioregions_all_strata_ggplot.rds")
+all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_strata_ggplot.rds")
 
 ## Format mean data for ggplot
 all_events_mean_count_per_maps_all_source_bioregions_all_strata_ggplot <- all_events_count_per_maps_all_source_bioregions_all_strata_ggplot %>%
@@ -2429,7 +2482,7 @@ max_cum_counts <- all_events_maxcum_counts_per_source_bioregions_all_strata_ggpl
 
 # Set labels for event types
 event_types_legend_labels <- str_to_sentence(plot_event_types_list)
-event_types_legend_labels[event_types_legend_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
+# event_types_legend_labels[event_types_legend_labels == "Jump-dipsersal (j)"] <- "Jump-dispersal (j)"
 event_types_axis_labels <- paste0("(", str_remove(string = event_types_legend_labels, pattern = ".* \\("))
 
 # Adjust order of event types
@@ -2446,8 +2499,9 @@ all_events_mean_count_per_maps_all_source_bioregions_all_strata_ggplot$stratum <
 all_events_mean_count_per_maps_all_dest_bioregions_all_strata_ggplot$stratum <- factor(all_events_mean_count_per_maps_all_dest_bioregions_all_strata_ggplot$stratum, levels = rev(time_strata_list), labels = rev(time_strata_labels))
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 
 # Adjust order of Bioregions
@@ -2563,7 +2617,8 @@ barplot_mean_count_per_events_all_source_dest_bioregions_all_strata_ggplot_list 
   # Rows = type of events
   # Columns = Source and Destination bioregions
 
-pdf(file = "./outputs/Discrete_events_counts/Events_count_per_types_barplots_all_source_dest_bioregions_all_strata.pdf",
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_per_types_barplots_all_source_dest_bioregions_all_strata.pdf",
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_count_per_types_barplots_all_source_dest_bioregions_all_strata.pdf",
     width = 17, height = length(plot_event_types_list) * 7)
 
 gridExtra::grid.arrange(
@@ -2580,7 +2635,7 @@ gridExtra::grid.arrange(
 
 dev.off()
 
-### 7.8/ Plot stacked bars of percetnages of mean event counts, per time-strata x bioregion Sources & Destinations ####
+### 7.8/ Plot stacked bars of percentages of mean event counts, per time-strata x bioregion Sources & Destinations ####
 
 # Plot results in facing columns with similar Y-axes
 # Remove legend from Source plots in the first columns
@@ -2693,7 +2748,8 @@ barplot_mean_perc_per_events_all_source_dest_bioregions_all_strata_ggplot_list <
   # Rows = type of events
   # Columns = Source and Destination bioregions
 
-pdf(file = "./outputs/Discrete_events_counts/Events_perc_per_types_barplots_all_source_dest_bioregions_all_strata.pdf",
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Events_perc_per_types_barplots_all_source_dest_bioregions_all_strata.pdf",
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Events_perc_per_types_barplots_all_source_dest_bioregions_all_strata.pdf",
     width = 18, height = length(plot_event_types_list) * 7)
 
 gridExtra::grid.arrange(
@@ -2716,12 +2772,16 @@ dev.off()
 ### 8.1/ Aggregate count data across all time-strata ####
 
 # Load imputed phylogeny with short names
-Ponerinae_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.rds")
+# Ponerinae_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.rds")
+Ponerinae_MCC_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.rds")
+
 # Extract root age
-root_age <- max(phytools::nodeHeights(Ponerinae_phylogeny_1534t_short_names))
+# root_age <- max(phytools::nodeHeights(Ponerinae_phylogeny_1534t_short_names))
+root_age <- max(phytools::nodeHeights(Ponerinae_MCC_phylogeny_1534t_short_names))
 
 # Load ggplot df
-all_events_count_per_maps_all_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
+# all_events_count_per_maps_all_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
+all_events_count_per_maps_all_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
 names(all_events_count_per_maps_all_bioregions_all_strata_ggplot)
 
 # Extract counts only for targeted type of events
@@ -2740,7 +2800,8 @@ all_dispersal_events_mean_count_per_maps_overall_ggplot <- all_events_count_per_
   mutate(mean_perc = 100 * mean_counts / sum(mean_counts))
   
 # Save ggplot df of mean counts of dispersal events between bioregions
-saveRDS(object = all_dispersal_events_mean_count_per_maps_overall_ggplot, file = "./outputs/Network_events_counts/all_dispersal_events_mean_count_per_maps_overall_ggplot.rds")
+# saveRDS(object = all_dispersal_events_mean_count_per_maps_overall_ggplot, file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_overall_ggplot.rds")
+saveRDS(object = all_dispersal_events_mean_count_per_maps_overall_ggplot, file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_overall_ggplot.rds")
 
 ## Convert back to array
 
@@ -2756,7 +2817,8 @@ all_dispersal_events_mean_count_per_maps_overall_array[, , "mean_counts"]
 all_dispersal_events_mean_count_per_maps_overall_array[, , "mean_perc"]
 
 # Save array of mean counts/perc of dispersal events between bioregions
-saveRDS(object = all_dispersal_events_mean_count_per_maps_overall_array, file = "./outputs/Network_events_counts/all_dispersal_events_mean_count_per_maps_overall_array.rds")
+# saveRDS(object = all_dispersal_events_mean_count_per_maps_overall_array, file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_overall_array.rds")
+saveRDS(object = all_dispersal_events_mean_count_per_maps_overall_array, file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_overall_array.rds")
 
 # Rows = Sources
 # Cols = Dest
@@ -2764,7 +2826,8 @@ saveRDS(object = all_dispersal_events_mean_count_per_maps_overall_array, file = 
 ### 8.2/ Compute node metadata, including richness per bioregions ####
 
 # Load LTT data
-DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 
 bioregion_names_alpha_order <- c("Afrotropics", "Eastern Palearctic", "Indomalaya", "Neotropics", "Nearctic", "Australasia", "Western Palearctic")
 
@@ -2791,14 +2854,16 @@ nodes_metadata$adjusted_latitude <- c(10, 35, 10, -10, 35, -15, 40)
 nodes_metadata$adjusted_longitude <- c(15, 120, 100, -60, -100, 150, 15)
 
 ## Save node metadata
-saveRDS(object = nodes_metadata, file = "./outputs/Network_events_counts/nodes_metadata.rds")
+# saveRDS(object = nodes_metadata, file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata.rds")
+saveRDS(object = nodes_metadata, file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata.rds")
 
 ### 8.3/ Plot as a network ####
 
 # https://kateto.net/network-visualization
 
 # Load node metadata
-nodes_metadata <- readRDS(file = "./outputs/Network_events_counts/nodes_metadata.rds")
+# nodes_metadata <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata.rds")
+nodes_metadata <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata.rds")
 
 ## 8.3.1/ Convert to igraph object ####
 
@@ -2810,7 +2875,8 @@ all_dispersal_events_overall_df <- all_dispersal_events_mean_count_per_maps_over
   # mutate(edge_width = mean_counts / max(mean_counts)) # Standardize between 0 and 1
   
 # Save edge metadata df for all dispersal events across all time-strata
-saveRDS(object = all_dispersal_events_overall_df, file = "./outputs/Network_events_counts/all_dispersal_events_overall_df.rds")
+# saveRDS(object = all_dispersal_events_overall_df, file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_df.rds")
+saveRDS(object = all_dispersal_events_overall_df, file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_df.rds")
 
 ## Convert to igraph
 all_dispersal_events_overall_igraph <- igraph::graph_from_data_frame(d = all_dispersal_events_overall_df, vertices = nodes_metadata, directed = T)
@@ -2829,8 +2895,10 @@ as_adjacency_matrix(all_dispersal_events_overall_igraph, attr = "mean_perc")
 ## 8.3.2/ Adjust aesthetics ####
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[nodes_metadata$node_ID]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[nodes_metadata$node_ID]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
+colors_list_for_areas <- colors_list_for_areas[nodes_metadata$node_ID]
 
 # Remove loops
 all_dispersal_events_overall_igraph <- simplify(graph = all_dispersal_events_overall_igraph,
@@ -2870,11 +2938,14 @@ layout_WGS84 <- cbind(V(all_dispersal_events_overall_igraph)$longitude, V(all_di
 layout_pretty <- cbind(V(all_dispersal_events_overall_igraph)$adjusted_longitude, V(all_dispersal_events_overall_igraph)$adjusted_latitude)
 
 ## Save igraph for all dispersal events across all time-strata
-saveRDS(object = all_dispersal_events_overall_igraph, file = "./outputs/Network_events_counts/all_dispersal_events_overall_igraph.rds")
+# saveRDS(object = all_dispersal_events_overall_igraph, file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_igraph.rds")
+saveRDS(object = all_dispersal_events_overall_igraph, file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_igraph.rds")
 
 ## Plot igraph
 
-pdf(file = "./outputs/Network_events_counts/all_dispersal_events_overall_igraph.pdf",
+# pdf(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_igraph.pdf",
+pdf(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_igraph.pdf",
+        
     width = 6, height = 6)
 
 plot.igraph(x = all_dispersal_events_overall_igraph,
@@ -2900,7 +2971,7 @@ plot.igraph(x = all_dispersal_events_overall_igraph,
             # layout = layout_WGS84,
             layout = layout_pretty,
             main = paste0("Dispersal events between bioregions\n",
-                          "All epochs (",root_age,"-0 My)")
+                          "All epochs (",round(root_age,0),"-0 My)")
             )
 
 dev.off()
@@ -3144,21 +3215,26 @@ Bioregions_sf_Bioregions_level <- readRDS(file = "./input_data/geoBoundaries/Bio
 Bioregions_sf_Bioregions_level <- Bioregions_sf_Bioregions_level[Bioregions_sf_Bioregions_level$Bioregion != "Antarctica", ]
 
 ## Load node metadata
-nodes_metadata <- readRDS(file = "./outputs/Network_events_counts/nodes_metadata.rds")
+# nodes_metadata <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata.rds")
+nodes_metadata <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata.rds")
 
 # Load edge metadata
-all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_counts/all_dispersal_events_overall_df.rds")
+# all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_df.rds")
+all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_df.rds")
 
 
 ## Load igraph for all dispersal events across all time-strata
-all_dispersal_events_overall_igraph <- readRDS(file = "./outputs/Network_events_counts/all_dispersal_events_overall_igraph.rds")
+# all_dispersal_events_overall_igraph <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_igraph.rds")
+all_dispersal_events_overall_igraph <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_igraph.rds")
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[nodes_metadata$node_ID]
-names(colors_list_for_areas) <- nodes_metadata$bioregions
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[nodes_metadata$node_ID]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
+# names(colors_list_for_areas) <- nodes_metadata$bioregions
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
-colors_list_for_areas <- colors_list_for_areas[bioregion_names]
+names(colors_list_for_areas) <- bioregion_names
+# colors_list_for_areas <- colors_list_for_areas[bioregion_names]
 
 # Adjust order of bioregions
 nodes_metadata$bioregions <- factor(nodes_metadata$bioregions, levels = bioregion_names, labels = bioregion_names)
@@ -3198,21 +3274,24 @@ all_dispersal_events_overall_df$source_labels <- factor(all_dispersal_events_ove
 
 
 # Save edge metadata df
-saveRDS(object = all_dispersal_events_overall_df, file = "./outputs/Network_events_counts/all_dispersal_events_overall_df.rds")
+# saveRDS(object = all_dispersal_events_overall_df, file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_df.rds")
+saveRDS(object = all_dispersal_events_overall_df, file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_df.rds")
 
 
 # May adjust curvature manually
 # May adjust arrow size too
 
 # Load edge metadata df
-all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_counts/all_dispersal_events_overall_df.rds")
+# all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_df.rds")
+all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_df.rds")
 
 
 # Set minimum nb of dispersal events to display
 min_counts_threshold <- 5
 
 ## GGplot
-pdf(file = "./outputs/Network_events_counts/all_dispersal_events_overall_ggplot.pdf",
+# pdf(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_ggplot.pdf",
+pdf(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_ggplot.pdf",
     width = 9, height = 4)
 
 all_dispersal_events_overall_ggplot <- ggplot(data = nodes_metadata) +
@@ -3272,7 +3351,7 @@ all_dispersal_events_overall_ggplot <- ggplot(data = nodes_metadata) +
   
   # Add title
   ggtitle(label = paste0("Dispersal events between bioregions\n",
-                         "All epochs (",root_age,"-0 My)")) +
+                         "All epochs (",round(root_age, 0),"-0 My)")) +
   
   # Adjust legend aesthetics
   guides(color = "none",
@@ -3322,7 +3401,8 @@ dev.off()
 ### 8.6/ Plot mean counts of Emigration events between (Source) bioregions ####
 
 # Load melted df of mean counts of dispersal events between bioregions
-all_dispersal_events_mean_count_per_maps_overall_ggplot <- readRDS(file = "./outputs/Network_events_counts/all_dispersal_events_mean_count_per_maps_overall_ggplot.rds")
+# all_dispersal_events_mean_count_per_maps_overall_ggplot <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_overall_ggplot.rds")
+all_dispersal_events_mean_count_per_maps_overall_ggplot <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_overall_ggplot.rds")
 
 # Aggregate counts per source bioregions
 all_dispersal_events_mean_count_per_source_bioregions_overall_ggplot <- all_dispersal_events_mean_count_per_maps_overall_ggplot %>% 
@@ -3330,17 +3410,49 @@ all_dispersal_events_mean_count_per_source_bioregions_overall_ggplot <- all_disp
   summarize(mean_counts = sum(mean_counts)) %>% 
   mutate(mean_percs = mean_counts / sum(mean_counts))
 
+## Version with sd/95%HPD
+
+# Load melted df of event counts per maps for all bioregions and strata
+# all_events_count_per_maps_all_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
+all_events_count_per_maps_all_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
+names(all_events_count_per_maps_all_bioregions_all_strata_ggplot)
+
+# Extract counts only for targeted type of events
+dispersal_event_types_list <- c("range extension (d)", "jump-dispersal (j)")
+# Only range extension (d) and jump dispersal (j) events
+
+# Aggregate counts across maps for sources: mean, perc, sd, HPD95%
+all_dispersal_events_summary_counts_for_sources_overall_ggplot <- all_events_count_per_maps_all_bioregions_all_strata_ggplot %>% 
+  filter(event_type %in% dispersal_event_types_list) %>% # Extract counts only for targeted type of events
+  group_by(source, map) %>% 
+  summarize(counts = sum(counts)) %>% # Sum across event_types x strata x destinations
+  group_by(source) %>% # Aggregate counts across maps using summary statistics
+  summarize(mean_counts = mean(counts),
+            sd_counts = sd(counts),
+            HPD2.5_counts = BayesTwin::HPD(sample = counts, cred_int = 0.95)[1],
+            HPD97.5_counts = BayesTwin::HPD(sample = counts, cred_int = 0.95)[2]) %>% 
+  ungroup() %>% # Compute overall percentages
+  mutate(mean_perc = 100 * mean_counts / sum(mean_counts))
+
+
 # Adjust color scheme for bioregions
 areas_list <- c("A", "U", "I", "R", "N", "E", "W")
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 
 # Adjust order of bioregions
 bioregion_names_reduced <- c("Afrotr.", "Austr.", "IndoM", "Nearct.", "Neotr.", "E-PA", "W-PA")
 all_dispersal_events_mean_count_per_source_bioregions_overall_ggplot$source <- factor(all_dispersal_events_mean_count_per_source_bioregions_overall_ggplot$source, levels = levels(all_dispersal_events_mean_count_per_source_bioregions_overall_ggplot$source), labels = bioregion_names_reduced)
+all_dispersal_events_summary_counts_for_sources_overall_ggplot$source <- factor(all_dispersal_events_summary_counts_for_sources_overall_ggplot$source, levels = levels(all_dispersal_events_summary_counts_for_sources_overall_ggplot$source), labels = bioregion_names_reduced)
 
-# GGplot
-pdf(file = "./outputs/Discrete_events_counts/Dispersal_events_count_per_source_bioregions_overall_barplot.pdf", width = 10, height = 6)
+# Save melted df for summary of counts of dispersal events across source bioregions
+saveRDS(object = all_dispersal_events_summary_counts_for_sources_overall_ggplot, file = "outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_summary_counts_for_sources_overall_ggplot.rds")
+
+
+## GGplot without sd
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_count_per_source_bioregions_overall_barplot.pdf", width = 10, height = 6)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events_count_per_source_bioregions_overall_barplot.pdf", width = 10, height = 6)
 
 barplot_mean_dispersal_events_count_per_source_bioregions_ggplot <- ggplot(data = all_dispersal_events_mean_count_per_source_bioregions_overall_ggplot,
                                                                            mapping = aes(y = mean_counts, x = source, fill = source)) +
@@ -3373,7 +3485,8 @@ dev.off()
 ### 8.7/ Plot mean counts of Immigration events between (Destination) bioregions ####
 
 # Load melted df of mean counts of dispersal events between bioregions
-all_dispersal_events_mean_count_per_maps_overall_ggplot <- readRDS(file = "./outputs/Network_events_counts/all_dispersal_events_mean_count_per_maps_overall_ggplot.rds")
+# all_dispersal_events_mean_count_per_maps_overall_ggplot <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_overall_ggplot.rds")
+all_dispersal_events_mean_count_per_maps_overall_ggplot <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_overall_ggplot.rds")
 
 # Aggregate counts per destination bioregions
 all_dispersal_events_mean_count_per_dest_bioregions_overall_ggplot <- all_dispersal_events_mean_count_per_maps_overall_ggplot %>% 
@@ -3381,17 +3494,48 @@ all_dispersal_events_mean_count_per_dest_bioregions_overall_ggplot <- all_disper
   summarize(mean_counts = sum(mean_counts)) %>% 
   mutate(mean_percs = mean_counts / sum(mean_counts))
 
+## Version with sd/95%HPD
+
+# Load melted df of event counts per maps for all bioregions and strata
+# all_events_count_per_maps_all_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
+all_events_count_per_maps_all_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
+names(all_events_count_per_maps_all_bioregions_all_strata_ggplot)
+
+# Extract counts only for targeted type of events
+dispersal_event_types_list <- c("range extension (d)", "jump-dispersal (j)")
+# Only range extension (d) and jump dispersal (j) events
+
+# Aggregate counts across maps for destinations: mean, perc, sd, HPD95%
+all_dispersal_events_summary_counts_for_dest_overall_ggplot <- all_events_count_per_maps_all_bioregions_all_strata_ggplot %>% 
+  filter(event_type %in% dispersal_event_types_list) %>% # Extract counts only for targeted type of events
+  group_by(dest, map) %>% 
+  summarize(counts = sum(counts)) %>% # Sum across event_types x strata x sources
+  group_by(dest) %>% # Aggregate counts across maps using summary statistics
+  summarize(mean_counts = mean(counts),
+            sd_counts = sd(counts),
+            HPD2.5_counts = BayesTwin::HPD(sample = counts, cred_int = 0.95)[1],
+            HPD97.5_counts = BayesTwin::HPD(sample = counts, cred_int = 0.95)[2]) %>% 
+  ungroup() %>% # Compute overall percentages
+  mutate(mean_perc = 100 * mean_counts / sum(mean_counts))
+
+
 # Adjust color scheme for bioregions
 areas_list <- c("A", "U", "I", "R", "N", "E", "W")
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[areas_list]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 
 # Adjust order of bioregions
 bioregion_names_reduced <- c("Afrotr.", "Austr.", "IndoM", "Nearct.", "Neotr.", "E-PA", "W-PA")
 all_dispersal_events_mean_count_per_dest_bioregions_overall_ggplot$dest <- factor(all_dispersal_events_mean_count_per_dest_bioregions_overall_ggplot$dest, levels = levels(all_dispersal_events_mean_count_per_dest_bioregions_overall_ggplot$dest), labels = bioregion_names_reduced)
+all_dispersal_events_summary_counts_for_dest_overall_ggplot$dest <- factor(all_dispersal_events_summary_counts_for_dest_overall_ggplot$dest, levels = levels(all_dispersal_events_summary_counts_for_dest_overall_ggplot$dest), labels = bioregion_names_reduced)
 
-# GGplot
-pdf(file = "./outputs/Discrete_events_counts/Dispersal_events_count_per_dest_bioregions_overall_barplot.pdf", width = 10, height = 6)
+# Save melted df for summary of counts of dispersal events across destination bioregions
+saveRDS(object = all_dispersal_events_summary_counts_for_dest_overall_ggplot, file = "outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_summary_counts_for_dest_overall_ggplot.rds")
+
+## GGplot without sd
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_count_per_dest_bioregions_overall_barplot.pdf", width = 10, height = 6)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events_count_per_dest_bioregions_overall_barplot.pdf", width = 10, height = 6)
 
 barplot_mean_dispersal_events_count_per_dest_bioregions_ggplot <- ggplot(data = all_dispersal_events_mean_count_per_dest_bioregions_overall_ggplot,
                                                                            mapping = aes(y = mean_counts, x = dest, fill = dest)) +
@@ -3430,8 +3574,9 @@ annotate_npc <- function(label, x, y, ...)
     x = unit(x, "npc"), y = unit(y, "npc"), label = label, ...))
 }
 
-# GGplot
-pdf(file = "./outputs/Discrete_events_counts/Dispersal_events_count_per_source_dest_bioregions_overall_barplot.pdf", width = 10, height = 6)
+## GGplot without sd
+# pdf(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_count_per_source_dest_bioregions_overall_barplot.pdf", width = 10, height = 6)
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events_count_per_source_dest_bioregions_overall_barplot.pdf", width = 10, height = 6)
 
 barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot <- ggplot(data = all_dispersal_events_mean_count_per_source_bioregions_overall_ggplot) +
   
@@ -3447,7 +3592,7 @@ barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot <- ggplot(
   geom_text(data = all_dispersal_events_mean_count_per_dest_bioregions_overall_ggplot,
             aes(y = mean_counts, x = dest), label = bioregion_names_reduced,
             alpha = 1.0, nudge_y = 15, size = 6, col = "black") +
-
+  
   # # Add text to identify Source/Dest
   # annotate_npc(label = "Destination (Emigration)",
   #              x = 0.75, y = 0.92,
@@ -3462,9 +3607,9 @@ barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot <- ggplot(
              label.padding = unit(0.5, "lines"),
              size = 6, fontface = "bold", col = "black") +
   geom_label(label = "Source (Immigration)",
-            x = 5.6, y = -170,
-            label.padding = unit(0.5, "lines"),
-            size = 6, fontface = "bold", col = "black") +
+             x = 5.6, y = -170,
+             label.padding = unit(0.5, "lines"),
+             size = 6, fontface = "bold", col = "black") +
   
   # Add horizontal line for y = 0
   geom_hline(yintercept = 0, linewidth = 1.0) +
@@ -3497,7 +3642,98 @@ barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot <- barplot
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.title.x = element_blank())
+
+# # Remove vertical grid
+# barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot <- barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot +
+#   theme(panel.grid.major.x = element_blank(),
+#         panel.grid.minor.x = element_blank())
+
+# Plot
+print(barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot)
+
+dev.off()
+
+
+## GGplot with sd
+pdf(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events_count_per_source_dest_bioregions_overall_barplot_with_sd.pdf", width = 10, height = 6)
+
+barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot <- ggplot(data = all_dispersal_events_summary_counts_for_sources_overall_ggplot) +
   
+  # Plot barplot for destination bioregions as positive values (Emigration)
+  geom_col(data = all_dispersal_events_summary_counts_for_dest_overall_ggplot,
+           aes(y = mean_counts, x = dest, fill = dest), alpha = 1.0, col = "black") +
+  
+  # Plot barplot for source bioregions as negative values (Immigration)
+  geom_col(data = all_dispersal_events_summary_counts_for_sources_overall_ggplot,
+           aes(y = -1 * mean_counts, x = source, fill = source), alpha = 1.0, col = "black") +
+  
+  # Add SD of destination as error bars
+  geom_errorbar(data = all_dispersal_events_summary_counts_for_dest_overall_ggplot,
+                aes(ymin = mean_counts, ymax = mean_counts + sd_counts, x = dest),
+                width = 0.15,
+                position = "identity") +
+  
+  # Add SD of sources as error bars
+  geom_errorbar(data = all_dispersal_events_summary_counts_for_sources_overall_ggplot,
+                aes(ymin = -1 *(mean_counts), ymax = -1 *(mean_counts + sd_counts), x = source),
+                width = 0.15,
+                position = "identity") +
+  
+  # Add Bioregion labels on the top of the bars (+ error bars)
+  geom_text(data = all_dispersal_events_summary_counts_for_dest_overall_ggplot,
+            aes(y = mean_counts + sd_counts, x = dest), label = bioregion_names_reduced,
+            alpha = 1.0, nudge_y = 15, size = 6, col = "black") +
+  
+  # # Add text to identify Source/Dest
+  # annotate_npc(label = "Destination (Emigration)",
+  #              x = 0.75, y = 0.92,
+  #              gp = grid::gpar(fontsize = 19, fontface = "bold", col = "black")) +
+  # annotate_npc(label = "Source (Immigration)",
+  #              x = 0.75, y = 0.10,
+  #              gp = grid::gpar(fontsize = 19, fontface = "bold", col = "black")) +
+  
+  # Add text to identify Source/Dest
+  geom_label(label = "Destination (Emigration)",
+             x = 5.6, y = 170,
+             label.padding = unit(0.5, "lines"),
+             size = 6, fontface = "bold", col = "black") +
+  geom_label(label = "Source (Immigration)",
+             x = 5.6, y = -170,
+             label.padding = unit(0.5, "lines"),
+             size = 6, fontface = "bold", col = "black") +
+  
+  # Add horizontal line for y = 0
+  geom_hline(yintercept = 0, linewidth = 1.0) +
+  
+  # Adjust tick labels of Y-axis
+  scale_y_continuous(breaks = c(-200, -100, 0, 100, 200), 
+                     labels = c(200, 100, 0, 100, 200),
+                     limits = c(-200, 200)) +
+  
+  # Set plot title +
+  ggtitle(label = paste0("Dispersal events per Bioregions\nacross 1000 BS maps")) +
+  
+  # Set axes labels
+  xlab("Bioregions") +
+  ylab("Counts of events") +
+  
+  # Adjust color scheme and legend
+  scale_fill_manual("Bioregions", labels = bioregion_names, values = unname(colors_list_for_areas)) +
+  
+  # Adjust margins
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")) # trbl
+
+# Adjust aesthetics
+barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot <- barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot %>% 
+  add_aesthetics_density_curve()
+
+# Remove x-axis
+barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot <- barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot +
+  theme(axis.line.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_blank())
+
 # # Remove vertical grid
 # barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot <- barplot_mean_dispersal_events_count_per_source_dest_bioregions_ggplot +
 #   theme(panel.grid.major.x = element_blank(),
@@ -3515,7 +3751,9 @@ dev.off()
 ### 9.1/ Aggregate counts for all dispersal events, per time-strata ####
 
 # Load ggplot df
-all_events_count_per_maps_all_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
+# all_events_count_per_maps_all_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
+all_events_count_per_maps_all_bioregions_all_strata_ggplot <- readRDS(file = "./outputs/Discrete_events_counts/Ponerinae_MCC_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_bioregions_all_strata_ggplot.rds")
+
 names(all_events_count_per_maps_all_bioregions_all_strata_ggplot)
 
 # Extract counts only for targeted type of events
@@ -3534,7 +3772,8 @@ all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot <- all_events_co
   mutate(mean_perc = 100 * mean_counts / sum(mean_counts))
 
 # Save ggplot df of mean counts of dispersal events between bioregions
-saveRDS(object = all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot, file = "./outputs/Network_events_counts/all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot.rds")
+# saveRDS(object = all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot, file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot.rds")
+saveRDS(object = all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot, file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot.rds")
 
 ## Convert back to array
 
@@ -3550,16 +3789,20 @@ all_dispersal_events_mean_count_per_maps_all_time_strata_array[, , , "mean_count
 all_dispersal_events_mean_count_per_maps_all_time_strata_array[, , , "mean_perc"]
 
 # Save array of mean counts/perc of dispersal events between bioregions
-saveRDS(object = all_dispersal_events_mean_count_per_maps_all_time_strata_array, file = "./outputs/Network_events_counts/all_dispersal_events_mean_count_per_maps_all_time_strata_array.rds")
+# saveRDS(object = all_dispersal_events_mean_count_per_maps_all_time_strata_array, file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_all_time_strata_array.rds")
+saveRDS(object = all_dispersal_events_mean_count_per_maps_all_time_strata_array, file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_all_time_strata_array.rds")
 
 ### 9.2/ Compute node metadata per time strata ####
 
 # Load geological epoch time boundaries
-DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
+DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
+
 time_boundaries <- c(0, DEC_J_fit$inputs$timeperiods)
 
 # Load LTT data
-DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot <- readRDS(file = "./outputs/LTT/DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot.rds")
+DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot.rds")
 
 ## Create table for bioregion coordinates
 bioregion_names_alpha_order <- c("Afrotropics", "Eastern Palearctic", "Indomalaya", "Neotropics", "Nearctic", "Australasia", "Western Palearctic")
@@ -3575,7 +3818,7 @@ bioregion_coordinates_df$longitude <- c(25, 100, 100, -60, -100, 140, 20)
 bioregion_coordinates_df$adjusted_latitude <- c(10, 35, 10, -10, 35, -15, 40)
 bioregion_coordinates_df$adjusted_longitude <- c(15, 120, 100, -60, -100, 150, 15)
 
-## Compute mean species richness per geological epoch
+## Compute mean/max species richness per geological epoch
 nodes_metadata_per_time_strata <- list()
 for (i in 1:(length(time_boundaries) - 1))
 {
@@ -3590,21 +3833,25 @@ for (i in 1:(length(time_boundaries) - 1))
     filter((smoothed_time >= lower_boundary) & (smoothed_time <= upper_boundary)) %>% 
     filter(areas != "total") %>% 
     group_by(areas) %>%
-    summarize(mean_counts = mean(mean_counts)) %>%
+    summarize(max_counts = max(mean_counts),  # May make more sense to plot the final richness of each stratum
+              mean_counts = mean(mean_counts)) %>%  
     ungroup() %>%
-    mutate(mean_percentages = 100 * mean_counts / sum(mean_counts)) %>%
+    mutate(mean_percentages = 100 * mean_counts / sum(mean_counts),
+           max_percentages = 100 * max_counts / sum(max_counts)) %>%
     mutate(bioregions = areas) %>%
     rename(node_ID = areas) %>%
-    mutate(node_size = log(mean_counts)) %>%
+    mutate(node_size = log(mean_counts),
+           node_size_max = log(max_counts)) %>%
     mutate(stratum = paste0("Stratum_",i)) %>%
-    select(stratum, node_ID, mean_counts, mean_percentages, node_size)
+    dplyr::select(stratum, node_ID, mean_counts, mean_percentages, node_size, max_counts, max_percentages, node_size_max)
   
   # Add bioregion labels
   nodes_metadata_i <- left_join(x = nodes_metadata_i, y = bioregion_names_alpha_order_df, by = join_by(node_ID == areas)) %>%
-    select(stratum, node_ID, bioregions, mean_counts, mean_percentages, node_size)
+    dplyr::select(stratum, node_ID, bioregions, mean_counts, mean_percentages, node_size, max_counts, max_percentages, node_size_max)
   
   # Add label with richness
   nodes_metadata_i$node_labels <- paste0(nodes_metadata_i$node_ID, "\n", round(nodes_metadata_i$mean_counts, 0))
+  nodes_metadata_i$node_labels_max <- paste0(nodes_metadata_i$node_ID, "\n", round(nodes_metadata_i$max_counts, 0))
   
   # Reorder in alphabetic order of node ID
   nodes_metadata_i <- nodes_metadata_i %>% 
@@ -3619,8 +3866,13 @@ for (i in 1:(length(time_boundaries) - 1))
 }
 names(nodes_metadata_per_time_strata) <- paste0("Stratum_",1:(length(time_boundaries) - 1))
 
+## Update max counts for Stratum 1 (PPHo) because it is taken for time = 2My due to effect of sliding windows, and not time = 0My
+nodes_metadata_per_time_strata$Stratum_1$max_counts <- nodes_metadata$mean_counts[match(x = nodes_metadata$bioregions, table = nodes_metadata_per_time_strata$Stratum_1$bioregions)]
+nodes_metadata_per_time_strata$Stratum_1$node_labels_max <- paste0(nodes_metadata_per_time_strata$Stratum_1$node_ID, "\n", round(nodes_metadata_per_time_strata$Stratum_1$max_counts, 0))
+
 ## Save node metadata
-saveRDS(object = nodes_metadata_per_time_strata, file = "./outputs/Network_events_counts/nodes_metadata_per_time_strata.rds")
+# saveRDS(object = nodes_metadata_per_time_strata, file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata_per_time_strata.rds")
+saveRDS(object = nodes_metadata_per_time_strata, file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata_per_time_strata.rds")
 
 
 ### 9.3/ Plot each time stratum as a network ####
@@ -3630,11 +3882,13 @@ saveRDS(object = nodes_metadata_per_time_strata, file = "./outputs/Network_event
 time_strata_full_names <- c("PPHo (5.33-0 My)", "Miocene (23.03-5.33 My)", "Oligocene (33.9-23.03 My)", "Eocene (56.0-33.9 My)", "Paleocene (66.0-56.0 My)", "Late Cretaceous (100.5-66.0 My)", "Early Cretaceous (145.0-100.5 My)")
 all_dispersal_events_all_strata_df_list <- list()
 
-# Load node metadata fro all time strata
-nodes_metadata_per_time_strata <- readRDS(file = "./outputs/Network_events_counts/nodes_metadata_per_time_strata.rds")
+# Load node metadata for all time strata
+# nodes_metadata_per_time_strata <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata_per_time_strata.rds")
+nodes_metadata_per_time_strata <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata_per_time_strata.rds")
 
 # Load ggplot df of mean counts of dispersal events between bioregions per time strata
-all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot <- readRDS(file = "./outputs/Network_events_counts/all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot.rds")
+# all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot.rds")
+all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_count_per_maps_all_time_strata_ggplot.rds")
 
 # Adjust minimal number of events to be displayed for each time strata
 min_counts_threshold_list <- c(5, 3, 1, 1, 1, 1, 1)
@@ -3649,7 +3903,7 @@ for (i in seq_along(nodes_metadata_per_time_strata))
   
   # Extract node metadata for the given time stratum
   nodes_metadata_stratum_i <- nodes_metadata_per_time_strata[[i]] %>%
-    select(-stratum)
+    dplyr::select(-stratum)
   
   ## 9.3.1/ Convert to igraph object ####
   
@@ -3682,8 +3936,10 @@ for (i in seq_along(nodes_metadata_per_time_strata))
   ## 9.3.2/ Adjust aesthetics ####
   
   # Set color scheme for areas/bioregions (Use the BSM color scheme)
-  colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-  colors_list_for_areas <- colors_list_for_states[nodes_metadata_stratum_i$node_ID]
+  colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+  # colors_list_for_areas <- colors_list_for_states[nodes_metadata_stratum_i$node_ID]
+  colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
+  colors_list_for_areas <- colors_list_for_areas[nodes_metadata_stratum_i$node_ID]
   
   # Remove loops
   all_dispersal_events_stratum_i_igraph <- simplify(graph = all_dispersal_events_stratum_i_igraph,
@@ -3692,10 +3948,12 @@ for (i in seq_along(nodes_metadata_per_time_strata))
   # Set node colors based on bioregions:
   V(all_dispersal_events_stratum_i_igraph)$color <- colors_list_for_areas
   # Set node size based on current richness
-  V(all_dispersal_events_stratum_i_igraph)$size <- V(all_dispersal_events_stratum_i_igraph)$node_size * 5
+  # V(all_dispersal_events_stratum_i_igraph)$size <- V(all_dispersal_events_stratum_i_igraph)$node_size * 5 # Mean richness
+  V(all_dispersal_events_stratum_i_igraph)$size <- V(all_dispersal_events_stratum_i_igraph)$node_size_max * 5 # Max richness
   V(all_dispersal_events_stratum_i_igraph)$size <- sapply(X = V(all_dispersal_events_stratum_i_igraph)$size, FUN = function (x) { max(x, 10) })
   # Set node font size based on current richness
-  V(all_dispersal_events_stratum_i_igraph)$label.cex <- V(all_dispersal_events_stratum_i_igraph)$node_size / 5
+  # V(all_dispersal_events_stratum_i_igraph)$label.cex <- V(all_dispersal_events_stratum_i_igraph)$node_size / 5 # Mean richness
+  V(all_dispersal_events_stratum_i_igraph)$label.cex <- V(all_dispersal_events_stratum_i_igraph)$node_size_max / 5 # Max richness
   V(all_dispersal_events_stratum_i_igraph)$label.cex <- sapply(X = V(all_dispersal_events_stratum_i_igraph)$label.cex, FUN = function (x) { max(x, 0.5) })
     
   # Set edge width based on event counts
@@ -3723,11 +3981,13 @@ for (i in seq_along(nodes_metadata_per_time_strata))
   layout_pretty <- cbind(V(all_dispersal_events_stratum_i_igraph)$adjusted_longitude, V(all_dispersal_events_stratum_i_igraph)$adjusted_latitude)
   
   ## Save igraph for all dispersal events across all time-strata
-  saveRDS(object = all_dispersal_events_stratum_i_igraph, file = paste0("./outputs/Network_events_counts/plots_for_time_strata/all_dispersal_events_stratum_",i,"_igraph.rds"))
+  # saveRDS(object = all_dispersal_events_stratum_i_igraph, file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/plots_for_time_strata/all_dispersal_events_stratum_",i,"_igraph.rds"))
+  saveRDS(object = all_dispersal_events_stratum_i_igraph, file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/plots_for_time_strata/all_dispersal_events_stratum_",i,"_igraph.rds"))
   
   ## Plot igraph
   
-  pdf(file = paste0("./outputs/Network_events_counts/all_dispersal_events_stratum_",i,"_igraph.pdf"),
+  # pdf(file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/plots_for_time_strata/all_dispersal_events_stratum_",i,"_igraph.pdf"),
+  pdf(file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/plots_for_time_strata/all_dispersal_events_stratum_",i,"_igraph.pdf"),
       width = 6, height = 6)
   
   plot.igraph(x = all_dispersal_events_stratum_i_igraph,
@@ -3736,7 +3996,8 @@ for (i in seq_along(nodes_metadata_per_time_strata))
               vertex.frame.color = "black", # Nodes border color
               vertex.shape = "circle",  # Node shape
               # vertex.size = 15, # Node size
-              vertex.label	= nodes_metadata_stratum_i$node_labels, # Node labels
+              # vertex.label	= nodes_metadata_stratum_i$node_labels, # Node labels based on mean richness
+              vertex.label	= nodes_metadata_stratum_i$node_labels_max, # Node labels based on max/final richness
               vertex.label.color = "black",  # Node label color
               vertex.label.font = 2, # Node label font
               # vertex.label.cex = 1, # Node label cex
@@ -3761,21 +4022,28 @@ for (i in seq_along(nodes_metadata_per_time_strata))
 
 ## Save egde metadata across all time-strata
 names(all_dispersal_events_all_strata_df_list) <- paste0("Stratum_",1:length(all_dispersal_events_all_strata_df_list))
-saveRDS(object = all_dispersal_events_all_strata_df_list, file = paste0("./outputs/Network_events_counts/all_dispersal_events_all_strata_df_list.rds"))
+# saveRDS(object = all_dispersal_events_all_strata_df_list, file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_strata_df_list.rds"))
+saveRDS(object = all_dispersal_events_all_strata_df_list, file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_strata_df_list.rds"))
 
 
 ## 9.3.3/ Aggregate all igraph plots in a single pdf ####
 
-all_igraphs_path <- list.files(path = "./outputs/Network_events_counts/plots_for_time_strata/", pattern = "all_dispersal_events_stratum_", full.names = T)
+# all_igraphs_path <- list.files(path = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/plots_for_time_strata/", pattern = "all_dispersal_events_stratum_", full.names = T)
+all_igraphs_path <- list.files(path = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/plots_for_time_strata/", pattern = "all_dispersal_events_stratum_", full.names = T)
+
 all_igraphs_path <- all_igraphs_path[str_detect(string = all_igraphs_path, pattern = "igraph.pdf")]
 nb_igraphs <- length(all_igraphs_path)
 
-qpdf::pdf_combine(input = all_igraphs_path, output = paste0("./outputs/Network_events_counts/all_dispersal_events_all_strata_igraph.pdf"))
+# qpdf::pdf_combine(input = all_igraphs_path, output = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_strata_igraph.pdf"))
+qpdf::pdf_combine(input = all_igraphs_path, output = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_strata_igraph.pdf"))
 
 ## 9.3.4/ Aggregate all igraph in forward timeline + overall ####
 
-overall_igraph_path <- "./outputs/Network_events_counts/all_dispersal_events_overall_igraph.pdf"
-qpdf::pdf_combine(input = c(rev(all_igraphs_path), overall_igraph_path), output = paste0("./outputs/Network_events_counts/all_dispersal_events_all_strata_igraph_forward.pdf"))
+# overall_igraph_path <- "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_igraph.pdf"
+overall_igraph_path <- "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_igraph.pdf"
+
+# qpdf::pdf_combine(input = c(rev(all_igraphs_path), overall_igraph_path), output = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_strata_igraph_forward.pdf"))
+qpdf::pdf_combine(input = c(rev(all_igraphs_path), overall_igraph_path), output = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_strata_igraph_forward.pdf"))
 
 
 ### 9.4/ Map networks over bioregion maps ####
@@ -3786,21 +4054,28 @@ Bioregions_sf_Bioregions_level <- readRDS(file = "./input_data/geoBoundaries/Bio
 Bioregions_sf_Bioregions_level <- Bioregions_sf_Bioregions_level[Bioregions_sf_Bioregions_level$Bioregion != "Antarctica", ]
 
 ## Load overall node metadata
-nodes_metadata <- readRDS(file = "./outputs/Network_events_counts/nodes_metadata.rds")
+# nodes_metadata <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata.rds")
+nodes_metadata <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata.rds")
+
 ## Load node metadata per time strata
-nodes_metadata_per_time_strata <- readRDS(file = "./outputs/Network_events_counts/nodes_metadata_per_time_strata.rds")
+# nodes_metadata_per_time_strata <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata_per_time_strata.rds")
+nodes_metadata_per_time_strata <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata_per_time_strata.rds")
 
 ## Load overall edge metadata
-all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_counts/all_dispersal_events_overall_df.rds")
+# all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_df.rds")
+all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_df.rds")
+
 # Load edge metadata
-all_dispersal_events_all_strata_df_list <- readRDS(file = paste0("./outputs/Network_events_counts/all_dispersal_events_all_strata_df_list.rds"))
+# all_dispersal_events_all_strata_df_list <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_strata_df_list.rds"))
+all_dispersal_events_all_strata_df_list <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_strata_df_list.rds"))
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[nodes_metadata_per_time_strata[[1]]$node_ID]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[nodes_metadata_per_time_strata[[1]]$node_ID]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
+colors_list_for_areas <- colors_list_for_areas[nodes_metadata_per_time_strata[[1]]$node_ID]
 names(colors_list_for_areas) <- nodes_metadata_per_time_strata[[1]]$bioregions
-bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
-colors_list_for_areas <- colors_list_for_areas[bioregion_names]
+bioregion_names <- nodes_metadata_per_time_strata[[1]]$bioregions
 
 # Adjust order of bioregions
 for (i in 1:length(nodes_metadata_per_time_strata))
@@ -3855,11 +4130,13 @@ for (i in 1:length(all_dispersal_events_all_strata_df_list))
 }
 
 # Save edge metadata df
-saveRDS(object = all_dispersal_events_all_strata_df_list, file = "./outputs/Network_events_counts/all_dispersal_events_all_strata_df_list.rds")
+# saveRDS(object = all_dispersal_events_all_strata_df_list, file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_strata_df_list.rds")
+saveRDS(object = all_dispersal_events_all_strata_df_list, file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_strata_df_list.rds")
 
 
 # Load edge metadata df
-all_dispersal_events_all_strata_df_list <- readRDS(file = "./outputs/Network_events_counts/all_dispersal_events_all_strata_df_list.rds")
+# all_dispersal_events_all_strata_df_list <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_strata_df_list.rds")
+all_dispersal_events_all_strata_df_list <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_strata_df_list.rds")
 
 
 # May adjust curvature manually
@@ -3906,10 +4183,12 @@ for (i in seq_along(all_dispersal_events_all_strata_df_list))
   # Extract node metadata
   nodes_metadata_strata_i <- nodes_metadata_per_time_strata[[i]]
   # Extract max node size to adjust range of points
-  max_node_size <- max(nodes_metadata_strata_i$mean_counts)
+  # max_node_size <- max(nodes_metadata_strata_i$mean_counts) # Mean richness
+  max_node_size <- max(nodes_metadata_strata_i$max_counts) # Max richness
   max_range_size <- rescale_range_size(x = max_node_size)
   # Extract min node size to adjust range of points
-  min_node_size <- min(nodes_metadata_strata_i$mean_counts)
+  # min_node_size <- min(nodes_metadata_strata_i$mean_counts) # Mean richness
+  min_node_size <- min(nodes_metadata_strata_i$max_counts) # Max richness
   min_range_size <- rescale_range_size(x = min_node_size)
   # Extract range size for labels
   min_range_label_size <- rescale_range_size(x = min_node_size, range_min = 3, range_max = 10)
@@ -3934,7 +4213,8 @@ for (i in seq_along(all_dispersal_events_all_strata_df_list))
   min_counts_threshold_i <- min_counts_threshold_list[i]
   
   # Plot PDF
-  pdf(file = paste0("./outputs/Network_events_counts/plots_for_time_strata/all_dispersal_events_stratum_",i,"_ggplot.pdf"),
+  #pdf(file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/plots_for_time_strata/all_dispersal_events_stratum_",i,"_ggplot.pdf"),
+  pdf(file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/plots_for_time_strata/all_dispersal_events_stratum_",i,"_ggplot.pdf"),
       width = 9, height = 4)
   
   all_dispersal_events_strata_i_ggplot <- ggplot(data = nodes_metadata_strata_i) +
@@ -3955,7 +4235,9 @@ for (i in seq_along(all_dispersal_events_all_strata_df_list))
              expand = FALSE) +
     
     # Plot nodes
-    geom_point(mapping = aes(x = longitude_Mollweide, y = latitude_Mollweide, size = mean_counts),
+    geom_point(mapping = aes(x = longitude_Mollweide, y = latitude_Mollweide,
+                             # size = mean_counts), # Mean richness
+                             size = max_counts), # Max richness
                alpha = 0.3, show.legend = F) +
     
     # Adjust size legend
@@ -3986,9 +4268,11 @@ for (i in seq_along(all_dispersal_events_all_strata_df_list))
     # Add node labels
     ggnewscale::new_scale(new_aes = "size") +
     geom_text(data = nodes_metadata_strata_i,
-              mapping = aes(label = round(mean_counts, 0),
+              mapping = aes(# label = round(mean_counts, 0), # Mean richness
+                            label = round(max_counts, 0), # Max richness
                             x = longitude_Mollweide, y = latitude_Mollweide,
-                            size = mean_counts),
+                            # size = mean_counts), # Mean richness
+                            size = max_counts), # Max richness
               # color = rgb(t(col2rgb("black")), alpha = 200, maxColorValue = 255),
               color = "black",
               fontface = 2, show.legend = F) +
@@ -4036,28 +4320,36 @@ for (i in seq_along(all_dispersal_events_all_strata_df_list))
 
 ## 9.4.3/ Aggregate all ggplot plots in a single pdf ####
 
-all_ggplots_path <- list.files(path = "./outputs/Network_events_counts/plots_for_time_strata/", pattern = "all_dispersal_events_stratum_", full.names = T)
+# all_ggplots_path <- list.files(path = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/plots_for_time_strata/", pattern = "all_dispersal_events_stratum_", full.names = T)
+all_ggplots_path <- list.files(path = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/plots_for_time_strata/", pattern = "all_dispersal_events_stratum_", full.names = T)
+
 all_ggplots_path <- all_ggplots_path[str_detect(string = all_ggplots_path, pattern = "ggplot.pdf")]
 nb_ggplots <- length(all_ggplots_path)
 
-qpdf::pdf_combine(input = all_ggplots_path, output = paste0("./outputs/Network_events_counts/all_dispersal_events_all_strata_ggplot.pdf"))
+# qpdf::pdf_combine(input = all_ggplots_path, output = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_strata_ggplot.pdf"))
+qpdf::pdf_combine(input = all_ggplots_path, output = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_strata_ggplot.pdf"))
 
 ## 9.4.3/ Aggregate all ggplot in forward timeline + overall ####
 
-overall_ggplot_path <- "./outputs/Network_events_counts/all_dispersal_events_overall_ggplot.pdf"
-qpdf::pdf_combine(input = c(rev(all_ggplots_path), overall_ggplot_path), output = paste0("./outputs/Network_events_counts/all_dispersal_events_all_strata_ggplot_forward.pdf"))
+# overall_ggplot_path <- "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_ggplot.pdf"
+overall_ggplot_path <- "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_ggplot.pdf"
+
+# qpdf::pdf_combine(input = c(rev(all_ggplots_path), overall_ggplot_path), output = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_strata_ggplot_forward.pdf"))
+qpdf::pdf_combine(input = c(rev(all_ggplots_path), overall_ggplot_path), output = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_strata_ggplot_forward.pdf"))
 
 
 ### 9.5/ Convert to GIF ####
 
 source("./functions/image_resize_and_write_gif.R")
 
-pdf_pointer <- magick::image_read_pdf(path = paste0("./outputs/Network_events_counts/all_dispersal_events_all_strata_ggplot_forward.pdf"),
-                                                    pages = NULL, density = 100)
+# pdf_pointer <- magick::image_read_pdf(path = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_strata_ggplot_forward.pdf"),
+pdf_pointer <- magick::image_read_pdf(path = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_strata_ggplot_forward.pdf"),
+                                      pages = NULL, density = 100)
 magick::image_info(pdf_pointer)
 
 image_resize_and_write_gif(image = pdf_pointer,
-                           path =  paste0("./outputs/Network_events_counts/all_dispersal_events_all_strata_ggplot_forward.gif"),
+                           # path =  paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_strata_ggplot_forward.gif"),
+                           path =  paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_strata_ggplot_forward.gif"),
                            delay = 2, # Time between frames in seconds
                            width = 900, height = 400,
                            loop = FALSE,

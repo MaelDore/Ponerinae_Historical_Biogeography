@@ -21,7 +21,7 @@
 ### Outputs
 
 # Binary table for OW vs. NW tips data (including widespread state encompassing OW and NW)
-# Fits of Geographic SSE models: CID-1, CID-3, CID-6, GeoSSE, GeoHiSSE 
+# Fits of Geographic SSE models: CID-1, CID-2, CID-4, GeoSSE, GeoHiSSE 
   # Table of AICc model comparison
   # Parameter estimates plots
 # Estimate residence times from ARE marginal likelihoods
@@ -54,7 +54,8 @@ library(xlsx)
 ### 1.1/ Load the phylogeny ####
 
 # Load phylogeny
-Ponerinae_phylogeny_1534t_treedata <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata.rds")
+# Ponerinae_phylogeny_1534t_treedata <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata.rds")
+Ponerinae_phylogeny_1534t_treedata <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE.rds")
 
 ### 1.2/ Load binary tip data for bioregion membership  ####
 
@@ -91,10 +92,22 @@ convert_rates_from_GeoHiSSE_output <- function(GeoSSE_output, keep_initial_pars 
 {
   k <- nrow(GeoSSE_output$trans.matrix) # Extract nb of states
   states_names <- colnames(GeoSSE_output$trans.matrix) # Extract state names
+  states_names_no_parenthesis <- str_remove_all(string = states_names, pattern = "\\(|\\)")
+  # nb_regimes <- sum(colSums(apply(X = matrix(LETTERS[1:10]), MARGIN = 1, FUN = str_detect, string = states_names)) > 0) # Extract number of hidden states/regimes
+  nb_regimes <- k/3 # Extract number of hidden states/regimes
   
   pars <- GeoSSE_output$solution # Extract parameters
-  tau_pars <- pars[grep("tau",names(pars))][1:k] # Extract turnover parameters
-  ef_pars <- pars[grep("ef",names(pars))][1:k] # Extract extinction fraction parameters
+  # tau_pars <- pars[grep("tau",names(pars))][1:k] # Extract turnover parameters
+  # ef_pars <- pars[grep("ef",names(pars))][1:(2*nb_regimes)] # Extract extinction fraction parameters
+  
+  all_tau_pars <- pars[grep("tau",names(pars))] # Extract turnover parameters
+  tau_pars <- all_tau_pars[match(x = states_names_no_parenthesis, table = str_remove(string = names(all_tau_pars), pattern = "tau"))]
+  all_ef_pars <- pars[grep("ef",names(pars))] # Extract extinction fraction parameters
+  ef_pars <- all_ef_pars[match(x = states_names_no_parenthesis, table = str_remove(string = names(all_ef_pars), pattern = "ef"))]
+  # Replace NA of 01 states with 0
+  ef_pars[is.na(ef_pars)] <- 0
+    
+  # Compute rates
   lambda <- tau_pars / (1 + ef_pars) # Compute speciation rates
   mu <- tau_pars - lambda # Compute extinction rates
   
@@ -221,10 +234,10 @@ hisse::TranslateParsMakerGeoHiSSE(k = 1,
       # Transition from 3 to 3 and 3 = lambda333 = endemic speciation in endemic area 3
 
 # Use distinction between extirpation (source = 01) and local extinction (source = 0 or 1) as otherwise their is no anagenetic events allowing to leave the wide-spread area state (01)
-# However, since it is impossible to distinguish between endemic speciation (source = 0 or 1) and sympatric subset speciation (source = 01), it remains impossible to distinguish net diversification rates in endemic areas (o or 1) vs. wide-spread area (01)
+# However, since it is impossible to distinguish between endemic speciation (source = 0 or 1) and sympatric subset speciation (source = 01), it remains impossible to distinguish net diversification rates in endemic areas (0 or 1) vs. wide-spread area (01)
 # Use range-shift ("jumps") as cladogenetic jump-dispersal are not allowed, thus this is the only way to transition from area 0 to 1 without going through an intermediate wide-spread state (01)
 
-## Can GeoHiSSE be used to run GeoSSE and their equivalent null models? CID-1, CID-3 and CID-6?
+## Can GeoHiSSE be used to run GeoSSE and their equivalent null models? CID-1, CID-2 and CID-4?
   # Set s0A = s1A => speciation rates independent from source/dest area 
   # Set x0A = x1A => extirpation rates independent from extirpation area 
   # Can apply this for hidden states B in case of CID-4 with effects of hidden states (A/B), but not observed ranges (0/1)
@@ -294,19 +307,22 @@ GeoHiSSE_Qmat
 # Idea = keep it the simplest: both trait transitions are independent from states in the other trait
 
 
-## 3.1.3/ Create CID-3 design matrix (1 binary observed trait x 1 three-states hidden trait)
+## 3.1.3/ Create CID-2 design matrix (1 binary observed trait x 1 two-states hidden trait)
+
+# Use CID-2 as null model against GeoSSE as their are truely two diversification regimes in GeoSSE
+# (lambda123 is s01 is vicariance, but not diversification (no extinction under wide-spread state, only extirpation))
 
 ## Version with Uncorrelated design (the simplest null model)
 
-CID3_Qmat <- TransMatMakerGeoHiSSE(hidden.traits = 2, 
+CID2_Qmat <- TransMatMakerGeoHiSSE(hidden.traits = 1, 
                                    make.null = TRUE, # Transition between observed ranges are independent from hidden traits. Transitions between hidden traits are independent from observed areas.
                                    include.jumps = TRUE,
                                    separate.extirpation = TRUE)
-CID3_Qmat
+CID2_Qmat
 
-# 2 traits with 3x6 crossed states
+# 2 traits with 3x2 crossed states
   # Observed states = (00), (11) and (01)
-  # Hidden states = diversification regimes = (A), (B), (C)
+  # Hidden states = diversification regimes = (A), (B)
   # No direct transitions across regimes x states: No (00A) <-> (11B) ; No (11A) <-> (01B) ; etc
 # Uncorrelated design:
   # Hidden trait DOES NOT affect transition rates across observed states
@@ -314,34 +330,74 @@ CID3_Qmat
   # Observed trait DOES NOT affect transition rates across hidden states
     # q00A <-> q00C are equal to q11A <-> q11C
 # ARD model for observed trait: 
-  # 1 forward rate and 1 backward rate for jumps/range-shifts (independent from hidden states) => 3/ jd0A (d00A_11A) = jd0B (d00A_11A) = jd0C (d00C_11C) and 1/ jd1A (d11A_00A) = jd1B (d11B_00B) = jd1C (d11C_00C) => 2 rates
-  # 1 forward rate for range extension per source area => 5/ d0A (d00A_01A) = d0B (d00B_01B) = d0C (d00C_01C) and 6/ d1A (d11A_01A) = d1B (d11B_01B) = d1C (d11C_01C) => 2 rates
+  # 1 forward rate and 1 backward rate for jumps/range-shifts (independent from hidden states) => 3/ jd0A (d00A_11A) = jd0B (d00A_11A) and 1/ jd1A (d11A_00A) = jd1B (d11B_00B) => 2 rates
+  # 1 forward rate for range extension per source area => 5/ d0A (d00A_01A) = d0B (d00B_01B) and 6/ d1A (d11A_01A) = d1B (d11B_01B) => 2 rates
   # If separate.extirpation = F: 
     # No backward rates as range extirpation along branches is forbidden (only extinction is allowed).
     # But then, the only way to escape the wide-range state is through cladogenetic subset speciation which is controlled by the same parameter
     # than endemic speciation, which is an issue.
   # If separate.extirpation = T: 
-    # 1 backward rate for range contraction/extirpation per extirpation area => 2/ x1A (d01A_00A) = x1B (d01B_00B) = x1C (d01C_00C) and 4/ x0A (d01A_11A) = x0B (d01B_11B) = x0C (d01C_11C) => 2 rates
+    # 1 backward rate for range contraction/extirpation per extirpation area => 2/ x1A (d01A_00A) = x1B (d01B_00B) and 4/ x0A (d01A_11A) = x0B (d01B_11B) => 2 rates
 # ER model for hidden trait: 1 unique rate (independent from observed state)
-  # 7/ q0AB (d00A_00B) = q0BA (d00B_00A) = q1AB (d11A_11B) = q1BA (d11B_11A) = q01AB (d01A_01B) = q01BA (d01B_01A) = q0AC (d00A_00C) = q0CA (d00C_00A) = ...
+  # 7/ q0AB (d00A_00B) = q0BA (d00B_00A) = q1AB (d11A_11B) = q1BA (d11B_11A) = q01AB (d01A_01B) = q01BA (d01B_01A)
 # Total = 7 transition parameters
 
 # Idea = keep it the simplest: both trait transitions are independent from states in the other trait
 
 
-## 3.1.4/ Create CID-6 design matrix (1 binary observed trait x 1 six-states hidden trait)
+# ## 3.1.3/ Create CID-3 design matrix (1 binary observed trait x 1 three-states hidden trait)
+# 
+# ## Should not be used as the number of true diversification regimes in GeoSSE is 2, not 3!
+# 
+# ## Version with Uncorrelated design (the simplest null model)
+# 
+# CID3_Qmat <- TransMatMakerGeoHiSSE(hidden.traits = 2, 
+#                                    make.null = TRUE, # Transition between observed ranges are independent from hidden traits. Transitions between hidden traits are independent from observed areas.
+#                                    include.jumps = TRUE,
+#                                    separate.extirpation = TRUE)
+# CID3_Qmat
+# 
+# # 2 traits with 3x3 crossed states
+#   # Observed states = (00), (11) and (01)
+#   # Hidden states = diversification regimes = (A), (B), (C)
+#   # No direct transitions across regimes x states: No (00A) <-> (11B) ; No (11A) <-> (01B) ; etc
+# # Uncorrelated design:
+#   # Hidden trait DOES NOT affect transition rates across observed states
+#     # q00A <-> q11A are equal to q00C <-> q11C
+#   # Observed trait DOES NOT affect transition rates across hidden states
+#     # q00A <-> q00C are equal to q11A <-> q11C
+# # ARD model for observed trait: 
+#   # 1 forward rate and 1 backward rate for jumps/range-shifts (independent from hidden states) => 3/ jd0A (d00A_11A) = jd0B (d00A_11A) = jd0C (d00C_11C) and 1/ jd1A (d11A_00A) = jd1B (d11B_00B) = jd1C (d11C_00C) => 2 rates
+#   # 1 forward rate for range extension per source area => 5/ d0A (d00A_01A) = d0B (d00B_01B) = d0C (d00C_01C) and 6/ d1A (d11A_01A) = d1B (d11B_01B) = d1C (d11C_01C) => 2 rates
+#   # If separate.extirpation = F: 
+#     # No backward rates as range extirpation along branches is forbidden (only extinction is allowed).
+#     # But then, the only way to escape the wide-range state is through cladogenetic subset speciation which is controlled by the same parameter
+#     # than endemic speciation, which is an issue.
+#   # If separate.extirpation = T: 
+#     # 1 backward rate for range contraction/extirpation per extirpation area => 2/ x1A (d01A_00A) = x1B (d01B_00B) = x1C (d01C_00C) and 4/ x0A (d01A_11A) = x0B (d01B_11B) = x0C (d01C_11C) => 2 rates
+# # ER model for hidden trait: 1 unique rate (independent from observed state)
+#   # 7/ q0AB (d00A_00B) = q0BA (d00B_00A) = q1AB (d11A_11B) = q1BA (d11B_11A) = q01AB (d01A_01B) = q01BA (d01B_01A) = q0AC (d00A_00C) = q0CA (d00C_00A) = ...
+# # Total = 7 transition parameters
+# 
+# # Idea = keep it the simplest: both trait transitions are independent from states in the other trait
+
+
+## 3.1.4/ Create CID-4 design matrix (1 binary observed trait x 1 four-states hidden trait)
+
+# Use CID-4 as null model against GeoHiSSE as their are truely four diversification regimes in GeoHiSSE
+# (lambda123 is s01 is vicariance, but not diversification (no extinction under wide-spread state, only extirpation))
 
 ## Version with Uncorrelated design (the simplest null model)
 
-CID6_Qmat <- TransMatMakerGeoHiSSE(hidden.traits = 5, 
+CID4_Qmat <- TransMatMakerGeoHiSSE(hidden.traits = 3, 
                                    make.null = TRUE, # Transition between observed ranges are independent from hidden traits. Transitions between hidden traits are independent from observed areas.
                                    include.jumps = TRUE,
                                    separate.extirpation = TRUE)
-CID6_Qmat
+CID4_Qmat
 
-# 2 traits with 3x6 crossed states
+# 2 traits with 3x4 crossed states
   # Observed states = (00), (11) and (01)
-  # Hidden states = diversification regimes = (A), (B), (C), (D), (E), (F)
+  # Hidden states = diversification regimes = (A), (B), (C), (D)
   # No direct transitions across regimes x states: No (00A) <-> (11B) ; No (11A) <-> (01B) ; etc
 # Uncorrelated design:
   # Hidden trait DOES NOT affect transition rates across observed states
@@ -349,29 +405,73 @@ CID6_Qmat
   # Observed trait DOES NOT affect transition rates across hidden states
     # q00A <-> q00C are equal to q11A <-> q11C
 # ARD model for observed trait: 
-  # 1 forward rate and 1 backward rate for jumps/range-shifts (independent from hidden states) => 3/ jd0A (d00A_11A) = jd0B (d00A_11A) = ... = jd0F (d00F_11F) = and 1/ jd1A (d11A_00A) = jd1B (d11B_00B) = ... = jd1F (d11F_00F) => 2 rates
-  # 1 forward rate for range extension per source area =>  5/ d0A (d00A_01A) = d0B (d00B_01B) = ... = d0F (d00F_01F) and 6/ d1A (d11A_01A) = d1B (d11B_01B) = ... = d1F (d11F_01F) => 2 rates
+  # 1 forward rate and 1 backward rate for jumps/range-shifts (independent from hidden states) => 3/ jd0A (d00A_11A) = jd0B (d00A_11A) = ... = jd0D (d00D_11D) = and 1/ jd1A (d11A_00A) = jd1B (d11B_00B) = ... = jd1D (d11D_00D) => 2 rates
+  # 1 forward rate for range extension per source area =>  5/ d0A (d00A_01A) = d0B (d00B_01B) = ... = d0D (d00D_01D) and 6/ d1A (d11A_01A) = d1B (d11B_01B) = ... = d1F (d11D_01D) => 2 rates
   # If separate.extirpation = F: 
     # No backward rates as range extirpation along branches is forbidden (only extinction is allowed).
     # But then, the only way to escape the wide-range state is through cladogenetic subset speciation which is controlled by the same parameter
     # than endemic speciation, which is an issue.
   # If separate.extirpation = T: 
-    # 1 backward rate for range contraction/extirpation per extirpation area => 2/ x1A (d01A_00A) = x1B (d01B_00B) = ... = x1F (d01F_00F) and 4/ x0A (d01A_11A) = x0B (d01B_11B) = ... = x0F (d01F_11F) => 2 rates
+    # 1 backward rate for range contraction/extirpation per extirpation area => 2/ x1A (d01A_00A) = x1B (d01B_00B) = ... = x1D (d01D_00D) and 4/ x0A (d01A_11A) = x0B (d01B_11B) = ... = x0F (d01D_11D) => 2 rates
 # ER model for hidden trait: 1 unique rate (independent from observed state)
-  # 7/ q0AB (d00A_00B) = q0BA (d00B_00A) = q1AB (d11A_11B) = q1BA (d11B_11A) = q01AB (d01A_01B) = q01BA (d01B_01A) = ... = q0AF (d00A_00F) = q0FA (d00F_00A) = ...
+  # 7/ q0AB (d00A_00B) = q0BA (d00B_00A) = q1AB (d11A_11B) = q1BA (d11B_11A) = q01AB (d01A_01B) = q01BA (d01B_01A) = ... = q0AD (d00A_00D) = q0DA (d00D_00A) = ...
 # Total = 7 transition parameters
 
 # Idea = keep it the simplest: both trait transitions are independent from states in the other trait
+
+
+# ## 3.1.4/ Create CID-6 design matrix (1 binary observed trait x 1 six-states hidden trait)
+# 
+# ## Should not be used as the number of true diversification regimes in GeoHiSSE is 4, not 6!
+# 
+# ## Version with Uncorrelated design (the simplest null model)
+# 
+# CID6_Qmat <- TransMatMakerGeoHiSSE(hidden.traits = 5, 
+#                                    make.null = TRUE, # Transition between observed ranges are independent from hidden traits. Transitions between hidden traits are independent from observed areas.
+#                                    include.jumps = TRUE,
+#                                    separate.extirpation = TRUE)
+# CID6_Qmat
+# 
+# # 2 traits with 3x6 crossed states
+#   # Observed states = (00), (11) and (01)
+#   # Hidden states = diversification regimes = (A), (B), (C), (D), (E), (F)
+#   # No direct transitions across regimes x states: No (00A) <-> (11B) ; No (11A) <-> (01B) ; etc
+# # Uncorrelated design:
+#   # Hidden trait DOES NOT affect transition rates across observed states
+#     # q00A <-> q11A are equal to q00C <-> q11C
+#   # Observed trait DOES NOT affect transition rates across hidden states
+#     # q00A <-> q00C are equal to q11A <-> q11C
+# # ARD model for observed trait: 
+#   # 1 forward rate and 1 backward rate for jumps/range-shifts (independent from hidden states) => 3/ jd0A (d00A_11A) = jd0B (d00A_11A) = ... = jd0F (d00F_11F) = and 1/ jd1A (d11A_00A) = jd1B (d11B_00B) = ... = jd1F (d11F_00F) => 2 rates
+#   # 1 forward rate for range extension per source area =>  5/ d0A (d00A_01A) = d0B (d00B_01B) = ... = d0F (d00F_01F) and 6/ d1A (d11A_01A) = d1B (d11B_01B) = ... = d1F (d11F_01F) => 2 rates
+#   # If separate.extirpation = F: 
+#     # No backward rates as range extirpation along branches is forbidden (only extinction is allowed).
+#     # But then, the only way to escape the wide-range state is through cladogenetic subset speciation which is controlled by the same parameter
+#     # than endemic speciation, which is an issue.
+#   # If separate.extirpation = T: 
+#     # 1 backward rate for range contraction/extirpation per extirpation area => 2/ x1A (d01A_00A) = x1B (d01B_00B) = ... = x1F (d01F_00F) and 4/ x0A (d01A_11A) = x0B (d01B_11B) = ... = x0F (d01F_11F) => 2 rates
+# # ER model for hidden trait: 1 unique rate (independent from observed state)
+#   # 7/ q0AB (d00A_00B) = q0BA (d00B_00A) = q1AB (d11A_11B) = q1BA (d11B_11A) = q01AB (d01A_01B) = q01BA (d01B_01A) = ... = q0AF (d00A_00F) = q0FA (d00F_00A) = ...
+# # Total = 7 transition parameters
+# 
+# # Idea = keep it the simplest: both trait transitions are independent from states in the other trait
 
 
 ### 3.2/ Set diversification rate design for models ####
 
 ## Create CID-1 diversification rate design: 
-CID1_turnover_rates <- c(1,1,1) # s0A = s1A = s01A
+
+# # Version with non-independent vicariance
+# CID1_turnover_rates <- c(1,1,1) # s0A = s1A = s01A
+# CID1_eps_rates <- c(1,1) # x0A = x1A # No extirpation from 01 as this would be non-allowed transitions
+
+# Version with independent vicariance
+CID1_turnover_rates <- c(1,1,2) # s0A = s1A. Vicariance = s01A is independent
 CID1_eps_rates <- c(1,1) # x0A = x1A # No extirpation from 01 as this would be non-allowed transitions
 
 # We want the observed states to DO NOT affect turnover and extinction fraction
 # Thus, only a single turnover rate and a single extinction fraction
+# However, we do not want the vicariance to depend on turnover rates in unique areas as it does not have an extinction rates, but extirpation rates
 
 ## Create GeoSSE diversification rate design:
 GeoSSE_turnover_rates <- c(1,2,3) #  s0A, s1A, s01A
@@ -380,12 +480,26 @@ GeoSSE_eps_rates <- c(1,2) # x0A and x1A # No extirpation from 01 as this would 
 # We want the observed states to affect both turnover and extinction fraction
 # If the extinction fraction is fixed to 0, we model speciation alone
 
-## Create CID-3 diversification rate design:
-CID3_turnover_rates <- c(1,1,1,2,2,2,3,3,3) # s0A = s1A = s01A, s0B = s1B = s01B and s0C = s1C = s01C
-CID3_eps_rates <- c(1,1,2,2,3,3) # x0A = x1A, x0B = x1B, and x0C = x1C # No extirpation from 01 as this would be non-allowed transitions
+## Create CID-2 diversification rate design:
+
+# # Version with non-independent vicariances
+# CID2_turnover_rates <- c(1,1,1,2,2,2) # s0A = s1A = s01A and s0B = s1B = s01B
+# CID2_eps_rates <- c(1,1,2,2) # x0A = x1A and x0B = x1B # No extirpation from 01 as this would be non-allowed transitions
+
+# Version with independent vicariances
+CID2_turnover_rates <- c(1,1,3,2,2,4) # s0A = s1A and s0B = s1B. Vicariances are independent from turnover in unique areas and different across regimes: s01A =/= s01B
+CID2_eps_rates <- c(1,1,2,2) # x0A = x1A and x0B = x1B # No extirpation from 01 as this would be non-allowed transitions
 
 # We want the hidden states to affect both turnover and extinction fraction
-# If the extinction fraction is fixed to 0, we the model speciation alone
+# If the extinction fraction is fixed to 0, we model speciation alone
+# However, we do not want the vicariance to depend on turnover rates in unique areas as it does not have an extinction rates, but extirpation rates
+
+# ## Create CID-3 diversification rate design:
+# CID3_turnover_rates <- c(1,1,1,2,2,2,3,3,3) # s0A = s1A = s01A, s0B = s1B = s01B and s0C = s1C = s01C
+# CID3_eps_rates <- c(1,1,2,2,3,3) # x0A = x1A, x0B = x1B, and x0C = x1C # No extirpation from 01 as this would be non-allowed transitions
+# 
+# # We want the hidden states to affect both turnover and extinction fraction
+# # If the extinction fraction is fixed to 0, we model speciation alone
 
 ## Create GeoHiSSE diversification rate design:
 GeoHiSSE_turnover_rates <- c(1,2,3,4,5,6) # s0A, s1A, s01A and s0B, s1B, s01B
@@ -393,15 +507,30 @@ GeoHiSSE_eps_rates <- c(1,2,3,4) # x0A, x1A and x0B, x1B # No extirpation from 0
 
 # We want the observed states to affect both turnover and extinction fraction
 # We want the hidden states to affect both turnover and extinction fraction
-# If the extinction fraction is fixed to 0, we the model speciation alone
+# If the extinction fraction is fixed to 0, we model speciation alone
 
-## Create CID-6 diversification rate design:
-CID6_turnover_rates <- c(1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6) # s0A = s1A = s01A, s0B = s1B = s01B, ..., s0F = s1F = s01F
-CID6_eps_rates <- c(1,1,2,2,3,3,4,4,5,5,6,6) # x0A = x1A, x0B = x1B, ..., x0F = x1F # No extirpation from 01 as this would be non-allowed transitions
+## Create CID-4 diversification rate design:
+
+# # Version with non-independent vicariances
+# CID4_turnover_rates <- c(1,1,1,2,2,2,3,3,3,4,4,4) # s0A = s1A = s01A, s0B = s1B = s01B, ..., s0D = s1D = s01D
+# CID4_eps_rates <- c(1,1,2,2,3,3,4,4) # x0A = x1A, x0B = x1B, ..., x0D = x1D # No extirpation from 01 as this would be non-allowed transitions
+
+# Version with independent vicariances
+CID4_turnover_rates <- c(1,1,5,2,2,6,3,3,7,4,4,8) # s0A = s1A, s0B = s1B, ..., s0D = s1D. Vicariances are independent from turnover in unique areas and different across regimes: s01A =/= s01B ... =/= s01D
+CID4_eps_rates <- c(1,1,2,2,3,3,4,4) # x0A = x1A, x0B = x1B, ..., x0D = x1D # No extirpation from 01 as this would be non-allowed transitions
+
 
 # We want the observed states to DO NOT affect turnover and extinction fraction
 # We want the hidden states to affect both turnover and extinction fraction
 # If the extinction fraction is fixed to 0, we the model speciation alone
+
+# ## Create CID-6 diversification rate design:
+# CID6_turnover_rates <- c(1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6) # s0A = s1A = s01A, s0B = s1B = s01B, ..., s0F = s1F = s01F
+# CID6_eps_rates <- c(1,1,2,2,3,3,4,4,5,5,6,6) # x0A = x1A, x0B = x1B, ..., x0F = x1F # No extirpation from 01 as this would be non-allowed transitions
+# 
+# # We want the observed states to DO NOT affect turnover and extinction fraction
+# # We want the hidden states to affect both turnover and extinction fraction
+# # If the extinction fraction is fixed to 0, we the model speciation alone
 
 ### 3.3/ Fit models with ML optimization in hisse ####
 
@@ -441,7 +570,8 @@ CID1_MLE
 # # Does not affect diversification rates, but lead to even more extreme transition rates. Favor the version with range-shift allowed.
 
 # Save model outputs
-saveRDS(object = CID1_MLE, file = "./outputs/GeoSSE/CID1_MLE.rds")
+# saveRDS(object = CID1_MLE, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID1_MLE.rds")
+saveRDS(object = CID1_MLE, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID1_MLE.rds")
 
 # Compute speciation and extinction rates per states (in event / My / lineage)
 CID1_MLE_div_rates <- convert_rates_from_GeoHiSSE_output(CID1_MLE)
@@ -454,6 +584,7 @@ phytools::fit.bd(Ponerinae_phylogeny_1534t_treedata@phylo)
 
 # Compute mean expected time (in My) before speciation/extinction event on a branch
 1/CID1_MLE_div_rates
+# Extremely short expected time in Wide-spread state to compensate for the absence of jump-dispersal
 
 # Extract transition rates = Q matrix
 CID1_MLE_Q_matrix <- extract_Q_matrix_from_GeoHiSSE_output(CID1_MLE)
@@ -476,7 +607,8 @@ GeoSSE_MLE <- GeoHiSSE_with_print(phy = Ponerinae_phylogeny_1534t_treedata@phylo
 GeoSSE_MLE
 
 # Save model outputs
-saveRDS(object = GeoSSE_MLE, file = "./outputs/GeoSSE/GeoSSE_MLE.rds")
+# saveRDS(object = GeoSSE_MLE, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_MLE.rds")
+saveRDS(object = GeoSSE_MLE, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_MLE.rds")
 
 # Compute speciation and extinction rates per states (in event / My / lineage)
 GeoSSE_MLE_div_rates <- convert_rates_from_GeoHiSSE_output(GeoSSE_MLE)
@@ -495,28 +627,29 @@ GeoSSE_MLE_Q_matrix <- extract_Q_matrix_from_GeoHiSSE_output(GeoSSE_MLE)
 GeoSSE_MLE_Q_matrix
 
 
-## 3.3.3/ Fit CID-3 model using GeoHiSSE ####
+## 3.3.3/ Fit CID-2 model using GeoHiSSE ####
 
-CID3_MLE <- GeoHiSSE_with_print(phy = Ponerinae_phylogeny_1534t_treedata@phylo, 
+CID2_MLE <- GeoHiSSE_with_print(phy = Ponerinae_phylogeny_1534t_treedata@phylo, 
                                 data = OW_NW_GeoSSE_tip_data_df,
-                                turnover = CID3_turnover_rates, # 3 turnover rates across 3 hidden states
-                                eps = CID3_eps_rates, # 3 extinction fraction across 3 hidden states
-                                hidden.states = TRUE, # 3 hidden states
+                                turnover = CID2_turnover_rates, # 2 equal turnover rates across 2 hidden states + 2 vicariance rates = 4 rates
+                                eps = CID2_eps_rates, # 2 equal extinction fraction across 2 hidden states
+                                hidden.states = TRUE, # 2 hidden states
                                 # starting.vals = c(0.1, 0.2, 0.01), # Taus, Efs, Dispersal = Turnovers, Extinct fractions, Transitions
-                                trans.rate = CID3_Qmat, # 7 transitions rates between states:
-                                  # 2 range-shifts: 1/ jd1A (d11A_00A), 3/ jd0A (d00A_11A)
-                                  # 2 extirpations: 2/ x1A (d01A_00A), 4/ x0A (d01A_11A)
-                                  # 2 range extensions: 5/ d0A (d00A_01A), 6/ d1A (d11A_01A)
-                                  # 1 regime transition: 7/ regime transition rates between A and B
+                                trans.rate = CID2_Qmat, # 7 transitions rates between states:
+                                # 2 range-shifts: 1/ jd1A (d11A_00A), 3/ jd0A (d00A_11A)
+                                # 2 extirpations: 2/ x1A (d01A_00A), 4/ x0A (d01A_11A)
+                                # 2 range extensions: 5/ d0A (d00A_01A), 6/ d1A (d11A_01A)
+                                # 1 regime transition: 7/ regime transition rates between A and B
                                 sann = TRUE) # Simulated annealing step can be shut down to save time (but lower chance of convergence)
-CID3_MLE
+CID2_MLE
 
 # Save model outputs
-saveRDS(object = CID3_MLE, file = "./outputs/GeoSSE/CID3_MLE.rds")
+# saveRDS(object = CID2_MLE, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID2_MLE.rds")
+saveRDS(object = CID2_MLE, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID2_MLE.rds")
 
 # Compute speciation and extinction rates per states (in event / My / lineage)
-CID3_MLE_div_rates <- convert_rates_from_GeoHiSSE_output(CID3_MLE)
-CID3_MLE_div_rates
+CID2_MLE_div_rates <- convert_rates_from_GeoHiSSE_output(CID2_MLE)
+CID2_MLE_div_rates
 
 # Compare to rates estimated with BD model 
 # Likelihood are different because the BD model does not account for trait data evolution
@@ -524,11 +657,48 @@ CID3_MLE_div_rates
 phytools::fit.bd(Ponerinae_phylogeny_1534t_treedata@phylo)
 
 # Compute mean expected time (in My) before speciation/extinction event on a branch
-1/CID3_MLE_div_rates
+1/CID2_MLE_div_rates
 
 # Extract transition rates = Q matrix
-CID3_MLE_Q_matrix <- extract_Q_matrix_from_GeoHiSSE_output(CID3_MLE)
-CID3_MLE_Q_matrix
+CID2_MLE_Q_matrix <- extract_Q_matrix_from_GeoHiSSE_output(CID2_MLE)
+CID2_MLE_Q_matrix
+
+
+# ## 3.3.3/ Fit CID-3 model using GeoHiSSE ####
+# 
+# CID3_MLE <- GeoHiSSE_with_print(phy = Ponerinae_phylogeny_1534t_treedata@phylo, 
+#                                 data = OW_NW_GeoSSE_tip_data_df,
+#                                 turnover = CID3_turnover_rates, # 3 turnover rates across 3 hidden states
+#                                 eps = CID3_eps_rates, # 3 extinction fraction across 3 hidden states
+#                                 hidden.states = TRUE, # 3 hidden states
+#                                 # starting.vals = c(0.1, 0.2, 0.01), # Taus, Efs, Dispersal = Turnovers, Extinct fractions, Transitions
+#                                 trans.rate = CID3_Qmat, # 7 transitions rates between states:
+#                                   # 2 range-shifts: 1/ jd1A (d11A_00A), 3/ jd0A (d00A_11A)
+#                                   # 2 extirpations: 2/ x1A (d01A_00A), 4/ x0A (d01A_11A)
+#                                   # 2 range extensions: 5/ d0A (d00A_01A), 6/ d1A (d11A_01A)
+#                                   # 1 regime transition: 7/ regime transition rates between A and B
+#                                 sann = TRUE) # Simulated annealing step can be shut down to save time (but lower chance of convergence)
+# CID3_MLE
+# 
+# # Save model outputs
+# # saveRDS(object = CID3_MLE, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID3_MLE.rds")
+# saveRDS(object = CID3_MLE, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID3_MLE.rds")
+# 
+# # Compute speciation and extinction rates per states (in event / My / lineage)
+# CID3_MLE_div_rates <- convert_rates_from_GeoHiSSE_output(CID3_MLE)
+# CID3_MLE_div_rates
+# 
+# # Compare to rates estimated with BD model 
+# # Likelihood are different because the BD model does not account for trait data evolution
+# # But rate estimates should be similar/compatible
+# phytools::fit.bd(Ponerinae_phylogeny_1534t_treedata@phylo)
+# 
+# # Compute mean expected time (in My) before speciation/extinction event on a branch
+# 1/CID3_MLE_div_rates
+# 
+# # Extract transition rates = Q matrix
+# CID3_MLE_Q_matrix <- extract_Q_matrix_from_GeoHiSSE_output(CID3_MLE)
+# CID3_MLE_Q_matrix
 
 
 ## 3.3.4/ Fit GeoHiSSE model using GeoHiSSE ####
@@ -550,7 +720,8 @@ GeoHiSSE_MLE <- GeoHiSSE_with_print(phy = Ponerinae_phylogeny_1534t_treedata@phy
 GeoHiSSE_MLE
 
 # Save model outputs
-saveRDS(object = GeoHiSSE_MLE, file = "./outputs/GeoSSE/GeoHiSSE_MLE.rds")
+# saveRDS(object = GeoHiSSE_MLE, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoHiSSE_MLE.rds")
+saveRDS(object = GeoHiSSE_MLE, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoHiSSE_MLE.rds")
 
 # Compute speciation and extinction rates per states (in event / My / lineage)
 GeoHiSSE_MLE_div_rates <- convert_rates_from_GeoHiSSE_output(GeoHiSSE_MLE)
@@ -568,29 +739,29 @@ phytools::fit.bd(Ponerinae_phylogeny_1534t_treedata@phylo)
 GeoHiSSE_MLE_Q_matrix <- extract_Q_matrix_from_GeoHiSSE_output(GeoHiSSE_MLE)
 GeoHiSSE_MLE_Q_matrix
 
+## 3.3.5/ Fit CID-4 model using GeoHiSSE ####
 
-## 3.3.5/ Fit CID-6 model using GeoHiSSE ####
-
-CID6_MLE <- GeoHiSSE_with_print(phy = Ponerinae_phylogeny_1534t_treedata@phylo, 
+CID4_MLE <- GeoHiSSE_with_print(phy = Ponerinae_phylogeny_1534t_treedata@phylo, 
                                 data = OW_NW_GeoSSE_tip_data_df,
-                                turnover = CID6_turnover_rates, # 6 turnover rates across hidden states
-                                eps = CID6_eps_rates, # 6 extinct fractions across hidden states
-                                hidden.states = TRUE, # 6 hidden states
+                                turnover = CID4_turnover_rates, # 2 equal turnover rates across 4 hidden states + 4 vicariance rates = 8 rates
+                                eps = CID4_eps_rates, # 2 equal extinct fractions across 4 hidden states
+                                hidden.states = TRUE, # 4 hidden states
                                 # starting.vals = c(0.1, 0.2, 0.01), # Taus, Efs, Dispersal = Turnovers, Extinct fractions, Transitions
-                                trans.rate = CID6_Qmat, # 7 transitions rates between states:
-                                  # 2 range-shifts: 1/ jd1A (d11A_00A), 3/ jd0A (d00A_11A)
-                                  # 2 extirpations: 2/ x1A (d01A_00A), 4/ x0A (d01A_11A)
-                                  # 2 range extensions: 5/ d0A (d00A_01A), 6/ d1A (d11A_01A)
-                                  # 1 regime transition: 7/ regime transition rates between A and B
+                                trans.rate = CID4_Qmat, # 7 transitions rates between states:
+                                # 2 range-shifts: 1/ jd1A (d11A_00A), 3/ jd0A (d00A_11A)
+                                # 2 extirpations: 2/ x1A (d01A_00A), 4/ x0A (d01A_11A)
+                                # 2 range extensions: 5/ d0A (d00A_01A), 6/ d1A (d11A_01A)
+                                # 1 regime transition: 7/ regime transition rates between A and B
                                 sann = TRUE) # Simulated annealing step can be shut down to save time (but lower chance of convergence)
-CID6_MLE
+CID4_MLE
 
 # Save model outputs
-saveRDS(object = CID6_MLE, file = "./outputs/GeoSSE/CID6_MLE.rds")
+# saveRDS(object = CID4_MLE, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID4_MLE.rds")
+saveRDS(object = CID4_MLE, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID4_MLE.rds")
 
 # Compute speciation and extinction rates per states (in event / My / lineage)
-CID6_MLE_div_rates <- convert_rates_from_GeoHiSSE_output(CID6_MLE)
-CID6_MLE_div_rates
+CID4_MLE_div_rates <- convert_rates_from_GeoHiSSE_output(CID4_MLE)
+CID4_MLE_div_rates
 
 # Compare to rates estimated with BD model 
 # Likelihood are different because the BD model does not account for trait data evolution
@@ -598,20 +769,65 @@ CID6_MLE_div_rates
 phytools::fit.bd(Ponerinae_phylogeny_1534t_treedata@phylo)
 
 # Compute mean expected time (in My) before speciation/extinction event on a branch
-1/CID6_MLE_div_rates
+1/CID4_MLE_div_rates
 
 # Extract transition rates = Q matrix
-CID6_MLE_Q_matrix <- extract_Q_matrix_from_GeoHiSSE_output(CID6_MLE)
-CID6_MLE_Q_matrix
+CID4_MLE_Q_matrix <- extract_Q_matrix_from_GeoHiSSE_output(CID4_MLE)
+CID4_MLE_Q_matrix
+
+# ## 3.3.5/ Fit CID-6 model using GeoHiSSE ####
+# 
+# CID6_MLE <- GeoHiSSE_with_print(phy = Ponerinae_phylogeny_1534t_treedata@phylo, 
+#                                 data = OW_NW_GeoSSE_tip_data_df,
+#                                 turnover = CID6_turnover_rates, # 6 turnover rates across hidden states
+#                                 eps = CID6_eps_rates, # 6 extinct fractions across hidden states
+#                                 hidden.states = TRUE, # 6 hidden states
+#                                 # starting.vals = c(0.1, 0.2, 0.01), # Taus, Efs, Dispersal = Turnovers, Extinct fractions, Transitions
+#                                 trans.rate = CID6_Qmat, # 7 transitions rates between states:
+#                                   # 2 range-shifts: 1/ jd1A (d11A_00A), 3/ jd0A (d00A_11A)
+#                                   # 2 extirpations: 2/ x1A (d01A_00A), 4/ x0A (d01A_11A)
+#                                   # 2 range extensions: 5/ d0A (d00A_01A), 6/ d1A (d11A_01A)
+#                                   # 1 regime transition: 7/ regime transition rates between A and B
+#                                 sann = TRUE) # Simulated annealing step can be shut down to save time (but lower chance of convergence)
+# CID6_MLE
+# 
+# # Save model outputs
+# # saveRDS(object = CID6_MLE, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID6_MLE.rds")
+# saveRDS(object = CID6_MLE, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID6_MLE.rds")
+# 
+# # Compute speciation and extinction rates per states (in event / My / lineage)
+# CID6_MLE_div_rates <- convert_rates_from_GeoHiSSE_output(CID6_MLE)
+# CID6_MLE_div_rates
+# 
+# # Compare to rates estimated with BD model 
+# # Likelihood are different because the BD model does not account for trait data evolution
+# # But rate estimates should be similar/compatible
+# phytools::fit.bd(Ponerinae_phylogeny_1534t_treedata@phylo)
+# 
+# # Compute mean expected time (in My) before speciation/extinction event on a branch
+# 1/CID6_MLE_div_rates
+# 
+# # Extract transition rates = Q matrix
+# CID6_MLE_Q_matrix <- extract_Q_matrix_from_GeoHiSSE_output(CID6_MLE)
+# CID6_MLE_Q_matrix
 
 
 ##### 4/ Compare ML models with AICc and Akaike's weights ####
 
 # Load model outputs
-CID1_MLE <- readRDS(file = "./outputs/GeoSSE/CID1_MLE.rds")
-GeoSSE_MLE <- readRDS(file = "./outputs/GeoSSE/GeoSSE_MLE.rds")
-CID3_MLE <- readRDS(file = "./outputs/GeoSSE/CID3_MLE.rds")
-GeoHiSSE_MLE <- readRDS(file = "./outputs/GeoSSE/GeoHiSSE_MLE.rds")
+# CID1_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID1_MLE.rds")
+# GeoSSE_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_MLE.rds")
+# CID3_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID3_MLE.rds")
+# GeoHiSSE_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoHiSSE_MLE.rds")
+# CID6_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID6_MLE.rds")
+
+CID1_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID1_MLE.rds")
+GeoSSE_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_MLE.rds")
+CID2_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID2_MLE.rds")
+# CID3_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID3_MLE.rds")
+GeoHiSSE_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoHiSSE_MLE.rds")
+CID4_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID4_MLE.rds")
+# CID6_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID6_MLE.rds")
 
 ### 4.1/ Home-made functions to extract model evaluations ####
 
@@ -635,34 +851,56 @@ compute_AICc <- function (AIC, nobs, k)
 nobs <- length(Ponerinae_phylogeny_1534t_treedata@phylo$tip.label)
 
 # Combine models' fit n a list
-GeoSSE_models_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE, GeoHiSSE_MLE)
-GeoSSE_models_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE, GeoHiSSE_MLE, CID6_MLE)
+# GeoSSE_models_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE, GeoHiSSE_MLE)
+GeoSSE_models_list <- list(CID1_MLE, GeoSSE_MLE, CID2_MLE, GeoHiSSE_MLE, CID4_MLE)
+# GeoSSE_models_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE, GeoHiSSE_MLE, CID6_MLE)
 
 attributes(GeoSSE_models_list[[1]])
 max(GeoSSE_models_list[[1]]$index.par) - 1
 
 # Extract ln-likelihood, number of parameters, and AIC from models' list
-GeoSSE_models_comparison_df <- data.frame(model = c("CID-1", "GeoSSE", "CID-3", "GeoHiSSE"),
+GeoSSE_models_comparison_df <- data.frame(# model = c("CID-1", "GeoSSE", "CID-2", "GeoHiSSE"),
+                                          model = c("CID-1", "GeoSSE", "CID-2", "GeoHiSSE", "CID-4"),
                                           # model = c("CID-1", "GeoSSE", "CID-3", "GeoHiSSE", "CID-6"),
                                           logLk = sapply(X = GeoSSE_models_list, FUN = function(x) x$loglik),
                                           k = sapply(X = GeoSSE_models_list, FUN = function(x) max(x$index.par) - 1))
+
+# Inform type of models, nb hidden states and diversification regimes
+GeoSSE_models_comparison_df$Model_type <- c("Dependent", "Independent")[(str_detect(string = GeoSSE_models_comparison_df$model, pattern = "CID") + 1)]
+GeoSSE_models_comparison_df$Hidden_states <- unlist(lapply(X = GeoSSE_models_list, FUN = function (x) { length(unique(str_extract(string = colnames(x$trans.matrix), pattern = "[A-Z]")))} ))
+GeoSSE_models_comparison_df$Div_regimes <- GeoSSE_models_comparison_df$Hidden_states * c(1,2)[(GeoSSE_models_comparison_df$Model_type == "Dependent") + 1]
+GeoSSE_models_comparison_df$Hidden_states[GeoSSE_models_comparison_df$Hidden_states == 1] <- 0
+
 # Compute AIC from logLk and nobs
 GeoSSE_models_comparison_df$AIC <- unlist(purrr::map2(.x = GeoSSE_models_comparison_df$logLk, .y = GeoSSE_models_comparison_df$k, .f = compute_AIC))
 
 # Compute AICc from AIC, k and nobs
 GeoSSE_models_comparison_df$AICc <- unlist(purrr::map2(.x = GeoSSE_models_comparison_df$AIC, nobs = nobs, .y = GeoSSE_models_comparison_df$k, .f = compute_AICc))
 
+# Compute delta AICc
+best_AICc <- min(GeoSSE_models_comparison_df$AICc)
+GeoSSE_models_comparison_df$delta_AICc <- GeoSSE_models_comparison_df$AICc - best_AICc
+
 # Compute Akaike's weights from AIC
 GeoSSE_models_comparison_df$Akaike_weights <- round(phytools::aic.w(GeoSSE_models_comparison_df$AICc), 3) * 100
+
+# Add ranks
+GeoSSE_models_comparison_df$rank <- rank(GeoSSE_models_comparison_df$AICc)
+
+# Reorder columns
+GeoSSE_models_comparison_df <- GeoSSE_models_comparison_df %>% 
+  dplyr::select(model, Model_type, Hidden_states, Div_regimes, k, logLk, AICc, delta_AICc, Akaike_weights, rank)
 
 # Display result
 GeoSSE_models_comparison_df
 
 # Save GeoSSE model comparison summary table
-saveRDS(object = GeoSSE_models_comparison_df, file = "./outputs/GeoSSE/GeoSSE_models_comparison_df.rds")
+# saveRDS(object = GeoSSE_models_comparison_df, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_models_comparison_df.rds")
+saveRDS(object = GeoSSE_models_comparison_df, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_models_comparison_df.rds")
 
 # Export model comparison df
-# xlsx::write.xlsx(x = GeoSSE_models_comparison_df, file = "./outputs/GeoSSE/GeoSSE_models_comparison_df.xlsx")
+# xlsx::write.xlsx(x = GeoSSE_models_comparison_df, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_models_comparison_df.xlsx")
+xlsx::write.xlsx(x = GeoSSE_models_comparison_df, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_models_comparison_df.xlsx")
 
 
 ##### 5/ Compute residence time in each state ####
@@ -685,22 +923,33 @@ saveRDS(object = GeoSSE_models_comparison_df, file = "./outputs/GeoSSE/GeoSSE_mo
 ?hisse::MarginReconGeoSSE() # Estimates the likeliest states for both internal nodes and tips of a phylogeny using the marginal reconstruction algorithm
 
 # Load GeoSSE model comparison summary table
-GeoSSE_models_comparison_df <- readRDS(file = "./outputs/GeoSSE/GeoSSE_models_comparison_df.rds")
+# GeoSSE_models_comparison_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_models_comparison_df.rds")
+GeoSSE_models_comparison_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_models_comparison_df.rds")
 
 # Load model outputs
-CID1_MLE <- readRDS(file = "./outputs/GeoSSE/CID1_MLE.rds")
-GeoSSE_MLE <- readRDS(file = "./outputs/GeoSSE/GeoSSE_MLE.rds")
-CID3_MLE <- readRDS(file = "./outputs/GeoSSE/CID3_MLE.rds")
-GeoHiSSE_MLE <- readRDS(file = "./outputs/GeoSSE/GeoHiSSE_MLE.rds")
+# CID1_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID1_MLE.rds")
+# GeoSSE_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_MLE.rds")
+# CID3_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID3_MLE.rds")
+# GeoHiSSE_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoHiSSE_MLE.rds")
+# CID6_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID6_MLE.rds")
 
-model_fit_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE)
-model_fit_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE, GeoHiSSE_MLE)
+CID1_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID1_MLE.rds")
+GeoSSE_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_MLE.rds")
+CID2_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID2_MLE.rds")
+# CID3_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID3_MLE.rds")
+GeoHiSSE_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoHiSSE_MLE.rds")
+CID4_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID4_MLE.rds")
+# CID6_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID6_MLE.rds")
+
+# model_fit_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE)
+# model_fit_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE, GeoHiSSE_MLE)
+model_fit_list <- list(CID1_MLE, GeoSSE_MLE, CID2_MLE, GeoHiSSE_MLE, CID4_MLE)
 # model_fit_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE, GeoHiSSE_MLE, CID6_MLE)
 
-model_list <- c("CID-1", "GeoSSE", "CID-3")
-model_list <- c("CID-1", "GeoSSE", "CID-3", "GeoHiSSE")
+# model_list <- c("CID-1", "GeoSSE", "CID-3")
+# model_list <- c("CID-1", "GeoSSE", "CID-3", "GeoHiSSE")
+model_list <- c("CID-1", "GeoSSE", "CID-2", "GeoHiSSE", "CID-4")
 # model_list <- c("CID-1", "GeoSSE", "CID-3", "GeoHiSSE", "CID-6")
-
 
 ## Loop per model
 residence_times_all_models_df <- data.frame()
@@ -712,7 +961,7 @@ for (i in seq_along(model_list))
   model_MLE_i <- model_fit_list[[i]]
   
   ### 5.1/ Get marginal likelihood of ARE ####
-  
+
   # Extract number of shifts (= number of hidden states - 1)
   pars <- model_MLE_i$solution[model_MLE_i$solution != 0]
   par_regimes <- str_sub(names(pars), start = nchar(names(pars)))
@@ -722,7 +971,7 @@ for (i in seq_along(model_list))
   #                                                      data = model_MLE_i$data,
   #                                                      pars = model_MLE_i$solution,
   #                                                      hidden.states = nb_regimes,
-  #                                                      # 1 for CID-1 and GeoSSE ; 2 for GeoHiSSE ; 3 for CID-3 ; 6 for CID-6
+  #                                                      # 1 for CID-1 and GeoSSE ; 2 for GeoHiSSE ; 2 for CID-2 ; 3 for CID-3 ; 4 for CID-4 ; 6 for CID-6
   #                                                      f = model_MLE_i$f,
   #                                                      AIC = model_MLE_i$AIC,
   #                                                      root.type = model_MLE_i$root.type) # "madfitz" by default
@@ -734,25 +983,24 @@ for (i in seq_along(model_list))
   # dim(SSE_model_marginal_ARE_i$rates.mat)
   # 
   # # Save marginal probabilities
-  # saveRDS(object = SSE_model_marginal_ARE_i, file = paste0("./outputs/GeoSSE/Marginal_ARE_",model_i,".rds"))
+  # # saveRDS(object = SSE_model_marginal_ARE_i, file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/Marginal_ARE_",model_i,".rds"))
+  # saveRDS(object = SSE_model_marginal_ARE_i, file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/Marginal_ARE_",model_i,".rds"))
   
   ## 5.2/ Approximate edge probabilities as mean of rootward/tipward nodes ####
-  
+
   # Load marginal probabilities of states
-  SSE_model_marginal_ARE_i <- readRDS(file = paste0("./outputs/GeoSSE/Marginal_ARE_",model_i,".rds"))
-  
-  # # Load marginal probabilities
-  # SSE_model_marginal_ARE_i <- readRDS(file = "../Ithomiini_transparency_and_diversification/outputs/Phylo_plots/SSE_model_Marginal_reconstructions.rds")
-  
+  # SSE_model_marginal_ARE_i <- readRDS(file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/Marginal_ARE_",model_i,".rds"))
+  SSE_model_marginal_ARE_i <- readRDS(file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/Marginal_ARE_",model_i,".rds"))
+
   # Extract marginal probability for all nodes (internal + tips)
   node_states_df_i <- rbind(SSE_model_marginal_ARE_i$tip.mat, SSE_model_marginal_ARE_i$node.mat)
   node_states_df_i <- node_states_df_i[, -1]
-  
+
   # Restrict states to the used ones
   used_regimes <- LETTERS[1:nb_regimes]
   used_states_indices <- str_detect(string = colnames(node_states_df_i), pattern = paste(used_regimes, collapse = "|"))
   node_states_df_i <- node_states_df_i[, used_states_indices]
-  
+
   # From node probabilities to edge probabilities as the mean of probabilities of the two tips (rootward and backward) of each edge
   edge_states_df_i <- node_states_df_i[-1, ]
   for (i in 1:nrow(edge_states_df_i))
@@ -762,67 +1010,68 @@ for (i in seq_along(model_list))
     edge_prob <- apply(X = rbind(rootward_node_prob, tipward_node_prob), MARGIN = 2, FUN = mean)
     edge_states_df_i[i, ] <- edge_prob
   }
-  
+
   ## 5.3/ Compute residence times per state as weighted sum of branch length ####
-  
+
   edge_lengths <- SSE_model_marginal_ARE_i$phy$edge.length
   branch_lengths_per_state <- apply(X = edge_states_df_i, MARGIN = 2, FUN = function(x) { y <- as.numeric(t(edge_lengths) %*% x) })
   branch_lengths_perc_per_state <- branch_lengths_per_state / sum(branch_lengths_per_state) * 100
-  
+
   residence_times_df_model_i <- data.frame(state = names(branch_lengths_per_state),
                                            residence_time = branch_lengths_per_state,
                                            residence_time_perc = branch_lengths_perc_per_state)
-  
+
   ## 5.4/ Aggregate residence times across regimes and observed states ####
-  
+
   # Remove parenthesis
   residence_times_df_model_i$state <- str_remove(string = residence_times_df_model_i$state, pattern = "\\(")
   residence_times_df_model_i$state <- str_remove(string = residence_times_df_model_i$state, pattern = "\\)")
   # Extract range (observed states)
   residence_times_df_model_i$range <- str_sub(string = residence_times_df_model_i$state, end = nchar(residence_times_df_model_i$state) - 1)
   # Extract regime (hidden states)
-  residence_times_df_model_i$regime <- str_sub(string = residence_times_df_model_i$state, start = nchar(residence_times_df_model_i$state)) 
-  
+  residence_times_df_model_i$regime <- str_sub(string = residence_times_df_model_i$state, start = nchar(residence_times_df_model_i$state))
+
   # Rename ranges
   residence_times_df_model_i$range[residence_times_df_model_i$range == "00"] <- "NW"
   residence_times_df_model_i$range[residence_times_df_model_i$range == "11"] <- "OW"
   residence_times_df_model_i$range[residence_times_df_model_i$range == "01"] <- "WS"
   # Update states
   residence_times_df_model_i$state <- paste0(residence_times_df_model_i$range, "-", residence_times_df_model_i$regime)
-  
-  
+
+
   # Compute percentages per range
-  residence_times_df_model_i <- residence_times_df_model_i %>% 
-    group_by(range) %>% 
+  residence_times_df_model_i <- residence_times_df_model_i %>%
+    group_by(range) %>%
     mutate(residence_time_perc_per_range = residence_time / sum(residence_time) * 100)
-  
+
   # Aggregate per ranges
-  residence_times_ranges_df_model_i <- residence_times_df_model_i %>% 
-    group_by(range) %>% 
+  residence_times_ranges_df_model_i <- residence_times_df_model_i %>%
+    group_by(range) %>%
     summarize(residence_time = sum(residence_time),
               residence_time_perc = sum(residence_time_perc),
               residence_time_perc_per_range = sum(residence_time_perc_per_range)) %>%
-    mutate(state = range, 
+    mutate(state = range,
            regime = NA)
-  
+
   # Aggregate per regimes
-  residence_times_regimes_df_model_i <- residence_times_df_model_i %>% 
-    group_by(regime) %>% 
+  residence_times_regimes_df_model_i <- residence_times_df_model_i %>%
+    group_by(regime) %>%
     summarize(residence_time = sum(residence_time),
               residence_time_perc = sum(residence_time_perc),
               residence_time_perc_per_range = sum(residence_time_perc_per_range)) %>%
-    mutate(state = regime, 
+    mutate(state = regime,
            range = NA)
-  
+
   # Merge all residence times
   residence_times_df_model_i <- rbind(residence_times_df_model_i, residence_times_ranges_df_model_i, residence_times_regimes_df_model_i)
   residence_times_df_model_i$model <- model_i
-  
+
   ## Merge residence times for all models
   residence_times_all_models_df <- rbind(residence_times_all_models_df, residence_times_df_model_i)
-  
+
   ## Save residence times summary table
-  saveRDS(residence_times_all_models_df, file = "./outputs/GeoSSE/residence_times_all_models_df.rds")
+  # saveRDS(residence_times_all_models_df, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/residence_times_all_models_df.rds")
+  saveRDS(residence_times_all_models_df, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/residence_times_all_models_df.rds")
   
   ## Print progress
   cat(paste0(Sys.time(), " - Residence times computed for ", model_i," - n° ", i, "/", length(model_list),"\n"))
@@ -830,13 +1079,15 @@ for (i in seq_along(model_list))
 }
 
 ## Save residence times summary table
-saveRDS(residence_times_all_models_df, file = "./outputs/GeoSSE/residence_times_all_models_df.rds")
+# saveRDS(residence_times_all_models_df, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/residence_times_all_models_df.rds")
+saveRDS(residence_times_all_models_df, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/residence_times_all_models_df.rds")
 
 
 ### 5.5/ Plot residence times ####
 
 # Load residence times summary table
-residence_times_all_models_df <- readRDS(file = "./outputs/GeoSSE/residence_times_all_models_df.rds")
+# residence_times_all_models_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/residence_times_all_models_df.rds")
+residence_times_all_models_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/residence_times_all_models_df.rds")
 
 # residence_times_all_models_df <- residence_times_df_model_i
 
@@ -880,7 +1131,8 @@ regimes_col <- rev(RColorBrewer::brewer.pal(name = "Spectral", n = 6))
 residence_times_all_models_df_for_plot$model <- factor(x = residence_times_all_models_df_for_plot$model,
                                                        levels = model_list, labels = model_list)
 
-pdf(file = "./outputs/GeoSSE/Residence_times_all_models_ggplot.pdf", width = 12, height = 10)
+# pdf(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/Residence_times_all_models_ggplot.pdf", width = 12, height = 10)
+pdf(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/Residence_times_all_models_ggplot.pdf", width = 12, height = 10)
 
 ggplot_residence_times_per_areas_perc <- ggplot(data = residence_times_all_models_df_for_plot) +
   
@@ -902,7 +1154,7 @@ ggplot_residence_times_per_areas_perc <- ggplot(data = residence_times_all_model
   facet_wrap(facets = ~ model,
              # scales = "fixed",
              scales = "free_x",
-             nrow = 2, ncol = 2) +
+             nrow = 2, ncol = 3) +
   
   # Add AICc and Akaike's weights
   geom_text(data = GeoSSE_models_comparison_df,
@@ -955,22 +1207,35 @@ dev.off()
 ?hisse::SupportRegionGeoSSE()
 
 # Load model outputs
-CID1_MLE <- readRDS(file = "./outputs/GeoSSE/CID1_MLE.rds")
-GeoSSE_MLE <- readRDS(file = "./outputs/GeoSSE/GeoSSE_MLE.rds")
-CID3_MLE <- readRDS(file = "./outputs/GeoSSE/CID3_MLE.rds")
-GeoHiSSE_MLE <- readRDS(file = "./outputs/GeoSSE/GeoHiSSE_MLE.rds")
+# CID1_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID1_MLE.rds")
+# GeoSSE_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_MLE.rds")
+# CID3_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID3_MLE.rds")
+# GeoHiSSE_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoHiSSE_MLE.rds")
+# CID6_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/CID6_MLE.rds")
 
-model_fit_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE)
-model_fit_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE, GeoHiSSE_MLE)
+CID1_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID1_MLE.rds")
+GeoSSE_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_MLE.rds")
+CID2_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID2_MLE.rds")
+# CID3_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID3_MLE.rds")
+GeoHiSSE_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoHiSSE_MLE.rds")
+CID4_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID4_MLE.rds")
+# CID6_MLE <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/CID6_MLE.rds")
+
+# model_fit_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE)
+# model_fit_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE, GeoHiSSE_MLE)
+model_fit_list <- list(CID1_MLE, GeoSSE_MLE, CID2_MLE, GeoHiSSE_MLE, CID4_MLE)
 # model_fit_list <- list(CID1_MLE, GeoSSE_MLE, CID3_MLE, GeoHiSSE_MLE, CID6_MLE)
 
-model_list <- c("CID-1", "GeoSSE", "CID-3")
-model_list <- c("CID-1", "GeoSSE", "CID-3", "GeoHiSSE")
+# model_list <- c("CID-1", "GeoSSE", "CID-3")
+# model_list <- c("CID-1", "GeoSSE", "CID-3", "GeoHiSSE")
+model_list <- c("CID-1", "GeoSSE", "CID-2", "GeoHiSSE", "CID-4")
 # model_list <- c("CID-1", "GeoSSE", "CID-3", "GeoHiSSE", "CID-6")
+
 
 ## Loop per model
 GeoSSE_pars_all_models_df <- data.frame()
 for (i in seq_along(model_list))
+# for (i in 5:5)
 {
   # i <- 1
   
@@ -998,49 +1263,51 @@ for (i in seq_along(model_list))
   # cat(paste0("Proportion of samples in the support region for ",model_i," = ", perc_samples_in_support_region, " %\n"))
   # 
   # # Save samples from the support region
-  # saveRDS(object = model_MLE_CI_samples_i, file = paste0("./outputs/GeoSSE/MLE_CI_samples_", model_i, ".rds"))
+  # # saveRDS(object = model_MLE_CI_samples_i, file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/MLE_CI_samples_", model_i, ".rds"))
+  # saveRDS(object = model_MLE_CI_samples_i, file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/MLE_CI_samples_", model_i, ".rds"))
   
   ## 6.1.2/ Compute lambda/mu ####
-  
+
   # Read samples from the support region
-  model_MLE_CI_samples_i <- readRDS(file = paste0("./outputs/GeoSSE/MLE_CI_samples_", model_i, ".rds"))
+  # model_MLE_CI_samples_i <- readRDS(file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/MLE_CI_samples_", model_i, ".rds"))
+  model_MLE_CI_samples_i <- readRDS(file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/MLE_CI_samples_", model_i, ".rds"))
 
   # Extract turnover pars
   turnover_indices <- str_detect(colnames(model_MLE_CI_samples_i$points.within.region), pattern = "tau")
   turnover_samples <- model_MLE_CI_samples_i$points.within.region[, turnover_indices]
-  
+
   # Extract extinct fraction pars
   ef_indices <- str_detect(colnames(model_MLE_CI_samples_i$points.within.region), pattern = "ef")
   ef_samples <- model_MLE_CI_samples_i$points.within.region[, ef_indices]
-  
+
   # Match extinct fraction pars with turnover pars
   turnover_names <- str_remove(string = colnames(turnover_samples), pattern = "tau")
   ef_names <- str_remove(string = colnames(ef_samples), pattern = "ef")
   ef_samples_updated <- ef_samples[, match(x = turnover_names, table = ef_names)]
   colnames(ef_samples_updated) <- paste0("ef", turnover_names)
   ef_samples_updated[is.na(ef_samples_updated)] <- 0
-  
+
   # Compute lambda and mu in samples
   SSE_rates_sampled_i <- data.frame()
   for (j in 1:nrow(model_MLE_CI_samples_i$points.within.region))
   {
     # j <- 1
-    
+
     SSE_rates_j <- convert_SSE_rates(turnover = turnover_samples[j,], epsilon = ef_samples_updated[j,])
     SSE_rates_lambda_j <- SSE_rates_j$speciation
     names(SSE_rates_lambda_j) <- paste0("lambda", turnover_names)
     SSE_rates_mu_j <- SSE_rates_j$extinction
     names(SSE_rates_mu_j) <- paste0("mu", turnover_names)
     SSE_rates_j <- c(SSE_rates_lambda_j, SSE_rates_mu_j)
-    
+
     # Merge in df for all samples
     SSE_rates_sampled_i <- rbind(SSE_rates_sampled_i, SSE_rates_j)
     names(SSE_rates_sampled_i) <- names(SSE_rates_j)
   }
-  
+
   # Merge with sample parameters
   model_MLE_CI_samples_i$points.within.region <- cbind(model_MLE_CI_samples_i$points.within.region, SSE_rates_sampled_i)
-  
+
   # Compute lambda and mu for MLE
   MLE_div_rates_i <- convert_rates_from_GeoHiSSE_output(model_MLE_i)
   paste0(colnames(MLE_div_rates_i), row.names(MLE_div_rates_i))
@@ -1053,300 +1320,433 @@ for (i in seq_along(model_list))
   # Add lambda and mu to MLE pars
   MLE_i <- model_MLE_i$solution[model_MLE_i$solution != 0]
   MLE_i <- c(MLE_i, div_pars)
-  
+
   # Add MLE to the samples before extracted range (needed to prevent MLE to be outside CI...)
   MLE_to_add_to_samples_i <- MLE_i[match(names(model_MLE_CI_samples_i$points.within.region), table = names(MLE_i))]
   names(MLE_to_add_to_samples_i) <- names(model_MLE_CI_samples_i$points.within.region)
   pars_samples <- rbind(MLE_to_add_to_samples_i, model_MLE_CI_samples_i$points.within.region)
-  
+
   ## 6.1.3/ Extract range of sampled parameters in the support area as confidence intervals ####
-  
+
   # Get parameter ranges from samples
   CI_range_i <- apply(X = pars_samples[,-1], MARGIN = 2, FUN = range, na.rm = T)
   row.names(CI_range_i) <- c("lower_CI", "upper_CI")
   # Subset only free parameters
   CI_range_i <- CI_range_i[, (CI_range_i[2,] != 0)]
-  
+
   # Extract only matching pars from MLE
   MLE_i <- MLE_i[match(x = colnames(CI_range_i), table = names(MLE_i))]
-  
+
   # Merge with estimates
   pars_df_i <- rbind(MLE_i, CI_range_i)
-  
+
   ## Rename parameters according to model to account for equality
-  
+
   # Transitions parameters
   # 2 range-shifts: 1/ jd1 (d11_00), 3/ jd0 (d00_11)
   # 2 extirpations: 2/ x1 (d01_00), 4/ x0 (d01_11)
   # 2 range extensions: 5/ d0 (d00_01), 6/ d1 (d11_01)
   # 1 regime transition: 7/ regime transition rates between A:F
-  
+
   # Diversification parameters: 3 Observed states x 6 hidden states
   # 18 Turnover rates
   # 18 Extinction fraction rates
   # 18 Speciation rates
   # 18 Extinction rates
-  
+
   # Accounting for equality in rates
   # For CID1: tau
   # For GeoSSE: tau0, tau1, tau01
-  # For CID3: tauA, tauB, tauC
+  # For CID2: tauA, tauB
+  ## For CID3: tauA, tauB, tauC
   # For GeoHiSSE: tau0A, tau0B, tau1A, tau1B, tau01A, tau01B
-  # For CID6: tauA, tauB, tauC, tauD, tauE, tauF
-  
+  # For CID4: tauA, tauB, tauC, tauD
+  ## For CID6: tauA, tauB, tauC, tauD, tauE, tauF
+
   if (model_i == "CID-1")
   {
-    pars_df_i <- pars_df_i %>% 
+    pars_df_i <- pars_df_i %>%
       as.data.frame() %>%
       mutate(# lbd = lambda00A,        # Unique speciation rate for endemic areas
              lbd0 = lambda00A,       # Speciation in endemic area 0
              lbd1 = lambda11A,       # Speciation in endemic area 1
-             lbd01 = lambda01A,      # Speciation in wide-spread area 01
+             # lbd01 = lambda01A,      # Speciation in wide-spread area 01 = Vicariance (as wide-spread speciation is not allowed)
+             v01 = lambda01A,      # Speciation in wide-spread area 01 = Vicariance (as wide-spread speciation is not allowed)
              # mu = mu00A,             # Unique extinction rate for endemic areas
              mu0 = mu00A,            # Extinction in endemic area 0
              mu1 = mu11A,            # Extinction in endemic area 1
              # tau = tau00A,           # Unique turnover rate for all areas
              tau0 = tau00A,          # Turnover in endemic area 0
              tau1 = tau11A,          # Turnover in endemic area 1
-             tau01 = tau01A,         # Turnover in wide-spread area 01
+             # tau01 = tau01A,         # Turnover in wide-spread area 01 = Vicariance (as extinction from wide-spread state AND wide-spread speciation is not allowed)
              # ef = ef00A,             # Unique effective fraction for endemic areas
              ef0 = ef00A,            # Effective fraction in endemic area 0
              ef1 = ef11A,            # Effective fraction in endemic area 1
-             js0_1 = d00A_11A,       # Range-shift (jump) from endemic area 0 to endemic area 1
-             js1_0 = d11A_00A,       # Range-shift (jump) from endemic area 1 to endemic area 0
+             rs0_1 = d00A_11A,       # Range-shift (jump) from endemic area 0 to endemic area 1
+             rs1_0 = d11A_00A,       # Range-shift (jump) from endemic area 1 to endemic area 0
              d0_01 = d00A_01A,       # Range extension from endemic area 0 to wide-spread area 01
              d1_01 = d11A_01A,       # Range extension from endemic area 1 to wide-spread area 01
              x01_0 = d01A_00A,       # Range extirpation from wide-spread area 01 to endemic area 0
              x01_1 = d01A_11A)       # Range extirpation from wide-spread area 01 to endemic area 1
-    pars_df_i <- pars_df_i %>% 
-      # dplyr::select(lbd, lbd0, lbd1, lbd01, mu, mu0, mu1, tau, tau0, tau1, tau01, ef, ef0, ef1, js0_1, js1_0, d0_01, d1_01, x01_0, x01_1)
-      dplyr::select(lbd0, lbd1, lbd01, mu0, mu1, tau0, tau1, tau01, ef0, ef1, js0_1, js1_0, d0_01, d1_01, x01_0, x01_1)
-    
+    pars_df_i <- pars_df_i %>%
+      # dplyr::select(lbd, lbd0, lbd1, lbd01, mu, mu0, mu1, tau, tau0, tau1, tau01, ef, ef0, ef1, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1)
+      # dplyr::select(lbd0, lbd1, lbd01, mu0, mu1, tau0, tau1, tau01, ef0, ef1, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1)
+      dplyr::select(lbd0, lbd1, v01, mu0, mu1, tau0, tau1, ef0, ef1, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1)
+
   }
-  
+
   if (model_i == "GeoSSE")
   {
-    pars_df_i <- pars_df_i %>% 
+    pars_df_i <- pars_df_i %>%
       as.data.frame() %>%
       mutate(lbd0 = lambda00A,       # Speciation in endemic area 0
              lbd1 = lambda11A,       # Speciation in endemic area 1
-             lbd01 = lambda01A,      # Speciation in wide-spread area 01
+             # lbd01 = lambda01A,      # Speciation in wide-spread area 01 = Vicariance (as wide-spread speciation is not allowed)
+             v01 = lambda01A,      # Speciation in wide-spread area 01 = Vicariance (as wide-spread speciation is not allowed)
              mu0 = mu00A,            # Extinction in endemic area 0
              mu1 = mu11A,            # Extinction in endemic area 1
              tau0 = tau00A,          # Turnover in endemic area 0
              tau1 = tau11A,          # Turnover in endemic area 1
-             tau01 = tau01A,         # Turnover in wide-spread area 01
+             # tau01 = tau01A,         # Turnover in wide-spread area 01 = Vicariance (as extinction from wide-spread state AND wide-spread speciation is not allowed)
              ef0 = ef00A,            # Extinct fraction in endemic area 0
              ef1 = ef11A,            # Extinct fraction in endemic area 1
-             js0_1 = d00A_11A,       # Range-shift (jump) from endemic area 0 to endemic area 1
-             js1_0 = d11A_00A,       # Range-shift (jump) from endemic area 1 to endemic area 0
+             rs0_1 = d00A_11A,       # Range-shift (jump) from endemic area 0 to endemic area 1
+             rs1_0 = d11A_00A,       # Range-shift (jump) from endemic area 1 to endemic area 0
              d0_01 = d00A_01A,       # Range extension from endemic area 0 to wide-spread area 01
              d1_01 = d11A_01A,       # Range extension from endemic area 1 to wide-spread area 01
              x01_0 = d01A_00A,       # Range extirpation from wide-spread area 01 to endemic area 0
              x01_1 = d01A_11A)       # Range extirpation from wide-spread area 01 to endemic area 1
-    pars_df_i <- pars_df_i %>% 
-      dplyr::select(lbd0, lbd1, lbd01, mu0, mu1, tau0, tau1, tau01, ef0, ef1, js0_1, js1_0, d0_01, d1_01, x01_0, x01_1)
+    pars_df_i <- pars_df_i %>%
+      # dplyr::select(lbd0, lbd1, lbd01, mu0, mu1, tau0, tau1, tau01, ef0, ef1, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1)
+      dplyr::select(lbd0, lbd1, v01, mu0, mu1, tau0, tau1, ef0, ef1, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1)
   }
-  
-  if (model_i == "CID-3")
+
+  if (model_i == "CID-2")
   {
-    pars_df_i <- pars_df_i %>% 
+    pars_df_i <- pars_df_i %>%
       as.data.frame() %>%
-      mutate(# lbdA = lambda00A,       # Unique speciation for endemic areas in regime A 
-             # lbdB = lambda00B,       # Unique speciation for endemic areas in regime B 
-             # lbdC = lambda00C,       # Unique speciation for endemic areas in regime C 
-             lbd0A = lambda00A,      # Speciation for endemic area 0 in regime A 
-             lbd0B = lambda00B,      # Speciation for endemic area 0 in regime B 
-             lbd0C = lambda00C,      # Speciation for endemic area 0 in regime C 
-             lbd1A = lambda11A,      # Speciation for endemic area 1 in regime A 
-             lbd1B = lambda11B,      # Speciation for endemic area 1 in regime B 
-             lbd1C = lambda11C,      # Speciation for endemic area 1 in regime C 
-             lbd01A = lambda01A,     # Speciation in wide-spread area 01 in regime A
-             lbd01B = lambda01B,     # Speciation in wide-spread area 01 in regime B
-             lbd01C = lambda01C,     # Speciation in wide-spread area 01 in regime C 
-             # muA = mu00A,            # Unique extinction for endemic areas in regime A 
-             # muB = mu00B,            # Unique extinction for endemic areas in regime B 
-             # muC = mu00C,            # Unique extinction for endemic areas in regime C 
-             mu0A = mu00A,           # Extinction for endemic area 0 in regime A 
-             mu0B = mu00B,           # Extinction for endemic area 0 in regime B 
-             mu0C = mu00C,           # Extinction for endemic area 0 in regime C 
-             mu1A = mu11A,           # Extinction for endemic area 1 in regime A 
-             mu1B = mu11B,           # Extinction for endemic area 1 in regime B 
-             mu1C = mu11C,           # Extinction for endemic area 1 in regime C 
-             # tauA = tau00A,          # Unique turnover rate for all areas in regime A 
-             # tauB = tau00B,          # Unique turnover rate for all areas in regime B
-             # tauC = tau00C,          # Unique turnover rate for all areas in regime C
-             tau0A = tau00A,         # Turnover rate for endemic area 0 in regime A 
-             tau0B = tau00B,         # Turnover rate for endemic area 0 in regime B
-             tau0C = tau00C,         # Turnover rate for endemic area 0 in regime C
-             tau1A = tau11A,         # Turnover rate for endemic area 1 in regime A 
-             tau1B = tau11B,         # Turnover rate for endemic area 1 in regime B
-             tau1C = tau11C,         # Turnover rate for endemic area 1 in regime C
-             tau01A = tau01A,        # Turnover rate for wide-spread area 01 in regime A 
-             tau01B = tau01B,        # Turnover rate for wide-spread area 01 in regime B
-             tau01C = tau01C,        # Turnover rate for wide-spread area 01 in regime C
-             # efA = ef00A,            # Unique effective fraction for endemic areas in regime A 
-             # efB = ef00B,            # Unique effective fraction for endemic areas in regime B
-             # efC = ef00C,            # Unique effective fraction for endemic areas in regime C
-             ef0A = ef00A,           # Extinct fraction for endemic area 0 in regime A 
-             ef0B = ef00B,           # Extinct fraction for endemic area 0 in regime B
-             ef0C = ef00C,           # Extinct fraction for endemic area 0 in regime C
-             ef1A = ef11A,           # Extinct fraction for endemic area 1 in regime A 
-             ef1B = ef11B,           # Extinct fraction for endemic area 1 in regime B
-             ef1C = ef11C,           # Extinct fraction for endemic area 1 in regime C
-             js0_1 = d00A_11A,       # Range-shift (jump) from endemic area 0 to endemic area 1
-             js1_0 = d11A_00A,       # Range-shift (jump) from endemic area 1 to endemic area 0
-             d0_01 = d00A_01A,       # Range extension from endemic area 0 to wide-spread area 01
-             d1_01 = d11A_01A,       # Range extension from endemic area 1 to wide-spread area 01
-             x01_0 = d01A_00A,       # Range extirpation from wide-spread area 01 to endemic area 0
-             x01_1 = d01A_11A,       # Range extirpation from wide-spread area 01 to endemic area 1
-             regime_shift = d00A_00B)  # Unique regime shift rate   
-    pars_df_i <- pars_df_i %>% 
-      # dplyr::select(lbdA, lbdB, lbdC, lbd01A, lbd01B, lbd01C, muA, muB, muC, tauA, tauB, tauC, efA, efB, efC, js0_1, js1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
-      dplyr::select(lbd0A, lbd0B, lbd0C, lbd1A, lbd1B, lbd1C, lbd01A, lbd01B, lbd01C, mu0A, mu0B, mu0C, mu1A, mu1B, mu1C, tau0A, tau0B, tau0C, tau1A, tau1B, tau1C, tau01A, tau01B, tau01C, ef0A, ef0B, ef0C, ef1A, ef1B, ef1C, js0_1, js1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
+      mutate(# lbdA = lambda00A,       # Unique speciation for endemic areas in regime A
+        # lbdB = lambda00B,       # Unique speciation for endemic areas in regime B
+        lbd0A = lambda00A,      # Speciation for endemic area 0 in regime A
+        lbd0B = lambda00B,      # Speciation for endemic area 0 in regime B
+        lbd1A = lambda11A,      # Speciation for endemic area 1 in regime A
+        lbd1B = lambda11B,      # Speciation for endemic area 1 in regime B
+        # lbd01A = lambda01A,     # Speciation in wide-spread area 01 in regime A = Vicariance (as wide-spread speciation is not allowed)
+        # lbd01B = lambda01B,     # Speciation in wide-spread area 01 in regime B = Vicariance (as wide-spread speciation is not allowed)
+        v01A = lambda01A,     # Speciation in wide-spread area 01 in regime A = Vicariance (as wide-spread speciation is not allowed)
+        v01B = lambda01B,     # Speciation in wide-spread area 01 in regime B = Vicariance (as wide-spread speciation is not allowed)
+        # muA = mu00A,            # Unique extinction for endemic areas in regime A
+        # muB = mu00B,            # Unique extinction for endemic areas in regime B
+        mu0A = mu00A,           # Extinction for endemic area 0 in regime A
+        mu0B = mu00B,           # Extinction for endemic area 0 in regime B
+        mu1A = mu11A,           # Extinction for endemic area 1 in regime A
+        mu1B = mu11B,           # Extinction for endemic area 1 in regime B
+        # tauA = tau00A,          # Unique turnover rate for all areas in regime A
+        # tauB = tau00B,          # Unique turnover rate for all areas in regime B
+        tau0A = tau00A,         # Turnover rate for endemic area 0 in regime A
+        tau0B = tau00B,         # Turnover rate for endemic area 0 in regime B
+        tau1A = tau11A,         # Turnover rate for endemic area 1 in regime A
+        tau1B = tau11B,         # Turnover rate for endemic area 1 in regime B
+        # tau01A = tau01A,        # Turnover rate for wide-spread area 01 in regime A = Vicariance (as extinction from wide-spread state AND wide-spread speciation is not allowed)
+        # tau01B = tau01B,        # Turnover rate for wide-spread area 01 in regime B = Vicariance (as extinction from wide-spread state AND wide-spread speciation is not allowed)
+        # efA = ef00A,            # Unique effective fraction for endemic areas in regime A
+        # efB = ef00B,            # Unique effective fraction for endemic areas in regime B
+        ef0A = ef00A,           # Extinct fraction for endemic area 0 in regime A
+        ef0B = ef00B,           # Extinct fraction for endemic area 0 in regime B
+        ef1A = ef11A,           # Extinct fraction for endemic area 1 in regime A
+        ef1B = ef11B,           # Extinct fraction for endemic area 1 in regime B
+        rs0_1 = d00A_11A,       # Range-shift (jump) from endemic area 0 to endemic area 1
+        rs1_0 = d11A_00A,       # Range-shift (jump) from endemic area 1 to endemic area 0
+        d0_01 = d00A_01A,       # Range extension from endemic area 0 to wide-spread area 01
+        d1_01 = d11A_01A,       # Range extension from endemic area 1 to wide-spread area 01
+        x01_0 = d01A_00A,       # Range extirpation from wide-spread area 01 to endemic area 0
+        x01_1 = d01A_11A,       # Range extirpation from wide-spread area 01 to endemic area 1
+        regime_shift = d00A_00B)  # Unique regime shift rate
+    pars_df_i <- pars_df_i %>%
+      # dplyr::select(lbdA, lbdB, lbd01A, lbd01B, muA, muB, tauA, tauB, efA, efB, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
+      # dplyr::select(lbd0A, lbd0B, lbd1A, lbd1B, lbd01A, lbd01B, mu0A, mu0B, mu1A, mu1B, tau0A, tau0B, tau1A, tau1B, tau01A, tau01B, ef0A, ef0B, ef1A, ef1B, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
+      dplyr::select(lbd0A, lbd0B, lbd1A, lbd1B, v01A, v01B, mu0A, mu0B, mu1A, mu1B, tau0A, tau0B, tau1A, tau1B, ef0A, ef0B, ef1A, ef1B, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
   }
-  
+
+  # if (model_i == "CID-3")
+  # {
+  #   pars_df_i <- pars_df_i %>%
+  #     as.data.frame() %>%
+  #     mutate(# lbdA = lambda00A,       # Unique speciation for endemic areas in regime A
+  #            # lbdB = lambda00B,       # Unique speciation for endemic areas in regime B
+  #            # lbdC = lambda00C,       # Unique speciation for endemic areas in regime C
+  #            lbd0A = lambda00A,      # Speciation for endemic area 0 in regime A
+  #            lbd0B = lambda00B,      # Speciation for endemic area 0 in regime B
+  #            lbd0C = lambda00C,      # Speciation for endemic area 0 in regime C
+  #            lbd1A = lambda11A,      # Speciation for endemic area 1 in regime A
+  #            lbd1B = lambda11B,      # Speciation for endemic area 1 in regime B
+  #            lbd1C = lambda11C,      # Speciation for endemic area 1 in regime C
+  #            lbd01A = lambda01A,     # Speciation in wide-spread area 01 in regime A
+  #            lbd01B = lambda01B,     # Speciation in wide-spread area 01 in regime B
+  #            lbd01C = lambda01C,     # Speciation in wide-spread area 01 in regime C
+  #            # muA = mu00A,            # Unique extinction for endemic areas in regime A
+  #            # muB = mu00B,            # Unique extinction for endemic areas in regime B
+  #            # muC = mu00C,            # Unique extinction for endemic areas in regime C
+  #            mu0A = mu00A,           # Extinction for endemic area 0 in regime A
+  #            mu0B = mu00B,           # Extinction for endemic area 0 in regime B
+  #            mu0C = mu00C,           # Extinction for endemic area 0 in regime C
+  #            mu1A = mu11A,           # Extinction for endemic area 1 in regime A
+  #            mu1B = mu11B,           # Extinction for endemic area 1 in regime B
+  #            mu1C = mu11C,           # Extinction for endemic area 1 in regime C
+  #            # tauA = tau00A,          # Unique turnover rate for all areas in regime A
+  #            # tauB = tau00B,          # Unique turnover rate for all areas in regime B
+  #            # tauC = tau00C,          # Unique turnover rate for all areas in regime C
+  #            tau0A = tau00A,         # Turnover rate for endemic area 0 in regime A
+  #            tau0B = tau00B,         # Turnover rate for endemic area 0 in regime B
+  #            tau0C = tau00C,         # Turnover rate for endemic area 0 in regime C
+  #            tau1A = tau11A,         # Turnover rate for endemic area 1 in regime A
+  #            tau1B = tau11B,         # Turnover rate for endemic area 1 in regime B
+  #            tau1C = tau11C,         # Turnover rate for endemic area 1 in regime C
+  #            tau01A = tau01A,        # Turnover rate for wide-spread area 01 in regime A
+  #            tau01B = tau01B,        # Turnover rate for wide-spread area 01 in regime B
+  #            tau01C = tau01C,        # Turnover rate for wide-spread area 01 in regime C
+  #            # efA = ef00A,            # Unique effective fraction for endemic areas in regime A
+  #            # efB = ef00B,            # Unique effective fraction for endemic areas in regime B
+  #            # efC = ef00C,            # Unique effective fraction for endemic areas in regime C
+  #            ef0A = ef00A,           # Extinct fraction for endemic area 0 in regime A
+  #            ef0B = ef00B,           # Extinct fraction for endemic area 0 in regime B
+  #            ef0C = ef00C,           # Extinct fraction for endemic area 0 in regime C
+  #            ef1A = ef11A,           # Extinct fraction for endemic area 1 in regime A
+  #            ef1B = ef11B,           # Extinct fraction for endemic area 1 in regime B
+  #            ef1C = ef11C,           # Extinct fraction for endemic area 1 in regime C
+  #            rs0_1 = d00A_11A,       # Range-shift (jump) from endemic area 0 to endemic area 1
+  #            rs1_0 = d11A_00A,       # Range-shift (jump) from endemic area 1 to endemic area 0
+  #            d0_01 = d00A_01A,       # Range extension from endemic area 0 to wide-spread area 01
+  #            d1_01 = d11A_01A,       # Range extension from endemic area 1 to wide-spread area 01
+  #            x01_0 = d01A_00A,       # Range extirpation from wide-spread area 01 to endemic area 0
+  #            x01_1 = d01A_11A,       # Range extirpation from wide-spread area 01 to endemic area 1
+  #            regime_shift = d00A_00B)  # Unique regime shift rate
+  #   pars_df_i <- pars_df_i %>%
+  #     # dplyr::select(lbdA, lbdB, lbdC, lbd01A, lbd01B, lbd01C, muA, muB, muC, tauA, tauB, tauC, efA, efB, efC, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
+  #     dplyr::select(lbd0A, lbd0B, lbd0C, lbd1A, lbd1B, lbd1C, lbd01A, lbd01B, lbd01C, mu0A, mu0B, mu0C, mu1A, mu1B, mu1C, tau0A, tau0B, tau0C, tau1A, tau1B, tau1C, tau01A, tau01B, tau01C, ef0A, ef0B, ef0C, ef1A, ef1B, ef1C, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
+  # }
+
   if (model_i == "GeoHiSSE")
   {
-    pars_df_i <- pars_df_i %>% 
+    pars_df_i <- pars_df_i %>%
       as.data.frame() %>%
-      mutate(lbd0A = lambda00A,      # Speciation for endemic area 0 in regime A 
+      mutate(lbd0A = lambda00A,      # Speciation for endemic area 0 in regime A
              lbd0B = lambda00B,      # Speciation for endemic area 0 in regime B
              lbd1A = lambda11A,      # Speciation for endemic area 1 in regime A
              lbd1B = lambda11B,      # Speciation for endemic area 1 in regime B
-             lbd01A = lambda01A,     # Speciation for wide-spread area 01 in regime A
-             lbd01B = lambda01B,     # Speciation for wide-spread area 01 in regime B 
-             mu0A = mu00A,           # Extinction for endemic area 0 in regime A 
-             mu0B = mu00B,           # Extinction for endemic area 0 in regime B 
-             mu1A = mu11A,           # Extinction for endemic area 1 in regime A 
-             mu1B = mu11B,           # Extinction for endemic area 1 in regime B
-             tau0A = tau00A,         # Turnover for endemic area 0 in regime A 
-             tau0B = tau00B,         # Turnover for endemic area 0 in regime B
-             tau1A = tau11A,         # Turnover for endemic area 1 in regime A
-             tau1B = tau11B,         # Turnover for endemic area 1 in regime B
-             tau01A = tau01A,        # Turnover for wide-spread area 01 in regime A
-             tau01B = tau01B,        # Turnover for wide-spread area 01 in regime B
-             ef0A = ef00A,           # Extinct fraction for endemic area 0 in regime A 
-             ef0B = ef00B,           # Extinct fraction for endemic area 0 in regime B 
-             ef1A = ef11A,           # Extinct fraction for endemic area 1 in regime A 
-             ef1B = ef11B,           # Extinct fraction for endemic area 1 in regime B 
-             js0_1 = d00A_11A,       # Range-shift (jump) from endemic area 0 to endemic area 1
-             js1_0 = d11A_00A,       # Range-shift (jump) from endemic area 1 to endemic area 0
-             d0_01 = d00A_01A,       # Range extension from endemic area 0 to wide-spread area 01
-             d1_01 = d11A_01A,       # Range extension from endemic area 1 to wide-spread area 01
-             x01_0 = d01A_00A,       # Range extirpation from wide-spread area 01 to endemic area 0
-             x01_1 = d01A_11A,       # Range extirpation from wide-spread area 01 to endemic area 1
-             regime_shift = d00A_00B)  # Unique regime shift rate   
-    pars_df_i <- pars_df_i %>% 
-      dplyr::select(lbd0A, lbd0B, lbd1A, lbd1B, lbd01A, lbd01B, mu0A, mu0B, mu1A, mu1B, tau0A, tau0B, tau1A, tau1B, tau01A, tau01B, ef0A, ef0B, ef1A, ef1B, js0_1, js1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
-  }
-  
-  if (model_i == "CID-6")
-  {
-    pars_df_i <- pars_df_i %>% 
-      as.data.frame() %>%
-      mutate(# lbdA = lambda00A,       # Unique speciation for endemic areas in regime A 
-             # lbdB = lambda00B,       # Unique speciation for endemic areas in regime B 
-             # lbdC = lambda00C,       # Unique speciation for endemic areas in regime C 
-             # lbdD = lambda00D,       # Unique speciation for endemic areas in regime D 
-             # lbdE = lambda00E,       # Unique speciation for endemic areas in regime E 
-             # lbdF = lambda00F,       # Unique speciation for endemic areas in regime F
-             lbd0A = lambda00A,      # Speciation for endemic area 0 in regime A 
-             lbd0B = lambda00B,      # Speciation for endemic area 0 in regime B
-             lbd0C = lambda00C,      # Speciation for endemic area 0 in regime C 
-             lbd0D = lambda00D,      # Speciation for endemic area 0 in regime D
-             lbd0E = lambda00E,      # Speciation for endemic area 0 in regime E 
-             lbd0F = lambda00F,      # Speciation for endemic area 0 in regime F
-             lbd1A = lambda11A,      # Speciation for endemic area 1 in regime A
-             lbd1B = lambda11B,      # Speciation for endemic area 1 in regime B
-             lbd1C = lambda11C,      # Speciation for endemic area 1 in regime C 
-             lbd1D = lambda11D,      # Speciation for endemic area 1 in regime D
-             lbd1E = lambda11E,      # Speciation for endemic area 1 in regime E 
-             lbd1F = lambda11F,      # Speciation for endemic area 1 in regime F
-             lbd01A = lambda01A,     # Speciation in wide-spread area 01 in regime A
-             lbd01B = lambda01B,     # Speciation in wide-spread area 01 in regime B
-             lbd01C = lambda01C,     # Speciation in wide-spread area 01 in regime C 
-             lbd01D = lambda01D,     # Speciation in wide-spread area 01 in regime D
-             lbd01E = lambda01E,     # Speciation in wide-spread area 01 in regime E
-             lbd01F = lambda01F,     # Speciation in wide-spread area 01 in regime F 
-             # muA = mu00A,            # Unique extinction for endemic areas in regime A 
-             # muB = mu00B,            # Unique extinction for endemic areas in regime B 
-             # muC = mu00C,            # Unique extinction for endemic areas in regime C 
-             # muD = mu00D,            # Unique extinction for endemic areas in regime D 
-             # muE = mu00E,            # Unique extinction for endemic areas in regime E 
-             # muF = mu00F,            # Unique extinction for endemic areas in regime F
-             mu0A = mu00A,           # Extinction for endemic area 0 in regime A 
+             # lbd01A = lambda01A,     # Speciation for wide-spread area 01 in regime A = Vicariance (as wide-spread speciation is not allowed)
+             # lbd01B = lambda01B,     # Speciation for wide-spread area 01 in regime B = Vicariance (as wide-spread speciation is not allowed)
+             v01A = lambda01A,     # Speciation for wide-spread area 01 in regime A = Vicariance (as wide-spread speciation is not allowed)
+             v01B = lambda01B,     # Speciation for wide-spread area 01 in regime B = Vicariance (as wide-spread speciation is not allowed)
+             mu0A = mu00A,           # Extinction for endemic area 0 in regime A
              mu0B = mu00B,           # Extinction for endemic area 0 in regime B
-             mu0C = mu00C,           # Extinction for endemic area 0 in regime C 
-             mu0D = mu00D,           # Extinction for endemic area 0 in regime D
-             mu0E = mu00E,           # Extinction for endemic area 0 in regime E 
-             mu0F = mu00F,           # Extinction for endemic area 0 in regime F
-             mu1A = mu11A,           # Extinction for endemic area 1 in regime A 
+             mu1A = mu11A,           # Extinction for endemic area 1 in regime A
              mu1B = mu11B,           # Extinction for endemic area 1 in regime B
-             mu1C = mu11C,           # Extinction for endemic area 1 in regime C 
-             mu1D = mu11D,           # Extinction for endemic area 1 in regime D
-             mu1E = mu11E,           # Extinction for endemic area 1 in regime E 
-             mu1F = mu11F,           # Extinction for endemic area 1 in regime F
-             # tauA = tau00A,          # Unique turnover rate for all areas in regime A 
-             # tauB = tau00B,          # Unique turnover rate for all areas in regime B
-             # tauC = tau00C,          # Unique turnover rate for all areas in regime C
-             # tauD = tau00D,          # Unique turnover rate for all areas in regime D 
-             # tauE = tau00E,          # Unique turnover rate for all areas in regime E
-             # tauF = tau00F,          # Unique turnover rate for all areas in regime F
-             tau0A = tau00A,         # Turnover for endemic area 0 in regime A 
+             tau0A = tau00A,         # Turnover for endemic area 0 in regime A
              tau0B = tau00B,         # Turnover for endemic area 0 in regime B
-             tau0C = tau00C,         # Turnover for endemic area 0 in regime C 
-             tau0D = tau00D,         # Turnover for endemic area 0 in regime D
-             tau0E = tau00E,         # Turnover for endemic area 0 in regime E 
-             tau0F = tau00F,         # Turnover for endemic area 0 in regime F
              tau1A = tau11A,         # Turnover for endemic area 1 in regime A
              tau1B = tau11B,         # Turnover for endemic area 1 in regime B
-             tau1C = tau11C,         # Turnover for endemic area 1 in regime C 
-             tau1D = tau11D,         # Turnover for endemic area 1 in regime D
-             tau1E = tau11E,         # Turnover for endemic area 1 in regime E 
-             tau1F = tau11F,         # Turnover for endemic area 1 in regime F
-             tau01A = tau01A,        # Turnover for wide-spread area 01 in regime A
-             tau01B = tau01B,        # Turnover for wide-spread area 01 in regime B
-             tau01C = tau01C,        # Turnover for wide-spread area 01 in regime C
-             tau01D = tau01D,        # Turnover for wide-spread area 01 in regime D
-             tau01E = tau01E,        # Turnover for wide-spread area 01 in regime E
-             tau01F = tau01F,        # Turnover for wide-spread area 01 in regime F
-             # efA = ef00A,            # Unique extinct fraction for endemic areas in regime A 
-             # efB = ef00B,            # Unique extinct fraction for endemic areas in regime B
-             # efC = ef00C,            # Unique extinct fraction for endemic areas in regime C
-             # efD = ef00D,            # Unique extinct fraction for endemic areas in regime D 
-             # efE = ef00E,            # Unique extinct fraction for endemic areas in regime E
-             # efF = ef00F,            # Unique extinct fraction for endemic areas in regime F
-             ef0A = ef00A,           # Extinct fraction for endemic area 0 in regime A 
-             ef0B = ef00B,           # Extinct fraction for endemic area 0 in regime B 
-             ef0C = ef00C,           # Extinct fraction for endemic area 0 in regime C 
-             ef0D = ef00D,           # Extinct fraction for endemic area 0 in regime D
-             ef0E = ef00E,           # Extinct fraction for endemic area 0 in regime E 
-             ef0F = ef00F,           # Extinct fraction for endemic area 0 in regime F
-             ef1A = ef11A,           # Extinct fraction for endemic area 1 in regime A 
-             ef1B = ef11B,           # Extinct fraction for endemic area 1 in regime B 
-             ef1C = ef11C,           # Extinct fraction for endemic area 1 in regime C 
-             ef1D = ef11D,           # Extinct fraction for endemic area 1 in regime D
-             ef1E = ef11E,           # Extinct fraction for endemic area 1 in regime E 
-             ef1F = ef11F,           # Extinct fraction for endemic area 1 in regime F
-             js0_1 = d00A_11A,       # Range-shift (jump) from endemic area 0 to endemic area 1
-             js1_0 = d11A_00A,       # Range-shift (jump) from endemic area 1 to endemic area 0
+             # tau01A = tau01A,        # Turnover for wide-spread area 01 in regime A = Vicariance (as extinction from wide-spread state AND wide-spread speciation is not allowed)
+             # tau01B = tau01B,        # Turnover for wide-spread area 01 in regime B = Vicariance (as extinction from wide-spread state AND wide-spread speciation is not allowed)
+             ef0A = ef00A,           # Extinct fraction for endemic area 0 in regime A
+             ef0B = ef00B,           # Extinct fraction for endemic area 0 in regime B
+             ef1A = ef11A,           # Extinct fraction for endemic area 1 in regime A
+             ef1B = ef11B,           # Extinct fraction for endemic area 1 in regime B
+             rs0_1 = d00A_11A,       # Range-shift (jump) from endemic area 0 to endemic area 1
+             rs1_0 = d11A_00A,       # Range-shift (jump) from endemic area 1 to endemic area 0
              d0_01 = d00A_01A,       # Range extension from endemic area 0 to wide-spread area 01
              d1_01 = d11A_01A,       # Range extension from endemic area 1 to wide-spread area 01
              x01_0 = d01A_00A,       # Range extirpation from wide-spread area 01 to endemic area 0
              x01_1 = d01A_11A,       # Range extirpation from wide-spread area 01 to endemic area 1
-             regime_shift = d00A_00B)  # Unique regime shift rate   
-    pars_df_i <- pars_df_i %>% 
-      # dplyr::select(lbdA, lbdB, lbdC, lbdD, lbdE, lbdF, lbd01A, lbd01B, lbd01C, lbd01D, lbd01E, lbd01F, muA, muB, muC, muD, muE, muF, tauA, tauB, tauC, tauD, tauE, tauF, efA, efB, efC, efD, efE, efF, js0_1, js1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
-      dplyr::select(lbd0A, lbd0B, lbd0C, lbd0D, lbd0E, lbd0F, lbd1A, lbd1B, lbd1C, lbd1D, lbd1E, lbd1F, lbd01A, lbd01B, lbd01C, lbd01D, lbd01E, lbd01F, mu0A, mu0B, mu0C, mu0D, mu0E, mu0F, mu1A, mu1B, mu1C, mu1D, mu1E, mu1F, tau0A, tau0B, tau0C, tau0D, tau0E, tau0F, tau1A, tau1B, tau1C, tau1D, tau1E, tau1F, tau01A, tau01B, tau01C, tau01D, tau01E, tau01F, ef0A, ef0B, ef0C, ef0D, ef0E, ef0F, ef1A, ef1B, ef1C, ef1D, ef1E, ef1F, js0_1, js1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
+             regime_shift = d00A_00B)  # Unique regime shift rate
+    pars_df_i <- pars_df_i %>%
+      # dplyr::select(lbd0A, lbd0B, lbd1A, lbd1B, lbd01A, lbd01B, mu0A, mu0B, mu1A, mu1B, tau0A, tau0B, tau1A, tau1B, tau01A, tau01B, ef0A, ef0B, ef1A, ef1B, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
+      dplyr::select(lbd0A, lbd0B, lbd1A, lbd1B, v01A, v01B, mu0A, mu0B, mu1A, mu1B, tau0A, tau0B, tau1A, tau1B, ef0A, ef0B, ef1A, ef1B, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
   }
-  
+
+  if (model_i == "CID-4")
+  {
+    pars_df_i <- pars_df_i %>%
+      as.data.frame() %>%
+      mutate(# lbdA = lambda00A,       # Unique speciation for endemic areas in regime A
+        # lbdB = lambda00B,       # Unique speciation for endemic areas in regime B
+        # lbdC = lambda00C,       # Unique speciation for endemic areas in regime C
+        # lbdD = lambda00D,       # Unique speciation for endemic areas in regime D
+        lbd0A = lambda00A,      # Speciation for endemic area 0 in regime A
+        lbd0B = lambda00B,      # Speciation for endemic area 0 in regime B
+        lbd0C = lambda00C,      # Speciation for endemic area 0 in regime C
+        lbd0D = lambda00D,      # Speciation for endemic area 0 in regime D
+        lbd1A = lambda11A,      # Speciation for endemic area 1 in regime A
+        lbd1B = lambda11B,      # Speciation for endemic area 1 in regime B
+        lbd1C = lambda11C,      # Speciation for endemic area 1 in regime C
+        lbd1D = lambda11D,      # Speciation for endemic area 1 in regime D
+        # lbd01A = lambda01A,     # Speciation in wide-spread area 01 in regime A = Vicariance (as wide-spread speciation is not allowed)
+        # lbd01B = lambda01B,     # Speciation in wide-spread area 01 in regime B = Vicariance (as wide-spread speciation is not allowed)
+        # lbd01C = lambda01C,     # Speciation in wide-spread area 01 in regime C = Vicariance (as wide-spread speciation is not allowed)
+        # lbd01D = lambda01D,     # Speciation in wide-spread area 01 in regime D = Vicariance (as wide-spread speciation is not allowed)
+        v01A = lambda01A,     # Speciation in wide-spread area 01 in regime A = Vicariance (as wide-spread speciation is not allowed)
+        v01B = lambda01B,     # Speciation in wide-spread area 01 in regime B = Vicariance (as wide-spread speciation is not allowed)
+        v01C = lambda01C,     # Speciation in wide-spread area 01 in regime C = Vicariance (as wide-spread speciation is not allowed)
+        v01D = lambda01D,     # Speciation in wide-spread area 01 in regime D = Vicariance (as wide-spread speciation is not allowed)
+        # muA = mu00A,            # Unique extinction for endemic areas in regime A
+        # muB = mu00B,            # Unique extinction for endemic areas in regime B
+        # muC = mu00C,            # Unique extinction for endemic areas in regime C
+        # muD = mu00D,            # Unique extinction for endemic areas in regime D
+        mu0A = mu00A,           # Extinction for endemic area 0 in regime A
+        mu0B = mu00B,           # Extinction for endemic area 0 in regime B
+        mu0C = mu00C,           # Extinction for endemic area 0 in regime C
+        mu0D = mu00D,           # Extinction for endemic area 0 in regime D
+        mu1A = mu11A,           # Extinction for endemic area 1 in regime A
+        mu1B = mu11B,           # Extinction for endemic area 1 in regime B
+        mu1C = mu11C,           # Extinction for endemic area 1 in regime C
+        mu1D = mu11D,           # Extinction for endemic area 1 in regime D
+        # tauA = tau00A,          # Unique turnover rate for all areas in regime A
+        # tauB = tau00B,          # Unique turnover rate for all areas in regime B
+        # tauC = tau00C,          # Unique turnover rate for all areas in regime C
+        # tauD = tau00D,          # Unique turnover rate for all areas in regime D
+        tau0A = tau00A,         # Turnover for endemic area 0 in regime A
+        tau0B = tau00B,         # Turnover for endemic area 0 in regime B
+        tau0C = tau00C,         # Turnover for endemic area 0 in regime C
+        tau0D = tau00D,         # Turnover for endemic area 0 in regime D
+        tau1A = tau11A,         # Turnover for endemic area 1 in regime A
+        tau1B = tau11B,         # Turnover for endemic area 1 in regime B
+        tau1C = tau11C,         # Turnover for endemic area 1 in regime C
+        tau1D = tau11D,         # Turnover for endemic area 1 in regime D
+        # tau01A = tau01A,        # Turnover for wide-spread area 01 in regime A = Vicariance (as extinction from wide-spread state AND wide-spread speciation is not allowed)
+        # tau01B = tau01B,        # Turnover for wide-spread area 01 in regime B = Vicariance (as extinction from wide-spread state AND wide-spread speciation is not allowed)
+        # tau01C = tau01C,        # Turnover for wide-spread area 01 in regime C = Vicariance (as extinction from wide-spread state AND wide-spread speciation is not allowed)
+        # tau01D = tau01D,        # Turnover for wide-spread area 01 in regime D = Vicariance (as extinction from wide-spread state AND wide-spread speciation is not allowed)
+        # efA = ef00A,            # Unique extinct fraction for endemic areas in regime A
+        # efB = ef00B,            # Unique extinct fraction for endemic areas in regime B
+        # efC = ef00C,            # Unique extinct fraction for endemic areas in regime C
+        # efD = ef00D,            # Unique extinct fraction for endemic areas in regime D
+        ef0A = ef00A,           # Extinct fraction for endemic area 0 in regime A
+        ef0B = ef00B,           # Extinct fraction for endemic area 0 in regime B
+        ef0C = ef00C,           # Extinct fraction for endemic area 0 in regime C
+        ef0D = ef00D,           # Extinct fraction for endemic area 0 in regime D
+        ef1A = ef11A,           # Extinct fraction for endemic area 1 in regime A
+        ef1B = ef11B,           # Extinct fraction for endemic area 1 in regime B
+        ef1C = ef11C,           # Extinct fraction for endemic area 1 in regime C
+        ef1D = ef11D,           # Extinct fraction for endemic area 1 in regime D
+        rs0_1 = d00A_11A,       # Range-shift (jump) from endemic area 0 to endemic area 1
+        rs1_0 = d11A_00A,       # Range-shift (jump) from endemic area 1 to endemic area 0
+        d0_01 = d00A_01A,       # Range extension from endemic area 0 to wide-spread area 01
+        d1_01 = d11A_01A,       # Range extension from endemic area 1 to wide-spread area 01
+        x01_0 = d01A_00A,       # Range extirpation from wide-spread area 01 to endemic area 0
+        x01_1 = d01A_11A,       # Range extirpation from wide-spread area 01 to endemic area 1
+        regime_shift = d00A_00B)  # Unique regime shift rate
+    pars_df_i <- pars_df_i %>%
+      # dplyr::select(lbdA, lbdB, lbdC, lbdD, lbd01A, lbd01B, lbd01C, lbd01D, muA, muB, muC, muD, tauA, tauB, tauC, tauD, efA, efB, efC, efD, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
+      # dplyr::select(lbd0A, lbd0B, lbd0C, lbd0D, lbd1A, lbd1B, lbd1C, lbd1D, lbd01A, lbd01B, lbd01C, lbd01D, mu0A, mu0B, mu0C, mu0D, mu1A, mu1B, mu1C, mu1D, tau0A, tau0B, tau0C, tau0D, tau1A, tau1B, tau1C, tau1D, tau01A, tau01B, tau01C, tau01D, ef0A, ef0B, ef0C, ef0D, ef1A, ef1B, ef1C, ef1D, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
+      dplyr::select(lbd0A, lbd0B, lbd0C, lbd0D, lbd1A, lbd1B, lbd1C, lbd1D, v01A, v01B, v01C, v01D, mu0A, mu0B, mu0C, mu0D, mu1A, mu1B, mu1C, mu1D, tau0A, tau0B, tau0C, tau0D, tau1A, tau1B, tau1C, tau1D, ef0A, ef0B, ef0C, ef0D, ef1A, ef1B, ef1C, ef1D, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
+  }
+
+  # if (model_i == "CID-6")
+  # {
+  #   pars_df_i <- pars_df_i %>%
+  #     as.data.frame() %>%
+  #     mutate(# lbdA = lambda00A,       # Unique speciation for endemic areas in regime A
+  #            # lbdB = lambda00B,       # Unique speciation for endemic areas in regime B
+  #            # lbdC = lambda00C,       # Unique speciation for endemic areas in regime C
+  #            # lbdD = lambda00D,       # Unique speciation for endemic areas in regime D
+  #            # lbdE = lambda00E,       # Unique speciation for endemic areas in regime E
+  #            # lbdF = lambda00F,       # Unique speciation for endemic areas in regime F
+  #            lbd0A = lambda00A,      # Speciation for endemic area 0 in regime A
+  #            lbd0B = lambda00B,      # Speciation for endemic area 0 in regime B
+  #            lbd0C = lambda00C,      # Speciation for endemic area 0 in regime C
+  #            lbd0D = lambda00D,      # Speciation for endemic area 0 in regime D
+  #            lbd0E = lambda00E,      # Speciation for endemic area 0 in regime E
+  #            lbd0F = lambda00F,      # Speciation for endemic area 0 in regime F
+  #            lbd1A = lambda11A,      # Speciation for endemic area 1 in regime A
+  #            lbd1B = lambda11B,      # Speciation for endemic area 1 in regime B
+  #            lbd1C = lambda11C,      # Speciation for endemic area 1 in regime C
+  #            lbd1D = lambda11D,      # Speciation for endemic area 1 in regime D
+  #            lbd1E = lambda11E,      # Speciation for endemic area 1 in regime E
+  #            lbd1F = lambda11F,      # Speciation for endemic area 1 in regime F
+  #            lbd01A = lambda01A,     # Speciation in wide-spread area 01 in regime A
+  #            lbd01B = lambda01B,     # Speciation in wide-spread area 01 in regime B
+  #            lbd01C = lambda01C,     # Speciation in wide-spread area 01 in regime C
+  #            lbd01D = lambda01D,     # Speciation in wide-spread area 01 in regime D
+  #            lbd01E = lambda01E,     # Speciation in wide-spread area 01 in regime E
+  #            lbd01F = lambda01F,     # Speciation in wide-spread area 01 in regime F
+  #            # muA = mu00A,            # Unique extinction for endemic areas in regime A
+  #            # muB = mu00B,            # Unique extinction for endemic areas in regime B
+  #            # muC = mu00C,            # Unique extinction for endemic areas in regime C
+  #            # muD = mu00D,            # Unique extinction for endemic areas in regime D
+  #            # muE = mu00E,            # Unique extinction for endemic areas in regime E
+  #            # muF = mu00F,            # Unique extinction for endemic areas in regime F
+  #            mu0A = mu00A,           # Extinction for endemic area 0 in regime A
+  #            mu0B = mu00B,           # Extinction for endemic area 0 in regime B
+  #            mu0C = mu00C,           # Extinction for endemic area 0 in regime C
+  #            mu0D = mu00D,           # Extinction for endemic area 0 in regime D
+  #            mu0E = mu00E,           # Extinction for endemic area 0 in regime E
+  #            mu0F = mu00F,           # Extinction for endemic area 0 in regime F
+  #            mu1A = mu11A,           # Extinction for endemic area 1 in regime A
+  #            mu1B = mu11B,           # Extinction for endemic area 1 in regime B
+  #            mu1C = mu11C,           # Extinction for endemic area 1 in regime C
+  #            mu1D = mu11D,           # Extinction for endemic area 1 in regime D
+  #            mu1E = mu11E,           # Extinction for endemic area 1 in regime E
+  #            mu1F = mu11F,           # Extinction for endemic area 1 in regime F
+  #            # tauA = tau00A,          # Unique turnover rate for all areas in regime A
+  #            # tauB = tau00B,          # Unique turnover rate for all areas in regime B
+  #            # tauC = tau00C,          # Unique turnover rate for all areas in regime C
+  #            # tauD = tau00D,          # Unique turnover rate for all areas in regime D
+  #            # tauE = tau00E,          # Unique turnover rate for all areas in regime E
+  #            # tauF = tau00F,          # Unique turnover rate for all areas in regime F
+  #            tau0A = tau00A,         # Turnover for endemic area 0 in regime A
+  #            tau0B = tau00B,         # Turnover for endemic area 0 in regime B
+  #            tau0C = tau00C,         # Turnover for endemic area 0 in regime C
+  #            tau0D = tau00D,         # Turnover for endemic area 0 in regime D
+  #            tau0E = tau00E,         # Turnover for endemic area 0 in regime E
+  #            tau0F = tau00F,         # Turnover for endemic area 0 in regime F
+  #            tau1A = tau11A,         # Turnover for endemic area 1 in regime A
+  #            tau1B = tau11B,         # Turnover for endemic area 1 in regime B
+  #            tau1C = tau11C,         # Turnover for endemic area 1 in regime C
+  #            tau1D = tau11D,         # Turnover for endemic area 1 in regime D
+  #            tau1E = tau11E,         # Turnover for endemic area 1 in regime E
+  #            tau1F = tau11F,         # Turnover for endemic area 1 in regime F
+  #            tau01A = tau01A,        # Turnover for wide-spread area 01 in regime A
+  #            tau01B = tau01B,        # Turnover for wide-spread area 01 in regime B
+  #            tau01C = tau01C,        # Turnover for wide-spread area 01 in regime C
+  #            tau01D = tau01D,        # Turnover for wide-spread area 01 in regime D
+  #            tau01E = tau01E,        # Turnover for wide-spread area 01 in regime E
+  #            tau01F = tau01F,        # Turnover for wide-spread area 01 in regime F
+  #            # efA = ef00A,            # Unique extinct fraction for endemic areas in regime A
+  #            # efB = ef00B,            # Unique extinct fraction for endemic areas in regime B
+  #            # efC = ef00C,            # Unique extinct fraction for endemic areas in regime C
+  #            # efD = ef00D,            # Unique extinct fraction for endemic areas in regime D
+  #            # efE = ef00E,            # Unique extinct fraction for endemic areas in regime E
+  #            # efF = ef00F,            # Unique extinct fraction for endemic areas in regime F
+  #            ef0A = ef00A,           # Extinct fraction for endemic area 0 in regime A
+  #            ef0B = ef00B,           # Extinct fraction for endemic area 0 in regime B
+  #            ef0C = ef00C,           # Extinct fraction for endemic area 0 in regime C
+  #            ef0D = ef00D,           # Extinct fraction for endemic area 0 in regime D
+  #            ef0E = ef00E,           # Extinct fraction for endemic area 0 in regime E
+  #            ef0F = ef00F,           # Extinct fraction for endemic area 0 in regime F
+  #            ef1A = ef11A,           # Extinct fraction for endemic area 1 in regime A
+  #            ef1B = ef11B,           # Extinct fraction for endemic area 1 in regime B
+  #            ef1C = ef11C,           # Extinct fraction for endemic area 1 in regime C
+  #            ef1D = ef11D,           # Extinct fraction for endemic area 1 in regime D
+  #            ef1E = ef11E,           # Extinct fraction for endemic area 1 in regime E
+  #            ef1F = ef11F,           # Extinct fraction for endemic area 1 in regime F
+  #            rs0_1 = d00A_11A,       # Range-shift (jump) from endemic area 0 to endemic area 1
+  #            rs1_0 = d11A_00A,       # Range-shift (jump) from endemic area 1 to endemic area 0
+  #            d0_01 = d00A_01A,       # Range extension from endemic area 0 to wide-spread area 01
+  #            d1_01 = d11A_01A,       # Range extension from endemic area 1 to wide-spread area 01
+  #            x01_0 = d01A_00A,       # Range extirpation from wide-spread area 01 to endemic area 0
+  #            x01_1 = d01A_11A,       # Range extirpation from wide-spread area 01 to endemic area 1
+  #            regime_shift = d00A_00B)  # Unique regime shift rate
+  #   pars_df_i <- pars_df_i %>%
+  #     # dplyr::select(lbdA, lbdB, lbdC, lbdD, lbdE, lbdF, lbd01A, lbd01B, lbd01C, lbd01D, lbd01E, lbd01F, muA, muB, muC, muD, muE, muF, tauA, tauB, tauC, tauD, tauE, tauF, efA, efB, efC, efD, efE, efF, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
+  #     dplyr::select(lbd0A, lbd0B, lbd0C, lbd0D, lbd0E, lbd0F, lbd1A, lbd1B, lbd1C, lbd1D, lbd1E, lbd1F, lbd01A, lbd01B, lbd01C, lbd01D, lbd01E, lbd01F, mu0A, mu0B, mu0C, mu0D, mu0E, mu0F, mu1A, mu1B, mu1C, mu1D, mu1E, mu1F, tau0A, tau0B, tau0C, tau0D, tau0E, tau0F, tau1A, tau1B, tau1C, tau1D, tau1E, tau1F, tau01A, tau01B, tau01C, tau01D, tau01E, tau01F, ef0A, ef0B, ef0C, ef0D, ef0E, ef0F, ef1A, ef1B, ef1C, ef1D, ef1E, ef1F, rs0_1, rs1_0, d0_01, d1_01, x01_0, x01_1, regime_shift)
+  # }
+
   # Melt dataframe
   pars_df_i <- reshape2::melt(as.matrix(pars_df_i))
   names(pars_df_i) <- c("stats", "pars", "value")
   pars_df_i$model <- model_i
   pars_df_i <- pars_df_i[, c("model", "stats", "pars", "value")]
-  
+
   # Merge parameter df
   GeoSSE_pars_all_models_df <- rbind(GeoSSE_pars_all_models_df, pars_df_i)
   
@@ -1357,10 +1757,11 @@ for (i in seq_along(model_list))
 ## Add parameter types
 GeoSSE_pars_all_models_df$parameter_type <- NA
 GeoSSE_pars_all_models_df$parameter_type[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "lbd")] <- "Speciation"
+GeoSSE_pars_all_models_df$parameter_type[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "v")] <- "Vicariance"
 GeoSSE_pars_all_models_df$parameter_type[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "mu")] <- "Extinction"
 GeoSSE_pars_all_models_df$parameter_type[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "tau")] <- "Turnover"
 GeoSSE_pars_all_models_df$parameter_type[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "ef")] <- "Extinct fraction"
-GeoSSE_pars_all_models_df$parameter_type[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "js")] <- "Range-shift"
+GeoSSE_pars_all_models_df$parameter_type[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "rs")] <- "Range-shift"
 GeoSSE_pars_all_models_df$parameter_type[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "^d")] <- "Range extension"
 GeoSSE_pars_all_models_df$parameter_type[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "^x")] <- "Range extirpation"
 GeoSSE_pars_all_models_df$parameter_type[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "regime_shift")] <- "Regime shift"
@@ -1386,13 +1787,14 @@ GeoSSE_pars_all_models_df$regime[str_detect(string = GeoSSE_pars_all_models_df$p
 GeoSSE_pars_all_models_df$regime[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "B")] <- "B"
 GeoSSE_pars_all_models_df$regime[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "C")] <- "C"
 GeoSSE_pars_all_models_df$regime[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "D")] <- "D"
-GeoSSE_pars_all_models_df$regime[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "E")] <- "E"
-GeoSSE_pars_all_models_df$regime[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "F")] <- "F"
+# GeoSSE_pars_all_models_df$regime[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "E")] <- "E"
+# GeoSSE_pars_all_models_df$regime[str_detect(string = GeoSSE_pars_all_models_df$pars, pattern = "F")] <- "F"
 
 table(GeoSSE_pars_all_models_df$regime)
 
 ## Save GeoSSE models parameter summary table
-saveRDS(GeoSSE_pars_all_models_df, file = "./outputs/GeoSSE/GeoSSE_pars_all_models_df.rds")
+# saveRDS(GeoSSE_pars_all_models_df, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_pars_all_models_df.rds")
+saveRDS(GeoSSE_pars_all_models_df, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_pars_all_models_df.rds")
 
 
 ### 6.2/ Plot parameter estimates ####
@@ -1402,22 +1804,24 @@ saveRDS(GeoSSE_pars_all_models_df, file = "./outputs/GeoSSE/GeoSSE_pars_all_mode
 ## GGplot SE to compare rate estimates
 
 # Load GeoSSE models parameter summary table
-GeoSSE_pars_all_models_df <- readRDS(file = "./outputs/GeoSSE/GeoSSE_pars_all_models_df.rds")
+# GeoSSE_pars_all_models_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_pars_all_models_df.rds")
+GeoSSE_pars_all_models_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_pars_all_models_df.rds")
 
 # Load GeoSSE model comparison summary table
-GeoSSE_models_comparison_df <- readRDS(file = "./outputs/GeoSSE/GeoSSE_models_comparison_df.rds")
+# GeoSSE_models_comparison_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_models_comparison_df.rds")
+GeoSSE_models_comparison_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_models_comparison_df.rds")
 
 ## One plot per model
 
 # Remove turnover and extinct fraction parameters
 GeoSSE_pars_all_models_df_for_plot <- GeoSSE_pars_all_models_df %>% 
-  filter(parameter_type %in% c("Speciation", "Extinction", "Range-shift", "Range extension", "Range extirpation", "Regime shift"))
+  filter(parameter_type %in% c("Speciation", "Extinction", "Vicariance", "Range-shift", "Range extension", "Range extirpation", "Regime shift"))
 
 # Set color scheme for parameter types
-colors_list_for_parameter_types <- c("limegreen", "coral1", "dodgerblue", "purple", "grey20", "grey")
-parameter_types_names <- c("Speciation", "Extinction", "Range-shift", "Range extension", "Range extirpation", "Regime shift")
+colors_list_for_parameter_types <- c("limegreen", "coral1", "tan4", "dodgerblue", "purple", "grey20", "grey")
+parameter_types_names <- c("Speciation", "Extinction", "Vicariance", "Range-shift", "Range extension", "Range extirpation", "Regime shift")
 names(colors_list_for_parameter_types) <- parameter_types_names
-parameter_types_labels <- c("lambda", "mu", "js", "d", "x", "q")
+parameter_types_labels <- c("lambda", "mu", "v", "rs", "d", "x", "q")
 
 # Order parameter_type so they are properly ordered
 GeoSSE_pars_all_models_df_for_plot$parameter_type <- factor(GeoSSE_pars_all_models_df_for_plot$parameter_type,
@@ -1448,7 +1852,8 @@ for (i in seq_along(model_list))
   nb_par <- length(unique(as.character(GeoSSE_pars_df_model_i$pars)))
   
   ## GGplot for all parameters
-  pdf(file = paste0("./outputs/GeoSSE/Model_all_pars_plot_",model_i,".pdf"), height = 6, width = nb_par*1.5)
+  # pdf(file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/Model_all_pars_plot_",model_i,".pdf"), height = 6, width = nb_par*1.5)
+  pdf(file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/Model_all_pars_plot_",model_i,".pdf"), height = 6, width = nb_par*1.5)
   
   GeoSSE_model_pars_plot_i <- ggplot(data = GeoSSE_pars_df_model_i) +
     
@@ -1488,7 +1893,7 @@ for (i in seq_along(model_list))
     facet_wrap(facets = ~ parameter_type,
                # scales = "fixed",
                scales = "free",
-               nrow = 1, ncol = 6
+               nrow = 1, ncol = 7
     ) +
     
     # Adjust color scheme and legend
@@ -1498,7 +1903,7 @@ for (i in seq_along(model_list))
     scale_fill_manual("Parameter types", labels = parameter_types_labels, values = unname(colors_list_for_parameter_types)) +
     
     # # Adjust x-axis labels
-    # scale_x_discrete(labels = c("lambda" = bquote(lambda), "mu" = bquote(mu), "jd" = "jd", "d" = "d", "x" = "x", "q" = "q")) +
+    # scale_x_discrete(labels = c("lambda" = bquote(lambda), "mu" = bquote(mu), "v" = "v", "jd" = "jd", "d" = "d", "x" = "x", "q" = "q")) +
     
     # Flip axes
     # coord_flip() + 
@@ -1547,7 +1952,8 @@ for (i in seq_along(model_list))
   nb_par <- length(unique(as.character(GeoSSE_div_pars_df_model_i$pars)))
   
   ## GGplot for diversification parameters
-  pdf(file = paste0("./outputs/GeoSSE/Model_div_pars_plot_",model_i,".pdf"), height = 6, width = nb_par*1.5)
+  # pdf(file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/Model_div_pars_plot_",model_i,".pdf"), height = 6, width = nb_par*1.5)
+  pdf(file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/Model_div_pars_plot_",model_i,".pdf"), height = 6, width = nb_par*1.5)
   
   GeoSSE_model_div_pars_plot_i <- ggplot(data = GeoSSE_div_pars_df_model_i) +
     
@@ -1647,18 +2053,22 @@ for (i in seq_along(model_list))
 # all_pars_plots_path <- list.files(path = "./outputs/GeoSSE/", pattern = "Model_all_pars_plot_", full.names = T)
 # nb_ggplots <- length(all_pars_plots_path) ; nb_ggplots
 
-all_pars_plots_path <- paste0("./outputs/GeoSSE/Model_all_pars_plot_", model_list, ".pdf")
+# all_pars_plots_path <- paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/Model_all_pars_plot_", model_list, ".pdf")
+all_pars_plots_path <- paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/Model_all_pars_plot_", model_list, ".pdf")
 
-qpdf::pdf_combine(input = all_pars_plots_path, output = paste0("./outputs/GeoSSE/Model_all_pars_plot_all_models.pdf"))
+# qpdf::pdf_combine(input = all_pars_plots_path, output = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/Model_all_pars_plot_all_models.pdf"))
+qpdf::pdf_combine(input = all_pars_plots_path, output = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/Model_all_pars_plot_all_models.pdf"))
 
 ## 6.3.2/ Diversification parameters plots ####
 
 # all_div_pars_plots_path <- list.files(path = "./outputs/GeoSSE/", pattern = "Model_div_pars_plot_", full.names = T)
 # nb_ggplots <- length(all_div_pars_plots_path) ; nb_ggplots
 
-all_div_pars_plots_path <- paste0("./outputs/GeoSSE/Model_div_pars_plot_", model_list, ".pdf")
+# all_div_pars_plots_path <- paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/Model_div_pars_plot_", model_list, ".pdf")
+all_div_pars_plots_path <- paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/Model_div_pars_plot_", model_list, ".pdf")
 
-qpdf::pdf_combine(input = all_div_pars_plots_path, output = paste0("./outputs/GeoSSE/Model_div_pars_plot_all_models.pdf"))
+# qpdf::pdf_combine(input = all_div_pars_plots_path, output = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/Model_div_pars_plot_all_models.pdf"))
+qpdf::pdf_combine(input = all_div_pars_plots_path, output = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/Model_div_pars_plot_all_models.pdf"))
 
 
 ##### 7/ Plot relational igraphs of model parameters across states #####
@@ -1668,13 +2078,16 @@ qpdf::pdf_combine(input = all_div_pars_plots_path, output = paste0("./outputs/Ge
 # Plot Igraph networks for each model + AICc/Akaike's weight
 
 # Load residence times summary table
-residence_times_all_models_df <- readRDS(file = "./outputs/GeoSSE/residence_times_all_models_df.rds")
+# residence_times_all_models_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/residence_times_all_models_df.rds")
+residence_times_all_models_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/residence_times_all_models_df.rds")
 
 # Load GeoSSE models parameter summary table
-GeoSSE_pars_all_models_df <- readRDS(file = "./outputs/GeoSSE/GeoSSE_pars_all_models_df.rds")
+# GeoSSE_pars_all_models_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_pars_all_models_df.rds")
+GeoSSE_pars_all_models_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_pars_all_models_df.rds")
 
 # Load GeoSSE model comparison summary table
-GeoSSE_models_comparison_df <- readRDS(file = "./outputs/GeoSSE/GeoSSE_models_comparison_df.rds")
+# GeoSSE_models_comparison_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_models_comparison_df.rds")
+GeoSSE_models_comparison_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_models_comparison_df.rds")
 
 
 ## Set color scheme for nodes and edges
@@ -1739,7 +2152,7 @@ max_time <- max(residence_times_all_models_df_for_igraph$residence_time)
 # Extract maximum log_rates to scale edge width
 GeoSSE_pars_all_models_df_for_igraph <- GeoSSE_pars_all_models_df %>%
   filter(stats == "MLE_i") %>%
-  filter(parameter_type %in% c("Speciation", "Extinction", "Range-shift", "Range extension", "Range extirpation", "Regime shift")) %>%
+  filter(parameter_type %in% c("Speciation", "Extinction", "Vicariance", "Range-shift", "Range extension", "Range extirpation", "Regime shift")) %>%
   filter() %>%
   mutate(log_rates = log1p(value))
 max_rate <- max(GeoSSE_pars_all_models_df_for_igraph$log_rates)
@@ -1944,7 +2357,8 @@ for (i in seq_along(model_list))
   ## Adjust net_div in Wide-spread state (WS) to be summed with range extirpation and remove net_div WS edges
   # Extract vicariance data
   vicariance_df_i <- edge_metadata_df_i %>% 
-    filter(parameter_type == "net_div" & range == "WS") %>%
+    # filter(parameter_type == "net_div" & range == "WS") %>%
+    filter(parameter_type == "Vicariance" & range == "WS") %>%
     rename(value_to_add = value) %>%
     select(value_to_add, regime) 
   # Extract range extirpation data
@@ -1960,7 +2374,8 @@ for (i in seq_along(model_list))
   range_extirpation_df_i$edge_width <- rescale_edge_size(x = range_extirpation_df_i$log_rates, data_max = max_rate)
   # Merge with initial edge data
   edge_metadata_df_i <- edge_metadata_df_i %>% 
-    filter(!(parameter_type == "net_div" & range == "WS")) %>%
+    # filter(!(parameter_type == "net_div" & range == "WS")) %>%
+    filter(!(parameter_type == "Vicariance" & range == "WS")) %>%
     filter(!(parameter_type == "Range extirpation")) %>%
     rbind(range_extirpation_df_i)
   
@@ -1981,13 +2396,15 @@ for (i in seq_along(model_list))
   # Merge and save metadata used to generate igraph
   igraph_metadata_df_i <- list(node_metadata_df = node_metadata_df_i,
                                edge_metadata_df = edge_metadata_df_i)
-  saveRDS(object = igraph_metadata_df_i, file = paste0("./outputs/GeoSSE/igraph_metadata_df_all_states_", model_i, ".rds"))
+  # saveRDS(object = igraph_metadata_df_i, file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_metadata_df_all_states_", model_i, ".rds"))
+  saveRDS(object = igraph_metadata_df_i, file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_metadata_df_all_states_", model_i, ".rds"))
   
   
   ### 7.3/ Plot relational igraphs of model parameters ####
   
   # Load metadata used to generate igraph
-  igraph_metadata_df_i <- readRDS(file = paste0("./outputs/GeoSSE/igraph_metadata_df_all_states_", model_i, ".rds"))
+  # igraph_metadata_df_i <- readRDS(file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_metadata_df_all_states_", model_i, ".rds"))
+  igraph_metadata_df_i <- readRDS(file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_metadata_df_all_states_", model_i, ".rds"))
   
   ## 7.3.1/ Convert to igraph object ####
   
@@ -2046,12 +2463,13 @@ for (i in seq_along(model_list))
   layout_manual <- cbind(V(SSE_model_igraph_i)$x, V(SSE_model_igraph_i)$y)
   
   ## Save igraph object
-  saveRDS(object = SSE_model_igraph_i, file = paste0("./outputs/GeoSSE/igraph_object_all_states_", model_i, ".rds"))
+  # saveRDS(object = SSE_model_igraph_i, file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_object_all_states_", model_i, ".rds"))
+  saveRDS(object = SSE_model_igraph_i, file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_object_all_states_", model_i, ".rds"))
   
   ## 7.3.3/ Plot igraph ####
   
-  pdf(file = paste0("./outputs/GeoSSE/igraph_network_all_states_",model_i,".pdf"),
-      width = 6, height = 6)
+  # pdf(file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_network_all_states_",model_i,".pdf"), width = 6, height = 6)
+  pdf(file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_network_all_states_",model_i,".pdf"), width = 6, height = 6)
   
   par(mar = c(0.5, 2.0, 7.0, 2.0)) # bltr
   plot.igraph(x = SSE_model_igraph_i,
@@ -2096,9 +2514,11 @@ for (i in seq_along(model_list))
 # all_igraph_network_all_states_plots_path <- list.files(path = "./outputs/GeoSSE/", pattern = "igraph_network_all_states_", full.names = T)
 # nb_ggplots <- length(all_igraph_network_all_states_plots_path) ; nb_ggplots
 
-all_igraph_network_all_states_plots_path <- paste0("./outputs/GeoSSE/igraph_network_all_states_", model_list, ".pdf")
+# all_igraph_network_all_states_plots_path <- paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_network_all_states_", model_list, ".pdf")
+all_igraph_network_all_states_plots_path <- paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_network_all_states_", model_list, ".pdf")
 
-qpdf::pdf_combine(input = all_igraph_network_all_states_plots_path, output = paste0("./outputs/GeoSSE/igraph_network_all_states_all_models.pdf"))
+# qpdf::pdf_combine(input = all_igraph_network_all_states_plots_path, output = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_network_all_states_all_models.pdf"))
+qpdf::pdf_combine(input = all_igraph_network_all_states_plots_path, output = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_network_all_states_all_models.pdf"))
 
 
 ##### 8/ Plot relational igraphs of model parameters across ranges #####
@@ -2107,15 +2527,17 @@ qpdf::pdf_combine(input = all_igraph_network_all_states_plots_path, output = pas
 # Edge rates should be aggregated across regimes using a weighted mean of summed regime residence times
  # Ex: rate from 0 to 1 = weighted mean of 0A to 1A and 0B to 1B with weights being residence times in 0A+1A and 0B+1B.
 
-
 # Load residence times summary table
-residence_times_all_models_df <- readRDS(file = "./outputs/GeoSSE/residence_times_all_models_df.rds")
+# residence_times_all_models_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/residence_times_all_models_df.rds")
+residence_times_all_models_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/residence_times_all_models_df.rds")
 
 # Load GeoSSE models parameter summary table
-GeoSSE_pars_all_models_df <- readRDS(file = "./outputs/GeoSSE/GeoSSE_pars_all_models_df.rds")
+# GeoSSE_pars_all_models_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_pars_all_models_df.rds")
+GeoSSE_pars_all_models_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_pars_all_models_df.rds")
 
 # Load GeoSSE model comparison summary table
-GeoSSE_models_comparison_df <- readRDS(file = "./outputs/GeoSSE/GeoSSE_models_comparison_df.rds")
+# GeoSSE_models_comparison_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_models_comparison_df.rds")
+GeoSSE_models_comparison_df <- readRDS(file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_models_comparison_df.rds")
 
 ## Set color scheme for nodes and edges
 
@@ -2135,7 +2557,8 @@ for (i in seq_along(model_list))
     filter(model == model_i)
   
   # Load metadata used to generate igraph with all states as ranges x regimes
-  igraph_metadata_df_i <- readRDS(file = paste0("./outputs/GeoSSE/igraph_metadata_df_all_states_", model_i, ".rds"))
+  # igraph_metadata_df_i <- readRDS(file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_metadata_df_all_states_", model_i, ".rds"))
+  igraph_metadata_df_i <- readRDS(file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_metadata_df_all_states_", model_i, ".rds"))
   
   # Initiate metadata for aggregated states
   igraph_metadata_aggregated_states_df_i <- igraph_metadata_df_i
@@ -2206,12 +2629,14 @@ for (i in seq_along(model_list))
   igraph_metadata_aggregated_states_df_i$edge_metadata_df <- edge_metadata_aggregated_states_df_i
   
   # Save metadata for igraph with aggregated states
-  saveRDS(object = igraph_metadata_aggregated_states_df_i, file = paste0("./outputs/GeoSSE/igraph_metadata_df_aggregated_states_", model_i, ".rds"))
+  # saveRDS(object = igraph_metadata_aggregated_states_df_i, file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_metadata_df_aggregated_states_", model_i, ".rds"))
+  saveRDS(object = igraph_metadata_aggregated_states_df_i, file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_metadata_df_aggregated_states_", model_i, ".rds"))
   
   ### 8.3/ Plot relational igraphs of model parameters across aggregated states ####
   
   # Load metadata used to generate igraph
-  igraph_metadata_aggregated_states_df_i <- readRDS(file = paste0("./outputs/GeoSSE/igraph_metadata_df_aggregated_states_", model_i, ".rds"))
+  # igraph_metadata_aggregated_states_df_i <- readRDS(file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_metadata_df_aggregated_states_", model_i, ".rds"))
+  igraph_metadata_aggregated_states_df_i <- readRDS(file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_metadata_df_aggregated_states_", model_i, ".rds"))
   
   ## 8.3.1/ Convert to igraph object ####
   
@@ -2278,13 +2703,14 @@ for (i in seq_along(model_list))
   layout_manual <- cbind(V(SSE_model_igraph_i)$x, V(SSE_model_igraph_i)$y)
   
   ## Save igraph object
-  saveRDS(object = SSE_model_igraph_i, file = paste0("./outputs/GeoSSE/igraph_object_aggregated_states_", model_i, ".rds"))
+  # saveRDS(object = SSE_model_igraph_i, file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_object_aggregated_states_", model_i, ".rds"))
+  saveRDS(object = SSE_model_igraph_i, file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_object_aggregated_states_", model_i, ".rds"))
   
   
   ## 8.3.3/ Plot igraph ####
   
-  pdf(file = paste0("./outputs/GeoSSE/igraph_network_aggregated_states_",model_i,".pdf"),
-      width = 6, height = 6)
+  # pdf(file = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_network_aggregated_states_",model_i,".pdf"), width = 6, height = 6)
+  pdf(file = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_network_aggregated_states_",model_i,".pdf"), width = 6, height = 6)
   
   par(mar = c(0.5, 2.0, 7.0, 2.0)) # bltr
   plot.igraph(x = SSE_model_igraph_i,
@@ -2330,9 +2756,11 @@ for (i in seq_along(model_list))
 # all_igraph_network_aggregated_states_plots_path <- list.files(path = "./outputs/GeoSSE/", pattern = "igraph_network_aggregated_states_", full.names = T)
 # nb_ggplots <- length(all_igraph_network_aggregated_states_plots_path) ; nb_ggplots
 
-all_igraph_network_aggregated_states_plots_path <- paste0("./outputs/GeoSSE/igraph_network_aggregated_states_", model_list, ".pdf")
+# all_igraph_network_aggregated_states_plots_path <- paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_network_aggregated_states_", model_list, ".pdf")
+all_igraph_network_aggregated_states_plots_path <- paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_network_aggregated_states_", model_list, ".pdf")
 
-qpdf::pdf_combine(input = all_igraph_network_aggregated_states_plots_path, output = paste0("./outputs/GeoSSE/igraph_network_aggregated_states_all_models.pdf"))
+# qpdf::pdf_combine(input = all_igraph_network_aggregated_states_plots_path, output = paste0("./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/igraph_network_aggregated_states_all_models.pdf"))
+qpdf::pdf_combine(input = all_igraph_network_aggregated_states_plots_path, output = paste0("./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/igraph_network_aggregated_states_all_models.pdf"))
 
 
 

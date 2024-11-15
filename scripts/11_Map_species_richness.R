@@ -11,6 +11,7 @@
   # Overall
   # Per Genera
 # Map occurrences
+# Plot SR gradients along long/lat bands
 
 ###
 
@@ -27,6 +28,8 @@
   # Overall
   # Per Genera
 # Maps of occurrences
+# Binary table of taxa P/A in long/lat bands
+# Plot of Species Richness along long/lat bands
 
 ###
 
@@ -66,7 +69,10 @@ saveRDS(object = Bioregions_sf_Bioregions_level_Mollweide, file = "./outputs/Spe
 
 ### 1.3/ Load overall bioregion richness data ###
 
-Bioregion_richness_data <- readRDS(file = "./outputs/Network_events_counts/nodes_metadata.rds")
+# Bioregion_richness_data <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata.rds")
+Bioregion_richness_data <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata.rds")
+
+## Seems to miss some taxa (maybe the recent one having appeared within the last time step)
 
 ### 1.4/ Load Ponerinae occurrence data ####
 
@@ -185,73 +191,73 @@ saveRDS(object = Ponerinae_species_richness_raw_WGS84, file = "./outputs/Species
 saveRDS(object = Ponerinae_species_richness_raw_Mollweide, file = "./outputs/Species_richness_maps/Ponerinae_species_richness_raw_Mollweide.rds")
 
 
-### 2.4/ Run Inverse Weighted Distance interpolation on overall distribution ####
-
-## 2.4.1/ Create point pattern object
-
-library(spatstat)
-?idw
-
-Ponerinae_species_richness_sp_WGS84 <- raster::rasterToPoints(x = Ponerinae_species_richness_raw_WGS84, fun = function(x) {x > 0}, spatial = TRUE)
-plot(Ponerinae_species_richness_sp_WGS84)
-
-class(Ponerinae_species_richness_sp_WGS84)
-
-obs_window_WGS84 <- owin(xrange = bbox(Ponerinae_species_richness_raw_WGS84)[1,], 
-                         yrange = bbox(Ponerinae_species_richness_raw_WGS84)[2,])
-
-Ponerinae_species_richness_ppp_WGS84 <- spatstat::ppp(x = Ponerinae_species_richness_sp_WGS84@coords[,1],
-                                                      y = Ponerinae_species_richness_sp_WGS84@coords[,2],
-                                                      marks = Ponerinae_species_richness_sp_WGS84@data$layer,
-                                                      window = obs_window_WGS84)
-
-## 2.4.2/ Run IWD over different power laws
-
-power_list <- c(0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10)
-
-Ponerinae_species_richness_IDW_stack_WGS84 <- stack()
-names(Ponerinae_species_richness_IDW_stack_WGS84) <- NULL
-for (i in seq_along(power_list))
-{
-  # i <- 1
-  
-  # Extract power
-  power_i <- power_list[i]
-  
-  # Run IDW
-  Ponerinae_species_richness_IDW_WGS84 <- spatstat.explore::idw(X = Ponerinae_species_richness_ppp_WGS84,
-                                                                power = power_i, at = "pixels")
-  # Convert to raster
-  Ponerinae_species_richness_IDW_WGS84 <- raster::raster(Ponerinae_species_richness_IDW_WGS84)
-  Ponerinae_species_richness_IDW_WGS84 <- raster::resample(x = Ponerinae_species_richness_IDW_WGS84, y = Ponerinae_species_richness_raw_WGS84)
-  
-  # Remove non-terrestrial pixels
-  Ponerinae_species_richness_IDW_WGS84 <- raster::mask(x = Ponerinae_species_richness_IDW_WGS84, mask = terrestrial_bg_WGS84)
-  
-  # Adjust names
-  if (i == 1)
-  {
-    old_names <- NULL
-  } else {
-    old_names <- names(Ponerinae_species_richness_IDW_stack_WGS84)
-  }
-  
-  # Stack results
-  Ponerinae_species_richness_IDW_stack_WGS84 <- addLayer(x = Ponerinae_species_richness_IDW_stack_WGS84, Ponerinae_species_richness_IDW_WGS84)
-  new_names <- c(old_names, paste0("Power_", power_i))
-  names(Ponerinae_species_richness_IDW_stack_WGS84) <- new_names
-  
-  # Print progress
-  if (i %% 1 == 0)
-  {
-    cat(paste0(Sys.time(), " - IDW created for Power = ", power_i, " - n°", i, "/", length(power_list),"\n"))
-  }
-}
-
-plot(Ponerinae_species_richness_IDW_stack_WGS84,
-     col = heat.colors(20))
-
-## Result is not convincing...
+# ### 2.4/ Run Inverse Weighted Distance interpolation on overall distribution ####
+# 
+# ## 2.4.1/ Create point pattern object
+# 
+# library(spatstat)
+# ?idw
+# 
+# Ponerinae_species_richness_sp_WGS84 <- raster::rasterToPoints(x = Ponerinae_species_richness_raw_WGS84, fun = function(x) {x > 0}, spatial = TRUE)
+# plot(Ponerinae_species_richness_sp_WGS84)
+# 
+# class(Ponerinae_species_richness_sp_WGS84)
+# 
+# obs_window_WGS84 <- owin(xrange = bbox(Ponerinae_species_richness_raw_WGS84)[1,], 
+#                          yrange = bbox(Ponerinae_species_richness_raw_WGS84)[2,])
+# 
+# Ponerinae_species_richness_ppp_WGS84 <- spatstat::ppp(x = Ponerinae_species_richness_sp_WGS84@coords[,1],
+#                                                       y = Ponerinae_species_richness_sp_WGS84@coords[,2],
+#                                                       marks = Ponerinae_species_richness_sp_WGS84@data$layer,
+#                                                       window = obs_window_WGS84)
+# 
+# ## 2.4.2/ Run IWD over different power laws
+# 
+# power_list <- c(0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10)
+# 
+# Ponerinae_species_richness_IDW_stack_WGS84 <- stack()
+# names(Ponerinae_species_richness_IDW_stack_WGS84) <- NULL
+# for (i in seq_along(power_list))
+# {
+#   # i <- 1
+#   
+#   # Extract power
+#   power_i <- power_list[i]
+#   
+#   # Run IDW
+#   Ponerinae_species_richness_IDW_WGS84 <- spatstat.explore::idw(X = Ponerinae_species_richness_ppp_WGS84,
+#                                                                 power = power_i, at = "pixels")
+#   # Convert to raster
+#   Ponerinae_species_richness_IDW_WGS84 <- raster::raster(Ponerinae_species_richness_IDW_WGS84)
+#   Ponerinae_species_richness_IDW_WGS84 <- raster::resample(x = Ponerinae_species_richness_IDW_WGS84, y = Ponerinae_species_richness_raw_WGS84)
+#   
+#   # Remove non-terrestrial pixels
+#   Ponerinae_species_richness_IDW_WGS84 <- raster::mask(x = Ponerinae_species_richness_IDW_WGS84, mask = terrestrial_bg_WGS84)
+#   
+#   # Adjust names
+#   if (i == 1)
+#   {
+#     old_names <- NULL
+#   } else {
+#     old_names <- names(Ponerinae_species_richness_IDW_stack_WGS84)
+#   }
+#   
+#   # Stack results
+#   Ponerinae_species_richness_IDW_stack_WGS84 <- addLayer(x = Ponerinae_species_richness_IDW_stack_WGS84, Ponerinae_species_richness_IDW_WGS84)
+#   new_names <- c(old_names, paste0("Power_", power_i))
+#   names(Ponerinae_species_richness_IDW_stack_WGS84) <- new_names
+#   
+#   # Print progress
+#   if (i %% 1 == 0)
+#   {
+#     cat(paste0(Sys.time(), " - IDW created for Power = ", power_i, " - n°", i, "/", length(power_list),"\n"))
+#   }
+# }
+# 
+# plot(Ponerinae_species_richness_IDW_stack_WGS84,
+#      col = heat.colors(20))
+# 
+# ## Result is not convincing...
 
 
 ### 2.5/ Get species range using alpha-hull buffers ####
@@ -264,7 +270,9 @@ source("./functions/alpha_functions.R")
 ## Loop per taxa in analyses
 Ponerinae_species_alpha_hull_stack_WGS84 <- stack()
 Ponerinae_species_alpha_hull_stack_Mollweide <- stack()
+Q80_all_taxa <- c()
 for (i in seq_along(taxa_list_in_analyses))
+# for (i in taxa_to_update)
 {
   # i <- 5
   
@@ -292,19 +300,23 @@ for (i in seq_along(taxa_list_in_analyses))
     
     # Get the 80% quantile
     Q80_i <- round(quantile(x = occ_dist_min_i, probs = 0.80),1)
+    # Use a maximum buffer of 500km to avoid poorly informed ranges to encompass large areas
+    Q80_i <- min(500, Q80_i)
   
   } else { # If less than 5 points, apply 1° buffer
     Q80_i <- 0
   }
 
-  ## 2.5.2/ Generate alpha-hull buffer ####
+  Q80_all_taxa <- c(Q80_all_taxa, Q80_i)
   
+  ## 2.5.2/ Generate alpha-hull buffer ####
+
   if (nrow(occ_dist_i) >= 3) # Only if at least 3 points
   {
     # Projection of the spatial object of occurrences in Mollweide
     proj_occ_sp_i <- spTransform(x = occ_sp_i,
                                  CRSobj = "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=km +no_defs")
-    
+
     tryCatch( # Try an alpha-hull first
       {
         range_sp_i <- ahull_to_SPLDF(ahull(proj_occ_sp_i@coords, alpha = 1000)) # alpha diameter = 1000km
@@ -315,23 +327,23 @@ for (i in seq_along(taxa_list_in_analyses))
         cat("ERROR :",conditionMessage(e), "\n")   # Display the error message but do not stop the function
         range_sp_i <<- ashape_to_SPLDF(ashape(proj_occ_sp_i@coords, alpha = 1000)) # alpha diameter = 1000km
       })
-    
+
     # plot(range_sp_i)
-    
+
     # Save crs of the newly created alpha-hull
     range_sp_i@proj4string <- proj_occ_sp_i@proj4string
-    
+
     # Convert to sf
     range_sf_i <- st_as_sf(range_sp_i)
-    
+
   } else { # If less than 3 points, only apply 1° buffer around occurrences
     range_sf_i <- st_transform(x = occ_sf_i, crs = "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=km +no_defs")
   }
-  
+
   # Extend the shape with a buffer based on the quality of presence sampling (Q80_i)
   # As a minimum, use a 1° buffer = 111.32 km
   range_sf_i <- st_buffer(x = range_sf_i, dist = max(111.32, Q80_i))
-  
+
   # Remove holes
   range_sf_i <- nngeo::st_remove_holes(x = range_sf_i, max_area = 0)
   # range_sp_i <- spatialEco::remove.holes(x = range_sp_i)
@@ -343,19 +355,23 @@ for (i in seq_along(taxa_list_in_analyses))
   # Rasterization
   range_raster_WGS84_i <- raster::rasterize(x = range_sf_WGS84_i, y = terrestrial_bg_WGS84, field = 1, update = TRUE)
   range_raster_Mollweide_i <- raster::rasterize(x = range_sf_i, y = terrestrial_bg_Mollweide, field = 1, update = TRUE)
-  
+
   # Remove non-terrestrial areas
   range_raster_WGS84_i <- raster::mask(x = range_raster_WGS84_i, mask = terrestrial_bg_WGS84)
   range_raster_Mollweide_i <- raster::mask(x = range_raster_Mollweide_i, mask = terrestrial_bg_Mollweide)
-  
+
   # plot(range_raster_WGS84_i)
   # plot(range_raster_Mollweide_i)
-  
+
   # Store range maps
   Ponerinae_species_alpha_hull_stack_WGS84 <- addLayer(Ponerinae_species_alpha_hull_stack_WGS84, range_raster_WGS84_i)
   Ponerinae_species_alpha_hull_stack_Mollweide <- addLayer(Ponerinae_species_alpha_hull_stack_Mollweide, range_raster_Mollweide_i)
   names(Ponerinae_species_alpha_hull_stack_WGS84) <- taxa_list_in_analyses[1:i]
   names(Ponerinae_species_alpha_hull_stack_Mollweide) <- taxa_list_in_analyses[1:i]
+  
+  # # Replace updated range maps
+  # Ponerinae_species_alpha_hull_stack_WGS84[[i]] <- range_raster_WGS84_i
+  # Ponerinae_species_alpha_hull_stack_Mollweide[[i]] <- range_raster_Mollweide_i
   
   # Print progress
   if (i %% 100 == 0)
@@ -367,6 +383,22 @@ for (i in seq_along(taxa_list_in_analyses))
     cat(paste0(Sys.time(), " - Buffered range map created for taxa n°", i, "/", length(taxa_list_in_analyses),"\n"))
   }
 }
+
+# names(Ponerinae_species_alpha_hull_stack_WGS84) <- taxa_list_in_analyses
+# names(Ponerinae_species_alpha_hull_stack_Mollweide) <- taxa_list_in_analyses
+
+# Explore taxa-specific buffer size used
+names(Q80_all_taxa) <- taxa_list_in_analyses
+# names(Q80_all_taxa) <- taxa_to_update
+hist(Q80_all_taxa)
+summary(Q80_all_taxa)
+Large_buffer <- Q80_all_taxa[Q80_all_taxa > 500]
+Large_buffer[order(Large_buffer, decreasing = T)]
+taxa_to_update <- which(taxa_list_in_analyses %in% names(Large_buffer))
+
+plot(Ponerinae_species_alpha_hull_stack_WGS84[["Anochetus_jonesi"]])
+plot(Ponerinae_species_alpha_hull_stack_Mollweide[["Anochetus_jonesi"]])
+
 
 plot(Ponerinae_species_alpha_hull_stack_WGS84[[1:9]])
 plot(Ponerinae_species_alpha_hull_stack_Mollweide[[1:9]])
@@ -409,10 +441,28 @@ plot(Ponerinae_species_richness_Mollweide, col = pal_bl_red_Mannion)
 saveRDS(object = Ponerinae_species_richness_WGS84, file = "./outputs/Species_richness_maps/Ponerinae_species_richness_WGS84.rds")
 saveRDS(object = Ponerinae_species_richness_Mollweide, file = "./outputs/Species_richness_maps/Ponerinae_species_richness_Mollweide.rds")
 
+### 2.7/ Compute species richness per bioregions from Biogeographic table ####
 
-### 2.7/ Map species richness with ggplot ####
+# Include all taxa in the counts
 
-## 2.7.1/ Convert occurrence and bioregion data to Mollweide ####
+Taxa_bioregions_binary_table_for_analyses_7_regions_PaleA <- readRDS(file = "./input_data/Biogeographic_data/Taxa_bioregions_binary_table_for_analyses_7_regions_PaleA.rds")
+
+Ponerinae_sp_richness_per_bioregions_df <- Taxa_bioregions_binary_table_for_analyses_7_regions_PaleA %>% 
+  filter(Current_name %in% taxa_list_in_analyses)  %>%
+  pivot_longer(cols = c(Afrotropics, Australasia, Indomalaya, Nearctic, Neotropics, `Eastern Palearctic`, `Western Palearctic`),
+               names_to = "Bioregion") %>%
+  group_by(Bioregion) %>%
+  summarize(sp_richness_all_taxa = sum(value)) %>% 
+  ungroup() 
+
+# Update Bioregion_richness_data with counts from all taxa, including the one missing from the phylogeny
+
+Bioregion_richness_data <- left_join(Bioregion_richness_data, Ponerinae_sp_richness_per_bioregions_df, by = join_by(bioregions == Bioregion)) %>% 
+  mutate(node_labels_all_taxa = paste0(node_ID,"\n",sp_richness_all_taxa))
+
+### 2.8/ Map species richness with ggplot ####
+
+## 2.8.1/ Convert occurrence and bioregion data to Mollweide ####
 
 # Occurrence data
 Ponerinae_occ_df <- Biogeographic_database_Ponerinae_curated_no_duplicates %>% 
@@ -442,21 +492,25 @@ latitude_Mollweide <- str_remove(string = latitude_Mollweide, pattern = ".* ")
 Bioregion_richness_sf_Mollweide$latitude_Mollweide <- as.numeric(str_remove(string = latitude_Mollweide, pattern = "\\)"))
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
 colors_list_for_areas <- colors_list_for_states[Bioregion_richness_sf$node_ID]
+# colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
+# colors_list_for_areas <- colors_list_for_areas[Bioregion_richness_sf$node_ID]
 names(colors_list_for_areas) <- Bioregion_richness_sf$bioregions
-bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
-colors_list_for_areas <- colors_list_for_areas[bioregion_names]
 
 # Adjust order of bioregions
-Bioregion_richness_sf$bioregions <- factor(Bioregion_richness_sf$bioregions, levels = bioregion_names, labels = bioregion_names)
-Bioregion_richness_sf_Mollweide$bioregions <- factor(Bioregion_richness_sf_Mollweide$bioregions, levels = bioregion_names, labels = bioregion_names)
+Bioregion_richness_sf$bioregions <- factor(Bioregion_richness_sf$bioregions, levels = Bioregion_richness_sf$bioregions, labels = Bioregion_richness_sf$bioregions)
+Bioregion_richness_sf_Mollweide$bioregions <- factor(Bioregion_richness_sf_Mollweide$bioregions, levels = Bioregion_richness_sf_Mollweide$bioregions, labels = Bioregion_richness_sf_Mollweide$bioregions)
 
 # Save Bioregion data files
+saveRDS(object = Bioregion_richness_sf, file = "./outputs/Species_richness_maps/Bioregion_richness_sf.rds")
 saveRDS(object = Bioregion_richness_sf_Mollweide, file = "./outputs/Species_richness_maps/Bioregion_richness_sf_Mollweide.rds")
 
 
 ## 2.7.2/ GGplot ####
+
+# Load Bioregion data files
+Bioregion_richness_sf_Mollweide <- readRDS(file = "./outputs/Species_richness_maps/Bioregion_richness_sf_Mollweide.rds")
 
 # Convert raster to SpatialPixelsDataFrame
 Ponerinae_species_richness_WGS84_spdf <- as(Ponerinae_species_richness_WGS84, "SpatialPixelsDataFrame")
@@ -467,7 +521,7 @@ Ponerinae_species_richness_Mollweide_spdf <- as(Ponerinae_species_richness_Mollw
 Ponerinae_species_richness_Mollweide_spdf <- as.data.frame(Ponerinae_species_richness_Mollweide_spdf)
 colnames(Ponerinae_species_richness_Mollweide_spdf) <- c("value", "x", "y")
 
-
+## Plot without node labels for species richness
 Ponerinae_species_richness_ggplot <- ggplot(data = Bioregion_richness_sf_Mollweide) +
   
   # Plot species richness as raster background
@@ -488,33 +542,6 @@ Ponerinae_species_richness_ggplot <- ggplot(data = Bioregion_richness_sf_Mollwei
   coord_sf(crs = "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=km +no_defs",
            clip = "off", # To allow plotting arrow outside of World map
            expand = FALSE) +
-
-  # # Plot nodes
-  # geom_point(data = Bioregion_richness_sf_Mollweide,
-  #            mapping = aes(x = longitude_Mollweide, y = latitude_Mollweide,
-  #                          size = mean_counts, col = bioregions),
-  #            alpha = 0.5, show.legend = F) +
-  # 
-  # # Adjust color legend
-  # scale_color_manual("Bioregions", labels = bioregion_names, values = unname(colors_list_for_areas)) +
-  # 
-  # # Adjust size legend
-  # scale_size_continuous("Species richness",
-  #                       range = c(5, 30)) +
-  # 
-  # # Add node labels
-  # ggnewscale::new_scale(new_aes = "size") +
-  # geom_text(data = Bioregion_richness_sf_Mollweide,
-  #           mapping = aes(label = round(mean_counts, 0),
-  #                         x = longitude_Mollweide, y = latitude_Mollweide,
-  #                         size = mean_counts),
-  #           # color = rgb(t(col2rgb("black")), alpha = 200, maxColorValue = 255),
-  #           color = "black",
-  #           fontface = 2, show.legend = F) +
-  # 
-  # # Adjust size for labels
-  # scale_size_continuous("Species\nrichness",
-  #                       range = c(3, 10)) +
 
   # Add title
   ggtitle(label =  paste0("Species richness of Ponerinae ants")) +
@@ -549,6 +576,96 @@ pdf(file = paste0("./outputs/Species_richness_maps/Ponerinae_species_richness_ma
     width = 10, height = 5)
 
 print(Ponerinae_species_richness_ggplot)
+
+dev.off()
+
+
+## Plot with node labels for species richness
+Ponerinae_species_richness_with_labels_ggplot <- ggplot(data = Bioregion_richness_sf_Mollweide) +
+  
+  # Plot species richness as raster background
+  geom_tile(data = Ponerinae_species_richness_Mollweide_spdf,
+            aes(x = x, y = y, fill = value), alpha = 1.0) +
+  
+  # Adjust color scheme and legend
+  scale_fill_gradientn("Species\nrichness", colors = pal_bl_red_Mannion) +
+  
+  # Plot bioregion sf maps
+  geom_sf(data = Bioregions_sf_Bioregions_level_Mollweide,
+          fill = NA,
+          colour = "black",
+          alpha = 0.0) +
+  
+  # Adjust CRS
+  # coord_sf(default_crs = sf::st_crs(4326)) +
+  coord_sf(crs = "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=km +no_defs",
+           clip = "off", # To allow plotting arrow outside of World map
+           expand = FALSE) +
+  
+  # Plot nodes
+  geom_point(data = Bioregion_richness_sf_Mollweide,
+             mapping = aes(x = longitude_Mollweide, y = latitude_Mollweide,
+                           size = mean_counts,
+                           # size = sp_richness_all_taxa,
+                           col = bioregions),
+             alpha = 0.5, show.legend = F) +
+
+  # Adjust color legend
+  scale_color_manual("Bioregions", labels = bioregion_names, values = colors_list_for_areas) +
+
+  # Adjust size legend
+  scale_size_continuous("Species richness",
+                        range = c(5, 30)) +
+
+  # Add node labels
+  ggnewscale::new_scale(new_aes = "size") +
+  geom_text(data = Bioregion_richness_sf_Mollweide,
+            mapping = aes(label = round(mean_counts, 0),
+                          # label = round(sp_richness_all_taxa, 0),
+                          size = mean_counts,
+                          # size = sp_richness_all_taxa,
+                          x = longitude_Mollweide, y = latitude_Mollweide),
+            # color = rgb(t(col2rgb("black")), alpha = 200, maxColorValue = 255),
+            color = "black",
+            fontface = 2, show.legend = F) +
+
+  # Adjust size for labels
+  scale_size_continuous("Species\nrichness",
+                        range = c(3, 10)) +
+
+  # Add title
+  ggtitle(label =  paste0("Species richness of Ponerinae ants")) +
+
+  # # Adjust legend aesthetics
+  # guides(color = "none",
+  #        size = "none",
+  #        fill = guide_legend(order = 1)) +
+  
+  # Adjust aesthetics
+  theme_classic() +
+  
+  theme(panel.background = element_rect(fill = NA),
+        panel.border = element_rect(fill = NA, colour = NA),
+        # panel.grid.major = element_line(colour = "grey70", linetype = "dashed", linewidth = 0.5), # Plot graticules
+        plot.title = element_text(hjust = 0.5, size = 18, face = "bold", margin = margin(b = 25)),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        axis.line = element_blank(),
+        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"), # trbl
+        legend.title = element_text(size = 14, face = "bold", margin = margin(b = 15)),
+        legend.text = element_text(size = 12, face = "bold"),
+        legend.box.margin = margin(l = 5),
+        # axis.ticks = element_line(linewidth = 1.0),
+        # axis.ticks.length = unit(10, "pt"),
+        # axis.text = element_text(size = 21, color = "black", face = "bold"),
+        # axis.text.y = element_text(angle = 90, hjust = 0.5, margin = margin(l = 5, r = 10)),
+        # axis.text.x = element_text(margin = margin(t = 10, b = 5)),
+        axis.title = element_blank())
+
+pdf(file = paste0("./outputs/Species_richness_maps/Ponerinae_species_richness_map_with_labels.pdf"),
+    width = 10, height = 5)
+
+print(Ponerinae_species_richness_with_labels_ggplot)
 
 dev.off()
 
@@ -599,7 +716,7 @@ for (i in seq_along(genera_list))
     
   } else {
     genus_richness_WGS84_i <- genus_alpha_hull_stack_WGS84_i
-    genus_richness_WGS84_i <- genus_alpha_hull_stack_Mollweide_i
+    genus_richness_Mollweide_i <- genus_alpha_hull_stack_Mollweide_i
   }
   
   # Load data in RAM
@@ -664,6 +781,9 @@ Genera_sp_richness_per_bioregions_df <- Genera_sp_richness_per_bioregions_df %>%
 
 # Save counts of species per Genus, per Bioregion
 saveRDS(object = Genera_sp_richness_per_bioregions_df, file = "./outputs/Species_richness_maps/Genera_sp_richness_per_bioregions_df.rds")
+
+Taxa_bioregions_binary_table_for_analyses_7_regions_PaleA <- readRDS(file = "./input_data/Biogeographic_data/Taxa_bioregions_binary_table_for_analyses_7_regions_PaleA.rds")
+
 
 ## Loop per genera
 Bioregion_genus_richness_sf_list <- list()
@@ -779,7 +899,7 @@ for (i in seq_along(genera_list))
 # saveRDS(object = Bioregion_genus_richness_sf_list, file = "./outputs/Species_richness_maps/Bioregion_genus_richness_sf_list.rds")
 
 
-### 3.3/ Map species richness with ggplot ####
+### 3.3/ Map species richness per Genera with ggplot ####
 
 # Load Bioregion data files
 Bioregion_genus_richness_sf_list <- readRDS(file = "./outputs/Species_richness_maps/Bioregion_genus_richness_sf_list.rds")
@@ -800,8 +920,10 @@ rescale_range_size <- function(x, data_min = 0, data_max = max_sp_richness, rang
 
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-colors_list_for_areas <- colors_list_for_states[Bioregion_richness_sf$node_ID]
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+# colors_list_for_areas <- colors_list_for_states[Bioregion_richness_sf$node_ID]
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
+colors_list_for_areas <- colors_list_for_areas[Bioregion_richness_sf$node_ID]
 names(colors_list_for_areas) <- Bioregion_richness_sf$bioregions
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 colors_list_for_areas <- colors_list_for_areas[bioregion_names]
@@ -927,7 +1049,7 @@ for (i in seq_along(genera_list))
   # Print progress
   if (i %% 1 == 0)
   {
-    cat(paste0(Sys.time(), " - Bioregion richness mapped for Genus ",genus_i," - n°", i, "/", length(genera_list),"\n"))
+    cat(paste0(Sys.time(), " - Species richness mapped for Genus ",genus_i," - n°", i, "/", length(genera_list),"\n"))
   }
 }
 
@@ -956,9 +1078,10 @@ Ponerinae_occ_sf_WGS84 <- readRDS(file = "./outputs/Species_richness_maps/Poneri
 Ponerinae_occ_sf_Mollweide <- readRDS(file = "./outputs/Species_richness_maps/Ponerinae_occ_sf_Mollweide.rds")
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
-areas_list <- c("A", "U", "E", "I", "R", "N", "W")
-colors_list_for_areas <- colors_list_for_states[areas_list]
+# colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
+# areas_list <- c("A", "U", "E", "I", "R", "N", "W")
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
+colors_list_for_areas <- colors_list_for_areas[areas_list]
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 
 # Adjust order of Bioregions
@@ -976,7 +1099,7 @@ Ponerinae_occurrences_ggplot <- ggplot(data = Ponerinae_occ_sf_WGS84) +
           colour = "black",
           alpha = 1.0) +
   
-  # # Plot occurrences
+  # # Plot occurrences as sf object
   # geom_sf(data = Ponerinae_occ_sf_Mollweide,
   #         mapping = aes(fill = Bioregion),
   #         size = 2,
@@ -989,7 +1112,7 @@ Ponerinae_occurrences_ggplot <- ggplot(data = Ponerinae_occ_sf_WGS84) +
            clip = "off", # To allow plotting arrow/points outside of World map
            expand = FALSE) + # To avoid extended margins around map
   
-  # Plot nodes
+  # Plot occurrences as data points
   geom_point(data = Ponerinae_occ_sf_Mollweide,
              mapping = aes(x = longitude_Mollweide, y = latitude_Mollweide,
                            col = Bioregion_7_PaleA),
@@ -1007,9 +1130,10 @@ Ponerinae_occurrences_ggplot <- ggplot(data = Ponerinae_occ_sf_WGS84) +
   # Adjust aesthetics
   theme_classic() +
   
-  theme(panel.background = element_rect(fill = NA),
+  theme(# panel.background = element_rect(fill = NA),
+        panel.background = element_rect(fill = "aliceblue"),
         panel.border = element_rect(fill = NA, colour = NA),
-        # panel.grid.major = element_line(colour = "grey70", linetype = "dashed", linewidth = 0.5), # Plot graticules
+        panel.grid.major = element_line(colour = "grey20", linetype = "dashed", linewidth = 0.2), # Plot graticules
         plot.title = element_text(hjust = 0.5, size = 18, face = "bold", margin = margin(b = 25)),
         axis.ticks = element_blank(),
         axis.text = element_blank(),
@@ -1025,10 +1149,642 @@ Ponerinae_occurrences_ggplot <- ggplot(data = Ponerinae_occ_sf_WGS84) +
         # axis.text.x = element_text(margin = margin(t = 10, b = 5)),
         axis.title = element_blank())
 
-pdf(file = paste0("./outputs/Species_richness_maps/Ponerinae_occurences_map.pdf"),
+pdf(file = paste0("./outputs/Species_richness_maps/Ponerinae_occurrences_map.pdf"),
     width = 10, height = 5)
 
 print(Ponerinae_occurrences_ggplot)
 
 dev.off()
+
+
+
+##### 5/ Plot longitudinal gradient of species richness #####
+
+longitude_scale <- seq(from = -180, to = 180, by = 1)
+
+### 5.1/ Extract list of taxa with range encompassing longitude axes ####
+
+# Load alpha-hull range data
+Ponerinae_alpha_hull_stack_WGS84 <- readRDS(file = paste0("./outputs/Species_richness_maps/Ponerinae_species_alpha_hull_stack_WGS84.rds"))
+
+## Loop per Longitudinal bands
+longitude_binary_presence_df <- data.frame()
+for (i in seq_along(longitude_scale))
+{
+  # i <- 1
+  # i <- 70
+  
+  # Extract longitudinal band value
+  longitude_i <- longitude_scale[i]
+  
+  # Convert into extent
+  xmin <- max(-180, longitude_i - 0.5)
+  xmax <- min(180, longitude_i + 0.5)
+  longitude_extent_i <- raster::extent(c(xmin = xmin, xmax = xmax, ymin = -90, ymax = 90))
+  
+  # Crop alpha_hulls
+  longitude_band_i <- raster::crop(x = Ponerinae_alpha_hull_stack_WGS84, y = longitude_extent_i)
+  longitude_band_i <- raster::readAll(longitude_band_i)
+  
+  # Compute occurrence frequency per species
+  taxa_freq_i <- apply(X = longitude_band_i@data@values, MARGIN = 2, FUN = sum, na.rm = T)
+  
+  # Identify taxa present in the longitudinal band
+  taxa_binary_i <- taxa_freq_i > 0
+  # table(taxa_binary_i)
+  
+  # Store result
+  longitude_binary_presence_df <- rbind(longitude_binary_presence_df, taxa_binary_i)
+  names(longitude_binary_presence_df) <- names(taxa_binary_i)
+  
+  ## Print progress
+  if (i %% 10 == 0)
+  {
+    cat(paste0(Sys.time(), " - Taxa presence detected for Longitude = ",longitude_i,"° - n°", i, "/", length(longitude_scale),"\n"))
+  }
+  
+}
+row.names(longitude_binary_presence_df) <- longitude_scale
+
+# Remove alpha hull ranges to save RAM space
+rm(Ponerinae_alpha_hull_stack_WGS84) ; gc() 
+
+## Save df for taxa presence along longitudinal bands 
+saveRDS(object = longitude_binary_presence_df, file = "./outputs/Species_richness_maps/longitude_binary_presence_df.rds")
+
+
+### 5.2/ Compute Species richness along longitudinal bands ####
+
+# Load df for taxa presence along longitudinal bands 
+longitude_binary_presence_df <- readRDS(file = "./outputs/Species_richness_maps/longitude_binary_presence_df.rds")
+
+longitudinal_bands_df <- data.frame(longitude_dec = longitude_scale)
+
+longitudinal_bands_df$species_richness <- apply(X = longitude_binary_presence_df, MARGIN = 1, FUN = sum)
+
+# Save longitudinal bands df
+saveRDS(object = longitudinal_bands_df, "./outputs/Species_richness_maps/longitudinal_bands_df.rds")
+
+### 5.3/ Compute Species richness along longitudinal bands standardized by degrees of terrestrial lands ####
+
+# Load df for taxa presence along longitudinal bands 
+longitude_binary_presence_df <- readRDS(file = "./outputs/Species_richness_maps/longitude_binary_presence_df.rds")
+
+# Load terrestrial background
+terrestrial_bg_WGS84 <- readRDS(file = "./outputs/Species_richness_maps/terrestrial_bg_WGS84.rds")
+
+# Load longitudinal bands df
+longitudinal_bands_df <- readRDS(file = "./outputs/Species_richness_maps/longitudinal_bands_df.rds")
+
+## 5.3.1/ Compute degrees of terrestrial lands per longitudinal bands
+
+## Loop per Longitudinal bands
+terrestrial_land_degrees_per_longitudinal_bands <- c()
+for (i in seq_along(longitude_scale))
+{
+  # i <- 1
+  # i <- 70
+  
+  # Extract longitudinal band value
+  longitude_i <- longitude_scale[i]
+  
+  # Convert into extent
+  xmin <- max(-180, longitude_i - 0.5)
+  xmax <- min(180, longitude_i + 0.5)
+  longitude_extent_i <- raster::extent(c(xmin = xmin, xmax = xmax, ymin = -90, ymax = 90))
+  
+  # Crop terrestrial areas
+  longitude_band_i <- raster::crop(x = terrestrial_bg_WGS84, y = longitude_extent_i)
+  
+  # Compute proportion of terrestrial lands
+  terrestrial_prop_i <- sum(!is.na(longitude_band_i@data@values)) / length(longitude_band_i@data@values)
+  
+  # Convert to degrees
+  terrestrial_degrees_i <- terrestrial_prop_i * 90
+  
+  # Store result
+  terrestrial_land_degrees_per_longitudinal_bands <- c(terrestrial_land_degrees_per_longitudinal_bands, terrestrial_degrees_i)
+  names(terrestrial_land_degrees_per_longitudinal_bands)[i] <- longitude_i
+  
+}
+terrestrial_land_degrees_per_longitudinal_bands
+
+# Inform longitudinal bands df
+longitudinal_bands_df$terrestrial_degrees <- terrestrial_land_degrees_per_longitudinal_bands
+
+## 5.3.2/ Compute standardized species richness
+
+longitudinal_bands_df$species_richness_std <- round(longitudinal_bands_df$species_richness / longitudinal_bands_df$terrestrial_degrees, 1)
+
+hist(longitudinal_bands_df$species_richness)
+hist(longitudinal_bands_df$species_richness_std)
+
+# Save longitudinal bands df
+saveRDS(object = longitudinal_bands_df, "./outputs/Species_richness_maps/longitudinal_bands_df.rds")
+
+
+### 5.4/ Plot Species richness along longitudinal bands ####
+
+# Load longitudinal bands df with SR data and median immigration ages
+longitudinal_bands_df <- readRDS(file = "./outputs/Species_richness_maps/longitudinal_bands_df.rds")
+
+# Create df with fake data for legend
+SR_per_latitudinal_bands_legend_df <- data.frame(x = c(0, 0),
+                                                 y = c(50, 50),
+                                                 data_type = c("Raw", "Std"))
+
+hist(longitudinal_bands_df$species_richness)
+hist(longitudinal_bands_df$species_richness_std)
+
+# Load color palette
+pal_bl_red_Mannion <- readRDS(file = "./outputs/Species_richness_maps/pal_bl_red_Mannion.rds")
+
+## 5.4.1/ GGplot with standardized richness ####
+
+pdf(file = "./outputs/Species_richness_maps/SR_per_longitudinal_bands_ggplot_with_std.pdf", height = 8, width = 12)
+
+SR_per_longitudinal_bands_ggplot <- ggplot(data = longitudinal_bands_df) +
+  
+  
+  # Plot standardized species richness
+  geom_line(data = longitudinal_bands_df,
+            mapping = aes(y = species_richness_std * 20, x = longitude_dec),
+            col = "dodgerblue",
+            alpha = 1.0,
+            linewidth = 2.0) +
+  
+  # Plot species richness
+  geom_line(data = longitudinal_bands_df,
+            mapping = aes(y = species_richness, x = longitude_dec),
+            col = "orange",
+            alpha = 1.0,
+            linewidth = 2.0) +
+  
+  # Add fake data for legend
+  geom_line(data = SR_per_latitudinal_bands_legend_df,
+            mapping = aes(x = x, y = y, col = data_type),
+            size = 0) +
+  
+  # Adjust color scheme and legend
+  scale_color_manual("Data", breaks = c("Raw", "Std"), labels = c("Raw", "Std"),
+                     values = c("orange", "dodgerblue")) +
+  
+  # Set Y-axis
+  scale_y_continuous(
+    # Features of the first axis
+    name = "Species richness",
+    # Add a second axis and specify its transformation depending on the first axis
+    sec.axis = sec_axis(transform = ~./20, name = "Standardized species richness")
+  ) +
+  
+  # Adjust legend aesthetics
+  guides(color = guide_legend(override.aes = list(linewidth = 5))) +
+  
+  # Set plot title +
+  ggtitle(label = paste0("Species richness across longitudes")) +
+  
+  # Set axes labels
+  xlab("Longitude  [°]") +
+  ylab("Species richness") +
+  
+  # Set y-axis limits
+  # ylim(c(0, 0.15)) +
+  # ylim(c(0, y_max)) +
+  
+  # Adjust aesthetics
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"), # trbl
+        panel.grid.major = element_line(color = NA, linetype = "dashed", linewidth = 0.5),
+        panel.background = element_rect(fill = NA, color = NA),
+        legend.title = element_text(size  = 20, margin = margin(b = 8)),
+        legend.position = "inside",
+        legend.position.inside = c(0.16, 0.50),
+        legend.text = element_text(size = 15),
+        legend.key = element_rect(colour = NA, fill = NA, linewidth = 5),
+        legend.key.size = unit(1.8, "line"),
+        legend.spacing.y = unit(1.0, "line"),
+        plot.title = element_text(size = 24, hjust = 0.5, color = "black", margin = margin(b = 15, t = 5)),
+        axis.title = element_text(size = 20, color = "black"),
+        axis.title.x = element_text(margin = margin(t = 10)),
+        axis.title.y.left = element_text(margin = margin(r = 12)),
+        axis.title.y.right =  element_text(margin = margin(l = 12)),
+        axis.line = element_line(linewidth = 1.5),
+        axis.ticks.length = unit(8, "pt"),
+        axis.text = element_text(size = 18, color = "black"),
+        axis.text.x = element_text(margin = margin(t = 5)),
+        axis.text.y = element_text(margin = margin(r = 5)))
+
+# Plot
+print(SR_per_longitudinal_bands_ggplot)
+
+dev.off()
+
+
+## 5.4.2/ GGplot without standardized richness ####
+
+SR_per_longitudinal_bands_ggplot <- ggplot(data = longitudinal_bands_df) +
+  
+  # Plot species richness as bar plot
+  geom_col(data = longitudinal_bands_df,
+           mapping = aes(y = species_richness, x = longitude_dec, fill = species_richness),
+           show.legend = F,
+           col = NA,
+           width = 1.0,
+           alpha = 1.0,
+           linewidth = 0.0) +
+  
+  # Plot species richness as a line
+  geom_line(data = longitudinal_bands_df,
+            mapping = aes(y = species_richness, x = longitude_dec),
+            col = "grey20",
+            alpha = 1.0,
+            linewidth = 2.0) +
+  
+  # Adjust color scheme and legend
+  scale_fill_gradientn("Species\nrichness", colors = pal_bl_red_Mannion[1:180]) +
+  
+  # Adjust label on Latitude axis
+  scale_x_continuous("Longitude", breaks = c(-120, -60, 0, 60, 120), labels = c("120°W", "60°W", "0°", "60°E", "120°E")) +
+  
+  # Set plot title +
+  ggtitle(label = paste0("Species richness across longitudes")) +
+  
+  # Set axes labels
+  xlab("Longitude  [°]") +
+  ylab("Species richness") +
+  
+  # Set y-axis limits
+  # ylim(c(0, 0.15)) +
+  # ylim(c(0, y_max)) +
+  
+  # Adjust aesthetics
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"), # trbl
+        panel.grid.major = element_line(color = "grey90", linetype = "dashed", linewidth = 0.5),
+        panel.background = element_rect(fill = NA, color = NA),
+        plot.title = element_text(size = 24, hjust = 0.5, color = "black", margin = margin(b = 15, t = 5)),
+        axis.title = element_text(size = 20, color = "black"),
+        axis.title.x = element_text(margin = margin(t = 10)),
+        axis.title.y.left = element_text(margin = margin(r = 12)),
+        axis.title.y.right =  element_text(margin = margin(l = 12)),
+        axis.line = element_line(linewidth = 1.5),
+        axis.ticks.length = unit(8, "pt"),
+        axis.text = element_text(size = 18, color = "black"),
+        axis.text.x = element_text(margin = margin(t = 5)),
+        axis.text.y = element_text(margin = margin(r = 5)))
+
+# Plot
+
+pdf(file = "./outputs/Species_richness_maps/SR_per_longitudinal_bands_ggplot.pdf", height = 8, width = 12)
+
+print(SR_per_longitudinal_bands_ggplot)
+
+dev.off()
+
+
+SR_per_latitudinal_bands_ggplot <- ggplot(data = latitudinal_bands_df) +
+  
+  # Plot species richness as bar plot
+  geom_col(data = latitudinal_bands_df,
+           mapping = aes(x = species_richness, y = latitude_dec, fill = species_richness),
+           show.legend = F,
+           orientation = "y",
+           col = NA,
+           width = 1.0,
+           alpha = 1.0,
+           linewidth = 0.0) +
+  
+  # Plot species richness as line
+  geom_line(data = latitudinal_bands_df,
+            mapping = aes(x = species_richness, y = latitude_dec),
+            orientation = "y",
+            col = "grey20",
+            alpha = 1.0,
+            linewidth = 2.0) +
+  
+  # Adjust color scheme and legend
+  scale_fill_gradientn("Species\nrichness", colors = pal_bl_red_Mannion[1:160]) +
+  
+  # Adjust label on Latitude axis
+  scale_y_continuous("Latitude", breaks = c(-60, -30, 0, 30, 60), labels = c("60°S", "30°S", "0°", "30°N", "60°N")) +
+  
+  # Set plot title +
+  ggtitle(label = paste0("Species richness across latitudes")) +
+  
+  # Set axes labels
+  ylab("Latitude  [°]") +
+  xlab("Species richness") +
+  
+  # Set y-axis limits
+  # ylim(c(0, 0.15)) +
+  # ylim(c(0, y_max)) +
+  
+  # Adjust aesthetics
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"), # trbl
+        panel.grid.major = element_line(color = "grey90", linetype = "dashed", linewidth = 0.5),
+        panel.background = element_rect(fill = NA, color = NA),
+        plot.title = element_text(size = 24, hjust = 0.5, color = "black", margin = margin(b = 15, t = 5)),
+        axis.title = element_text(size = 20, color = "black"),
+        axis.title.y = element_text(margin = margin(r = 10)),
+        axis.title.x.top = element_text(margin = margin(b = 12)),
+        axis.title.x.bottom = element_text(margin = margin(t = 12)),
+        axis.line = element_line(linewidth = 1.5),
+        axis.ticks.length = unit(8, "pt"),
+        axis.text = element_text(size = 18, color = "black"),
+        axis.text.x = element_text(margin = margin(t = 5)),
+        axis.text.y = element_text(margin = margin(r = 5)))
+
+# Plot
+
+pdf(file = "./outputs/Species_richness_maps/SR_per_latitudinal_bands_ggplot.pdf", height = 8, width = 7)
+
+print(SR_per_latitudinal_bands_ggplot)
+
+dev.off()
+
+
+
+##### 6/ Plot latitudinal gradient of species richness #####
+
+latitude_scale <- seq(from = -60, to = 60, by = 1)
+
+### 6.1/ Extract list of taxa with range encompassing longitude axes ####
+
+# Load alpha-hull range data
+Ponerinae_alpha_hull_stack_WGS84 <- readRDS(file = paste0("./outputs/Species_richness_maps/Ponerinae_species_alpha_hull_stack_WGS84.rds"))
+
+## Loop per latitudinal bands
+latitude_binary_presence_df <- data.frame()
+for (i in seq_along(latitude_scale))
+{
+  # i <- 1
+  # i <- 70
+  
+  # Extract latitudinal band value
+  latitude_i <- latitude_scale[i]
+  
+  # Convert into extent
+  ymin <- latitude_i - 0.5
+  ymax <- latitude_i + 0.5
+  latitude_extent_i <- raster::extent(c(xmin = -180, xmax = 180, ymin = ymin, ymax = ymax))
+  
+  # Crop alpha_hulls
+  latitude_band_i <- raster::crop(x = Ponerinae_alpha_hull_stack_WGS84, y = latitude_extent_i)
+  # latitude_band_i <- raster::readAll(latitude_band_i)
+  
+  # Compute occurrence frequency per species
+  taxa_freq_i <- apply(X = latitude_band_i@data@values, MARGIN = 2, FUN = sum, na.rm = T)
+  
+  # Identify taxa present in the latitudinal band
+  taxa_binary_i <- taxa_freq_i > 0
+  # table(taxa_binary_i)
+  
+  # Store result
+  latitude_binary_presence_df <- rbind(latitude_binary_presence_df, taxa_binary_i)
+  names(latitude_binary_presence_df) <- names(taxa_binary_i)
+  
+  ## Print progress
+  if (i %% 10 == 0)
+  {
+    cat(paste0(Sys.time(), " - Taxa presence detected for Latitude = ",latitude_i,"° - n°", i, "/", length(latitude_scale),"\n"))
+  }
+  
+}
+row.names(latitude_binary_presence_df) <- latitude_scale
+
+# Remove alpha hull ranges to save RAM space
+rm(Ponerinae_alpha_hull_stack_WGS84) ; gc() 
+
+## Save df for taxa presence along latitudinal bands 
+saveRDS(object = latitude_binary_presence_df, file = "./outputs/Species_richness_maps/latitude_binary_presence_df.rds")
+
+
+### 6.2/ Compute Species richness along latitudinal bands ####
+
+# Load df for taxa presence along latitudinal bands 
+latitude_binary_presence_df <- readRDS(file = "./outputs/Species_richness_maps/latitude_binary_presence_df.rds")
+
+latitudinal_bands_df <- data.frame(latitude_dec = latitude_scale)
+
+latitudinal_bands_df$species_richness <- apply(X = latitude_binary_presence_df, MARGIN = 1, FUN = sum)
+
+# Save latitudinal bands df
+saveRDS(object = latitudinal_bands_df, "./outputs/Species_richness_maps/latitudinal_bands_df.rds")
+
+### 6.3/ Compute Species richness along latitudinal bands standardized by degrees of terrestrial lands ####
+
+# Load df for taxa presence along latitudinal bands 
+latitude_binary_presence_df <- readRDS(file = "./outputs/Species_richness_maps/latitude_binary_presence_df.rds")
+
+# Load terrestrial background
+terrestrial_bg_WGS84 <- readRDS(file = "./outputs/Species_richness_maps/terrestrial_bg_WGS84.rds")
+
+# Load latitudinal bands df
+latitudinal_bands_df <- readRDS(file = "./outputs/Species_richness_maps/latitudinal_bands_df.rds")
+
+## 6.3.1/ Compute degrees of terrestrial lands per latitudinal bands
+
+## Loop per latitudinal bands
+terrestrial_land_degrees_per_latitudinal_bands <- c()
+for (i in seq_along(latitude_scale))
+{
+  # i <- 1
+  # i <- 70
+  
+  # Extract latitudinal band value
+  latitude_i <- latitude_scale[i]
+  
+  # Convert into extent
+  ymin <- latitude_i - 0.5
+  ymax <- latitude_i + 0.5
+  latitude_extent_i <- raster::extent(c(xmin = -180, xmax = 180, ymin = ymin, ymax = ymax))
+  
+  # Crop terrestrial areas
+  latitude_band_i <- raster::crop(x = terrestrial_bg_WGS84, y = latitude_extent_i)
+  
+  # Compute proportion of terrestrial lands
+  terrestrial_prop_i <- sum(!is.na(latitude_band_i@data@values)) / length(latitude_band_i@data@values)
+  
+  # Convert to degrees
+  terrestrial_degrees_i <- terrestrial_prop_i * 90
+  
+  # Store result
+  terrestrial_land_degrees_per_latitudinal_bands <- c(terrestrial_land_degrees_per_latitudinal_bands, terrestrial_degrees_i)
+  names(terrestrial_land_degrees_per_latitudinal_bands)[i] <- latitude_i
+  
+}
+terrestrial_land_degrees_per_latitudinal_bands
+
+# Inform latitudinal bands df
+latitudinal_bands_df$terrestrial_degrees <- terrestrial_land_degrees_per_latitudinal_bands
+
+## 6.3.2/ Compute standardized species richness
+
+latitudinal_bands_df$species_richness_std <- round(latitudinal_bands_df$species_richness / latitudinal_bands_df$terrestrial_degrees, 1)
+
+hist(latitudinal_bands_df$species_richness)
+hist(latitudinal_bands_df$species_richness_std)
+
+# Save latitudinal bands df
+saveRDS(object = latitudinal_bands_df, "./outputs/Species_richness_maps/latitudinal_bands_df.rds")
+
+
+### 6.4/ Plot Species richness along latitudinal bands ####
+
+# Load latitudinal bands df with SR data and median immigration ages
+latitudinal_bands_df <- readRDS(file = "./outputs/Species_richness_maps/latitudinal_bands_df.rds")
+
+# Create df with fake data for legend
+SR_per_latitudinal_bands_legend_df <- data.frame(x = c(0, 0),
+                                                 y = c(50, 50),
+                                                 data_type = c("Raw", "Std"))
+
+hist(latitudinal_bands_df$species_richness)
+hist(latitudinal_bands_df$species_richness_std)
+
+# Load color palette
+pal_bl_red_Mannion <- readRDS(file = "./outputs/Species_richness_maps/pal_bl_red_Mannion.rds")
+
+## 6.4.1/ GGplot with standardized richness ####
+
+pdf(file = "./outputs/Species_richness_maps/SR_per_latitudinal_bands_ggplot_with_std.pdf", height = 8, width = 7)
+
+SR_per_latitudinal_bands_ggplot <- ggplot(data = latitudinal_bands_df) +
+  
+  
+  # Plot standardized species richness
+  geom_line(data = latitudinal_bands_df,
+            mapping = aes(x = species_richness_std * 20, y = latitude_dec),
+            orientation = "y",
+            col = "dodgerblue",
+            alpha = 1.0,
+            linewidth = 2.0) +
+  
+  # Plot species richness
+  geom_line(data = latitudinal_bands_df,
+            mapping = aes(x = species_richness, y = latitude_dec),
+            orientation = "y",
+            col = "orange",
+            alpha = 1.0,
+            linewidth = 2.0) +
+  
+  # Add fake data for legend
+  geom_line(data = SR_per_latitudinal_bands_legend_df,
+            mapping = aes(y = x, x = y, col = data_type),
+            size = 0) +
+  
+  # Adjust color scheme and legend
+  scale_color_manual("Data", breaks = c("Raw", "Std"), labels = c("Raw", "Std"),
+                     values = c("orange", "dodgerblue")) +
+  
+  # Set SR axes
+  scale_x_continuous(
+    # Features of the first axis
+    name = "Species richness",
+    # Add a second axis and specify its transformation depending on the first axis
+    sec.axis = sec_axis(transform = ~./20, name = "Standardized species richness")
+  ) +
+  
+  # Adjust legend aesthetics
+  guides(color = guide_legend(override.aes = list(linewidth = 5))) +
+  
+  # Set plot title +
+  ggtitle(label = paste0("Species richness across latitudes")) +
+  
+  # Set axes labels
+  ylab("Latitude  [°]") +
+  xlab("Species richness") +
+  
+  # Set y-axis limits
+  # ylim(c(0, 0.15)) +
+  # ylim(c(0, y_max)) +
+  
+  # Adjust aesthetics
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"), # trbl
+        panel.grid.major = element_line(color = NA, linetype = "dashed", linewidth = 0.5),
+        panel.background = element_rect(fill = NA, color = NA),
+        legend.title = element_text(size  = 20, margin = margin(b = 8)),
+        legend.position = "inside",
+        legend.position.inside = c(0.16, 0.50),
+        legend.text = element_text(size = 15),
+        legend.key = element_rect(colour = NA, fill = NA, linewidth = 5),
+        legend.key.size = unit(1.8, "line"),
+        legend.spacing.y = unit(1.0, "line"),
+        plot.title = element_text(size = 24, hjust = 0.5, color = "black", margin = margin(b = 15, t = 5)),
+        axis.title = element_text(size = 20, color = "black"),
+        axis.title.y = element_text(margin = margin(r = 10)),
+        axis.title.x.top = element_text(margin = margin(b = 12)),
+        axis.title.x.bottom = element_text(margin = margin(t = 12)),
+        axis.line = element_line(linewidth = 1.5),
+        axis.ticks.length = unit(8, "pt"),
+        axis.text = element_text(size = 18, color = "black"),
+        axis.text.x = element_text(margin = margin(t = 5)),
+        axis.text.y = element_text(margin = margin(r = 5)))
+
+# Plot
+print(SR_per_latitudinal_bands_ggplot)
+
+dev.off()
+
+
+## 6.4.2/ GGplot without standardized richness ####
+
+SR_per_latitudinal_bands_ggplot <- ggplot(data = latitudinal_bands_df) +
+  
+  # Plot species richness as bar plot
+  geom_col(data = latitudinal_bands_df,
+           mapping = aes(x = species_richness, y = latitude_dec, fill = species_richness),
+           show.legend = F,
+           orientation = "y",
+           col = NA,
+           width = 1.0,
+           alpha = 1.0,
+           linewidth = 0.0) +
+  
+  # Plot species richness as line
+  geom_line(data = latitudinal_bands_df,
+            mapping = aes(x = species_richness, y = latitude_dec),
+            orientation = "y",
+            col = "grey20",
+            alpha = 1.0,
+            linewidth = 2.0) +
+  
+  # Adjust color scheme and legend
+  scale_fill_gradientn("Species\nrichness", colors = pal_bl_red_Mannion[1:160]) +
+  
+  # Adjust label on Latitude axis
+  scale_y_continuous("Latitude", breaks = c(-60, -30, 0, 30, 60), labels = c("60°S", "30°S", "0°", "30°N", "60°N")) +
+  
+  # Set plot title +
+  ggtitle(label = paste0("Species richness across latitudes")) +
+  
+  # Set axes labels
+  ylab("Latitude  [°]") +
+  xlab("Species richness") +
+  
+  # Set y-axis limits
+  # ylim(c(0, 0.15)) +
+  # ylim(c(0, y_max)) +
+  
+  # Adjust aesthetics
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"), # trbl
+        panel.grid.major = element_line(color = "grey90", linetype = "dashed", linewidth = 0.5),
+        panel.background = element_rect(fill = NA, color = NA),
+        plot.title = element_text(size = 24, hjust = 0.5, color = "black", margin = margin(b = 15, t = 5)),
+        axis.title = element_text(size = 20, color = "black"),
+        axis.title.y = element_text(margin = margin(r = 10)),
+        axis.title.x.top = element_text(margin = margin(b = 12)),
+        axis.title.x.bottom = element_text(margin = margin(t = 12)),
+        axis.line = element_line(linewidth = 1.5),
+        axis.ticks.length = unit(8, "pt"),
+        axis.text = element_text(size = 18, color = "black"),
+        axis.text.x = element_text(margin = margin(t = 5)),
+        axis.text.y = element_text(margin = margin(r = 5)))
+
+# Plot
+
+pdf(file = "./outputs/Species_richness_maps/SR_per_latitudinal_bands_ggplot.pdf", height = 8, width = 7)
+
+print(SR_per_latitudinal_bands_ggplot)
+
+dev.off()
+
 

@@ -61,49 +61,20 @@ library(qpdf)
 
 Taxa_bioregions_binary_table <- readRDS(file = "./input_data/Biogeographic_data/Taxa_bioregions_binary_table_for_analyses_7_regions_PaleA.rds")
 
-# Temporary fixes to avoid having ranges across more than 3 bioregions
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Anochetus_graeffei", "Afrotropics"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Anochetus_graeffei", "Neotropics"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Anochetus_graeffei", "Eastern Palearctic"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Odontomachus_haematodus", "Indomalaya"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Odontomachus_haematodus", "Nearctic"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Odontomachus_haematodus", "Neotropics"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Parvaponera_darwinii", "Western Palearctic"] <- F
+# Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Odontomachus_simillimus", ]
+# View(Biogeographic_database_Ponerinae_curated[Biogeographic_database_Ponerinae_curated$Current_name == "Ponera_swezeyi", ])
 
 # Temporary fixes waiting for occurrence correction
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Anochetus_ghilianii", "Neotropics"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Anochetus_mayri", "Nearctic"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Anochetus_mayri", "Western Palearctic"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Anochetus_sedilloti", "Indomalaya"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Centromyrmex_feae", "Afrotropics"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Cryptopone_ochracea", "Australasia"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Emeryopone_loebli", "Indomalaya"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Euponera_sharpi", "Afrotropics"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Hypoponera_gibbinota", "Indomalaya"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Hypoponera_opaciceps", "Western Palearctic"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Hypoponera_opacior", "Nearctic"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Hypoponera_opacior", "Western Palearctic"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Leptogenys_falcigera", "Indomalaya"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Leptogenys_reggae", "Indomalaya"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Mesoponera_melanaria", "Afrotropics"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Odontomachus_assiniensis", "Indomalaya"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Odontomachus_bauri", "Western Palearctic"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Odontomachus_cephalotes", "Western Palearctic"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Odontomachus_ruginodis", "Australasia"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Odontomachus_ruginodis", "Western Palearctic"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Odontomachus_simillimus", "Afrotropics"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Parvaponera_darwinii", "Afrotropics"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Platythyrea_punctata", "Western Palearctic"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Ponera_petila", "Afrotropics"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Ponera_swezeyi", "Australasia"] <- F
-Taxa_bioregions_binary_table[Taxa_bioregions_binary_table$Current_name == "Ponera_testacea", "Nearctic"] <- F
 
 View(Taxa_bioregions_binary_table)
 
 range_size <- apply(X = Taxa_bioregions_binary_table[, -1], MARGIN = 1, FUN = sum)
 max(range_size)
 
+# Wide-range taxa
 Taxa_bioregions_binary_table$Current_name[range_size >= 3]
+# Overall counts per bioregions
+apply(X = Taxa_bioregions_binary_table[, -1], MARGIN = 2, FUN = sum)
 
 # Save updated range table
 saveRDS(object = Taxa_bioregions_binary_table, file = "./input_data/Biogeographic_data/Taxa_bioregions_binary_table_for_analyses_7_regions_PaleA.rds")
@@ -111,12 +82,19 @@ saveRDS(object = Taxa_bioregions_binary_table, file = "./input_data/Biogeographi
 
 ### 1.3/ Time-calibrated phylogeny(ies) ####
 
-Ponerinae_phylogeny_1534t <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t.rds")
+# # Roughly calibrated phylogeny
+# Ponerinae_phylogeny_1534t <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t.rds")
+
+# MCC phylogeny
+Ponerinae_MCC_phylogeny_1534t <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_MCC_1534t.rds")
+
+# # Posterior phylogenies
+# Ponerinae_all_posteriors_phylogeny_1534t <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_all_posteriors_phylogeny_1534t.rds")
 
 # Match names
 
-Ponerinae_phylogeny_1534t_short_names <- Ponerinae_phylogeny_1534t
-tips_short_names <- Ponerinae_phylogeny_1534t_short_names$tip.label
+Ponerinae_MCC_phylogeny_1534t_short_names <- Ponerinae_MCC_phylogeny_1534t
+tips_short_names <- Ponerinae_MCC_phylogeny_1534t_short_names$tip.label
 
 # Remove extraction and specimen codes
 tips_short_names <- str_remove_all(string = tips_short_names, pattern = "_EX.*")
@@ -131,15 +109,16 @@ Taxa_bioregions_binary_table$Current_name[!(Taxa_bioregions_binary_table$Current
 
 tips_short_names[tips_short_names == "NewGenus_bucki"] <- "Neoponera_bucki"
 
-Ponerinae_phylogeny_1534t_short_names$tip.label <- tips_short_names
+Ponerinae_MCC_phylogeny_1534t_short_names$tip.label <- tips_short_names
 
-# Rescale so the root is at 113 My
-root_age <- max(phytools::nodeHeights(Ponerinae_phylogeny_1534t_short_names)) ; root_age
-Ponerinae_phylogeny_1534t_short_names <- rescale(x = Ponerinae_phylogeny_1534t_short_names, model = "depth", depth = 113)
-root_age <- max(phytools::nodeHeights(Ponerinae_phylogeny_1534t_short_names)) ; root_age
+# # Rescale so the root is at 113 My
+# root_age <- max(phytools::nodeHeights(Ponerinae_phylogeny_1534t_short_names)) ; root_age
+# Ponerinae_phylogeny_1534t_short_names <- rescale(x = Ponerinae_phylogeny_1534t_short_names, model = "depth", depth = 113)
+# root_age <- max(phytools::nodeHeights(Ponerinae_phylogeny_1534t_short_names)) ; root_age
 
 # Save imputed phylogeny with short names
-saveRDS(object = Ponerinae_phylogeny_1534t_short_names, file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.rds")
+# saveRDS(object = Ponerinae_phylogeny_1534t_short_names, file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.rds")
+saveRDS(object = Ponerinae_MCC_phylogeny_1534t_short_names, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.rds")
 
 
 ##### 2/ Format data for BioGeoBEARS #####
@@ -147,13 +126,16 @@ saveRDS(object = Ponerinae_phylogeny_1534t_short_names, file = "./outputs/Grafti
 ### 2.1/ Phylogeny ####
 
 # Load imputed phylogeny with short names
-Ponerinae_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.rds")
+# Ponerinae_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.rds")
+Ponerinae_MCC_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.rds")
 
 # Export under newick format
-write.tree(Ponerinae_phylogeny_1534t_short_names, file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.tree")
+# write.tree(Ponerinae_phylogeny_1534t_short_names, file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.tree")
+write.tree(Ponerinae_MCC_phylogeny_1534t_short_names, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.tree")
 
 # Set path to Newick tree
-path_to_tree <- "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.tree"
+# path_to_tree <- "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.tree"
+path_to_tree <- "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.tree"
 path_to_tree <- BioGeoBEARS::np(path_to_tree)
 
 
@@ -201,12 +183,14 @@ colors <- setNames(object = replicate(ncol(binary_df_factors),
                                       simplify = FALSE),
                    nm = colnames(binary_df_factors))
 
-pdf(file = "./outputs/Phylo_1534t_with_ranges.pdf", width = 20, height = 200)
+# pdf(file = "./outputs/Phylo_1534t_with_ranges.pdf", width = 20, height = 200)
+pdf(file = "./outputs/Phylo_MCC_1534t_with_ranges.pdf", width = 20, height = 200)
 
 # Set plotting parameters
 par(mar = c(0.1,0.1,0.1,0.1), oma = c(0,0,0,0)) # bltr
 # Graph presence/absence using plotTree.datamatrix
-range_map <- phytools::plotTree.datamatrix(tree = Ponerinae_phylogeny_1534t_short_names,
+range_map <- phytools::plotTree.datamatrix(tree = Ponerinae_MCC_phylogeny_1534t_short_names,
+                                           # tree = Ponerinae_phylogeny_1534t_short_names,
                                            X = binary_df_factors,
                                            fsize = 0.7, yexp = 1.1,
                                            header = TRUE, xexp = 1.25, colors = colors)
@@ -215,10 +199,14 @@ range_map <- phytools::plotTree.datamatrix(tree = Ponerinae_phylogeny_1534t_shor
 plot_info <- get("last_plot.phylo", envir=.PlotPhyloEnv)
 
 ## Add time line
+
 # Extract root age
-root_age <- max(phytools::nodeHeights(Ponerinae_phylogeny_1534t_short_names))
+# root_age <- max(phytools::nodeHeights(Ponerinae_phylogeny_1534t_short_names))
+root_age <- max(phytools::nodeHeights(Ponerinae_MCC_phylogeny_1534t_short_names))
+
 # Define ticks
-ticks_labels <- seq(from = 0, to = 100, by = 20)
+# ticks_labels <- seq(from = 0, to = 100, by = 20)
+ticks_labels <- seq(from = 0, to = 120, by = 20)
 axis(side = 1, pos = 0, at = (-1 * ticks_labels) + root_age, labels = ticks_labels, cex.axis = 1.5)
 legend(x = root_age/2,
        y = 0 - 5, adj = 0,
@@ -279,8 +267,11 @@ cladoRcpp::numstates_from_numareas(numareas = nb_areas, maxareas = max_range_siz
   # 66.0-100.5 = Late Cretaceous
   # 100.5-145.0 = Early Cretaceous (Root of Ponerinae = 113 My ?)
 
+# Need to ensure the oldest boundary is older than the oldest root among posteriors
+# Thus, use 200My as oldest boundary
+
 # Oldest boundary should be any value older than the root
-time_boundaries <- c(5.33, 23.03, 33.9, 56.0, 66.0, 100.5, 145.0)
+time_boundaries <- c(5.33, 23.03, 33.9, 56.0, 66.0, 100.5, 200.0)
 
 # Write output file for time_boundaries
 writeLines(text = as.character(time_boundaries), con = "./input_data/BioGeoBEARS_setup/time_boundaries.txt")
@@ -847,15 +838,18 @@ str(lists_of_states_lists_0based_for_W_models)
 
 ## 5.1/ Create run object for Time-stratified DEC model ####
 
-# Detect available number of cores
-nb_cores <- parallel::detectCores()
-nb_cores <- round(nb_cores*0.75)
+# # Detect available number of cores
+# nb_cores <- parallel::detectCores()
+# nb_cores <- round(nb_cores*0.75)
+
+# Set nb of cores to 1 as parallelization takes a lot of time to setup, thus is less efficient when number of states are not too big
+nb_cores <- 1
 
 # # Set a cluster
 # ?parallel::makeCluster
 # parallel::makeCluster(rep("localhost",nb_cores), type = "SOCK")
 
-
+# Set default DEC run
 DEC_run <- define_BioGeoBEARS_run(
   num_cores_to_use = nb_cores, # To set parallel processing
   cluster_already_open = FALSE, # To ask BioGeoBEARS to open (and close) the cluster itself
@@ -928,7 +922,8 @@ DEC_run <- fix_BioGeoBEARS_params_minmax(BioGeoBEARS_run_object = DEC_run)
 check_BioGeoBEARS_run(DEC_run)
 
 # Save run settings
-saveRDS(object = DEC_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_run.rds")
+# saveRDS(object = DEC_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_run.rds")
+saveRDS(object = DEC_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DEC_run.rds")
 
 
 ## 5.4/ Adjust parameters for DIVALIKE models ####
@@ -970,8 +965,8 @@ DIVA_run <- fix_BioGeoBEARS_params_minmax(BioGeoBEARS_run_object = DIVA_run) # C
 check_BioGeoBEARS_run(DIVA_run)
 
 # Save run settings
-saveRDS(object = DIVA_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_run.rds")
-
+# saveRDS(object = DIVA_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_run.rds")
+saveRDS(object = DIVA_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DIVA_run.rds")
 
 ## 5.5/ Adjust parameters for +J models ####
 
@@ -998,7 +993,8 @@ DEC_J_run <- fix_BioGeoBEARS_params_minmax(BioGeoBEARS_run_object = DEC_J_run) #
 check_BioGeoBEARS_run(DEC_J_run)
 
 # Save run settings
-saveRDS(object = DEC_J_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_J_run.rds")
+# saveRDS(object = DEC_J_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_J_run.rds")
+saveRDS(object = DEC_J_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DEC_J_run.rds")
 
 
 ## Update DIVALIKE + J run object with new parameter settings
@@ -1017,7 +1013,8 @@ DIVA_J_run <- fix_BioGeoBEARS_params_minmax(BioGeoBEARS_run_object = DIVA_J_run)
 check_BioGeoBEARS_run(DIVA_J_run)
 
 # Save run settings
-saveRDS(object = DIVA_J_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_J_run.rds")
+# saveRDS(object = DIVA_J_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_J_run.rds")
+saveRDS(object = DIVA_J_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DIVA_J_run.rds")
 
 ## 5.6/ Adjust dispersal multipliers and allowed states for +W models ####
 
@@ -1065,7 +1062,8 @@ DEC_W_run <- fix_BioGeoBEARS_params_minmax(BioGeoBEARS_run_object = DEC_W_run) #
 check_BioGeoBEARS_run(DEC_W_run)
 
 # Save run settings
-saveRDS(object = DEC_W_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_W_run.rds")
+# saveRDS(object = DEC_W_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_W_run.rds")
+saveRDS(object = DEC_W_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DEC_W_run.rds")
 
 
 ## Update DIVA + W run object with new parameter settings
@@ -1108,7 +1106,8 @@ DIVA_W_run <- fix_BioGeoBEARS_params_minmax(BioGeoBEARS_run_object = DIVA_W_run)
 check_BioGeoBEARS_run(DIVA_W_run)
 
 # Save run settings
-saveRDS(object = DIVA_W_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_W_run.rds")
+# saveRDS(object = DIVA_W_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_W_run.rds")
+saveRDS(object = DIVA_W_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DIVA_W_run.rds")
 
 
 ## 5.7/ Adjust parameters for +J+W models ####
@@ -1132,7 +1131,8 @@ DEC_JW_run <- fix_BioGeoBEARS_params_minmax(BioGeoBEARS_run_object = DEC_JW_run)
 check_BioGeoBEARS_run(DEC_JW_run)
 
 # Save run settings
-saveRDS(object = DEC_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_JW_run.rds")
+# saveRDS(object = DEC_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_JW_run.rds")
+saveRDS(object = DEC_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DEC_JW_run.rds")
 
 ## Update DIVALIKE + J run object with new parameter settings
 
@@ -1150,7 +1150,8 @@ DIVA_JW_run <- fix_BioGeoBEARS_params_minmax(BioGeoBEARS_run_object = DIVA_JW_ru
 check_BioGeoBEARS_run(DIVA_JW_run)
 
 # Save run settings
-saveRDS(object = DIVA_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_JW_run.rds")
+# saveRDS(object = DIVA_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_JW_run.rds")
+saveRDS(object = DIVA_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DIVA_JW_run.rds")
 
 
 ##### 6/ Run models #####
@@ -1168,7 +1169,8 @@ saveRDS(object = DIVA_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/DI
 ### 6.1/ Run DEC model ####
 
 # Load run settings
-DEC_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DEC_run.rds")
+# DEC_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DEC_run.rds")
+DEC_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DEC_run.rds")
 
 # No parallelization as it seems to be useful only when the number of states is big
   # Run time for DEC model, no parallel = 8.8 min
@@ -1176,7 +1178,8 @@ DEC_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DEC_run.rds")
 # DEC_run$num_cores_to_use <- 1
 
 # Fit model using ML while recording logs
-log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DEC_run_log.txt", open = "wt")
+# log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DEC_run_log.txt", open = "wt")
+log_file <- file("./outputs/BioGeoBEARS_models/model_logs/Ponerinae_MCC_phylogeny_1534t/DEC_run_log.txt", open = "wt")
 sink(file = log_file, type = "output", split = TRUE)
 cat(paste0(Sys.time(), " - Start DEC model run\n"))
 Start_time <- Sys.time()
@@ -1189,7 +1192,8 @@ sink()
 closeAllConnections()
 
 # Save model fit
-saveRDS(object = DEC_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DEC_fit.rds")
+# saveRDS(object = DEC_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DEC_fit.rds")
+saveRDS(object = DEC_fit, file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_fit.rds")
 
 print(DEC_fit)
 
@@ -1307,13 +1311,15 @@ dim(DEC_fit$ML_marginal_prob_each_state_at_branch_top_AT_node) # Likelihood df: 
 DEC_fit$ML_marginal_prob_each_state_at_branch_top_AT_node # Scaled marginal likelihood (probabilities) at each node/tip given the phylogenetic tree and DEC model with the MLE parameters estimated globally
 DEC_fit$ML_marginal_prob_each_state_at_branch_bottom_below_node # Same but for at the 'corner' of internal node, meaning at the start of each descendant branch, after cladogenesis/speciation (and eventually cladogenetic transition).
 
-length(Ponerinae_phylogeny_1534t_short_names$tip.label) + Ponerinae_phylogeny_1534t_short_names$Nnode
+# length(Ponerinae_phylogeny_1534t_short_names$tip.label) + Ponerinae_phylogeny_1534t_short_names$Nnode
+length(Ponerinae_MCC_phylogeny_1534t_short_names$tip.label) + Ponerinae_MCC_phylogeny_1534t_short_names$Nnode
 
 
 ### 6.2/ Run DIVALIKE model ####
 
 # Load run settings
-DIVA_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_run.rds")
+# DIVA_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_run.rds")
+DIVA_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DIVA_run.rds")
 
 # No parallelization as it seems to be useful only when the number of states is big
   # Run time for DIVALIKE model, no parallel = 8.9 min
@@ -1321,7 +1327,8 @@ DIVA_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_run.rds
 # DIVA_run$num_cores_to_use <- 1
 
 # Fit model using ML while recording logs
-log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DIVA_run_log.txt", open = "wt")
+# log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DIVA_run_log.txt", open = "wt")
+log_file <- file("./outputs/BioGeoBEARS_models/model_logs/Ponerinae_MCC_phylogeny_1534t/DIVA_run_log.txt", open = "wt")
 sink(file = log_file, type = "output", split = TRUE)
 cat(paste0(Sys.time(), " - Start DIVALIKE model run\n"))
 Start_time <- Sys.time()
@@ -1339,7 +1346,8 @@ DIVA_fit <- bears_optim_run(DIVA_run)
 print(DIVA_fit)
 
 # Save model fit
-saveRDS(object = DIVA_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_fit.rds")
+# saveRDS(object = DIVA_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_fit.rds")
+saveRDS(object = DIVA_fit, file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_fit.rds")
 
 ## Inspect results
 
@@ -1381,10 +1389,12 @@ DIVA_fit$ML_marginal_prob_each_state_at_branch_bottom_below_node # Same but for 
 ### 6.3/ Run DEC+J model ####
 
 ## Load run settings
-DEC_J_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DEC_J_run.rds")
+# DEC_J_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DEC_J_run.rds")
+DEC_J_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DEC_J_run.rds")
 
 ## Use MLE of DEC model as starting values
-DEC_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_fit.rds")
+# DEC_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_fit.rds")
+DEC_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_fit.rds")
 
 ## Set starting values for optimization based on MLE in the DEC model
 d_start <- DEC_fit$outputs@params_table["d","est"]
@@ -1396,13 +1406,15 @@ DEC_J_run$BioGeoBEARS_model_object@params_table["e","init"] <- e_start
 DEC_J_run$BioGeoBEARS_model_object@params_table["e","est"] <- e_start # MLE will evolved after optimization
 
 # Save settings before run
-saveRDS(object = DEC_J_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_J_run.rds")
+# saveRDS(object = DEC_J_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_J_run.rds")
+saveRDS(object = DEC_J_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DEC_J_run.rds")
 
 # No parallelization as it seems to be useful only when the number of states is big
 # DEC_J_run$num_cores_to_use <- 1
 
 # Fit model using ML while recording logs
-log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DEC_J_run_log.txt", open = "wt")
+# log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DEC_J_run_log.txt", open = "wt")
+log_file <- file("./outputs/BioGeoBEARS_models/model_logs/Ponerinae_MCC_phylogeny_1534t/DEC_J_run_log.txt", open = "wt")
 sink(file = log_file, type = "output", split = TRUE)
 cat(paste0(Sys.time(), " - Start DEC+J model run\n"))
 Start_time <- Sys.time()
@@ -1417,7 +1429,8 @@ closeAllConnections()
 print(DEC_J_fit)
 
 # Save model fit
-saveRDS(object = DEC_J_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
+# saveRDS(object = DEC_J_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
+saveRDS(object = DEC_J_fit, file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
 
 ## Inspect results
 
@@ -1459,10 +1472,12 @@ DEC_J_fit$ML_marginal_prob_each_state_at_branch_bottom_below_node # Same but for
 ### 6.4/ Run DIVALIKE+J model ####
 
 ## Load run settings
-DIVA_J_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_J_run.rds")
+# DIVA_J_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_J_run.rds")
+DIVA_J_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DIVA_J_run.rds")
 
 ## Use MLE of DEC model as starting values
-DIVA_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_fit.rds")
+# DIVA_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_fit.rds")
+DIVA_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_fit.rds")
 
 ## Set starting values for optimization based on MLE in the DEC model
 d_start <- DIVA_fit$outputs@params_table["d","est"]
@@ -1474,13 +1489,15 @@ DIVA_J_run$BioGeoBEARS_model_object@params_table["e","init"] <- e_start
 DIVA_J_run$BioGeoBEARS_model_object@params_table["e","est"] <- e_start # MLE will evolved after optimization
 
 # Save settings before run
-saveRDS(object = DIVA_J_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_J_run.rds")
+# saveRDS(object = DIVA_J_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_J_run.rds")
+saveRDS(object = DIVA_J_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DIVA_J_run.rds")
 
 # No parallelization as it seems to be useful only when the number of states is big
 # DIVA_J_run$num_cores_to_use <- 1
 
 # Fit model using ML while recording logs
-log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DIVA_J_run_log.txt", open = "wt")
+# log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DIVA_J_run_log.txt", open = "wt")
+log_file <- file("./outputs/BioGeoBEARS_models/model_logs/Ponerinae_MCC_phylogeny_1534t/DIVA_J_run_log.txt", open = "wt")
 sink(file = log_file, type = "output", split = TRUE)
 cat(paste0(Sys.time(), " - Start DIVALIKE+J model run\n"))
 Start_time <- Sys.time()
@@ -1495,7 +1512,8 @@ closeAllConnections()
 print(DIVA_J_fit)
 
 # Save model fit
-saveRDS(object = DIVA_J_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_J_fit.rds")
+# saveRDS(object = DIVA_J_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_J_fit.rds")
+saveRDS(object = DIVA_J_fit, file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_J_fit.rds")
 
 ## Inspect results
 
@@ -1539,10 +1557,12 @@ DIVA_J_fit$ML_marginal_prob_each_state_at_branch_bottom_below_node # Same but fo
 ### 6.5/ Run DEC+W model ####
 
 ## Load run settings
-DEC_W_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DEC_W_run.rds")
+# DEC_W_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DEC_W_run.rds")
+DEC_W_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DEC_W_run.rds")
 
 ## Use MLE of DEC model as starting values
-DEC_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_fit.rds")
+# DEC_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_fit.rds")
+DEC_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_fit.rds")
 
 ## Set starting values for optimization based on MLE in the DEC model
 d_start <- DEC_fit$outputs@params_table["d","est"]
@@ -1556,28 +1576,31 @@ DEC_W_run$BioGeoBEARS_model_object@params_table["e","est"] <- e_start # MLE will
 ### Check what happen if using force_sparse == TRUE to save time in computation
 
 # Save settings before run
-saveRDS(object = DEC_W_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_W_run.rds")
+# saveRDS(object = DEC_W_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_W_run.rds")
+saveRDS(object = DEC_W_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DEC_W_run.rds")
 
 # No parallelization as it seems to be useful only when the number of states is big
 # DEC_W_run$num_cores_to_use <- 1
 
-# Fit model using ML while recording logs
-log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DEC_W_run_log.txt", open = "wt")
-sink(file = log_file, type = "output", split = TRUE)
-cat(paste0(Sys.time(), " - Start DEC+W model run\n"))
-Start_time <- Sys.time()
-DEC_W_fit <- bears_optim_run(DEC_W_run)
-End_time <- Sys.time()
-cat(paste0(Sys.time(), " - End of DEC+W model run\n"))
-cat(paste0("Total run time of:\n"))
-print(End_time - Start_time)
-sink()
-closeAllConnections()
-
-print(DEC_W_fit)
-
-# Save model fit
-saveRDS(object = DEC_W_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DEC_W_fit.rds")
+# # Fit model using ML while recording logs
+# # log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DEC_W_run_log.txt", open = "wt")
+# log_file <- file("./outputs/BioGeoBEARS_models/model_logs/Ponerinae_MCC_phylogeny_1534t/DEC_W_run_log.txt", open = "wt")
+# sink(file = log_file, type = "output", split = TRUE)
+# cat(paste0(Sys.time(), " - Start DEC+W model run\n"))
+# Start_time <- Sys.time()
+# DEC_W_fit <- bears_optim_run(DEC_W_run)
+# End_time <- Sys.time()
+# cat(paste0(Sys.time(), " - End of DEC+W model run\n"))
+# cat(paste0("Total run time of:\n"))
+# print(End_time - Start_time)
+# sink()
+# closeAllConnections()
+# 
+# print(DEC_W_fit)
+# 
+# # Save model fit
+# # saveRDS(object = DEC_W_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DEC_W_fit.rds")
+# saveRDS(object = DEC_W_fit, file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_W_fit.rds")
 
 ### Loop to try several starting value for W 
 w_start_list <- seq(0, 1, 0.25)
@@ -1586,7 +1609,8 @@ w_start_list[1] <- 0.001
 for (i in seq_along(w_start_list))
 {
   ## Load run settings
-  DEC_W_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DEC_W_run.rds")
+  # DEC_W_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DEC_W_run.rds")
+  DEC_W_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DEC_W_run.rds")
   
   # No parallelization as it seems to be useful only when the number of states is big
   # DEC_W_run$num_cores_to_use <- 1
@@ -1598,7 +1622,8 @@ for (i in seq_along(w_start_list))
   DEC_W_run$BioGeoBEARS_model_object@params_table["w","est"] <- w_start # MLE will evolved after optimization
   
   # Fit model using ML while recording logs
-  log_file <- file(paste0("./outputs/BioGeoBEARS_models/model_logs/DEC_W_",w_start,"_run_log.txt"), open = "wt")
+  # log_file <- file(paste0("./outputs/BioGeoBEARS_models/model_logs/DEC_W_",w_start,"_run_log.txt"), open = "wt")
+  log_file <- file(paste0("./outputs/BioGeoBEARS_models/model_logs/Ponerinae_MCC_phylogeny_1534t/DEC_W_",w_start,"_run_log.txt"), open = "wt")
   sink(file = log_file, type = "output", split = TRUE)
   cat(paste0(Sys.time(), " - Start DEC+W model run - W start = ",w_start,"\n"))
   Start_time <- Sys.time()
@@ -1613,14 +1638,20 @@ for (i in seq_along(w_start_list))
   print(DEC_W_fit)
   
   # Save model fit
-  saveRDS(object = DEC_W_fit, file = paste0("./outputs/BioGeoBEARS_models/model_fits/DEC_W_",w_start,"_fit.rds"))
+  # saveRDS(object = DEC_W_fit, file = paste0("./outputs/BioGeoBEARS_models/model_fits/DEC_W_",w_start,"_fit.rds"))
+  saveRDS(object = DEC_W_fit, file = paste0("./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_W_",w_start,"_fit.rds"))
   
 }
 
-# Best run is with w_start = 1
-DEC_W_fit <- readRDS(file = paste0("./outputs/BioGeoBEARS_models/model_fits/DEC_W_1_fit.rds"))
+# Best run is with w_start = 1 for roughly calibrated tree
+# DEC_W_fit <- readRDS(file = paste0("./outputs/BioGeoBEARS_models/model_fits/DEC_W_1_fit.rds"))
+
+# Best run is with w_start = 0.25 for MCC tree
+DEC_W_fit <- readRDS(file = paste0("./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_W_0.25_fit.rds"))
+
 # Save model fit
-saveRDS(object = DEC_W_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DEC_W_fit.rds")
+# saveRDS(object = DEC_W_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DEC_W_fit.rds")
+saveRDS(object = DEC_W_fit, file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_W_fit.rds")
 
 
 ## Inspect results
@@ -1664,10 +1695,12 @@ DEC_W_fit$ML_marginal_prob_each_state_at_branch_bottom_below_node # Same but for
 ### 6.6/ Run DIVALIKE+W model ####
 
 ## Load run settings
-DIVA_W_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_W_run.rds")
+# DIVA_W_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_W_run.rds")
+DIVA_W_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DIVA_W_run.rds")
 
 ## Use MLE of DEC model as starting values
-DIVA_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_fit.rds")
+# DIVA_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_fit.rds")
+DIVA_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_fit.rds")
 
 ## Set starting values for optimization based on MLE in the DEC model
 d_start <- DIVA_fit$outputs@params_table["d","est"]
@@ -1681,28 +1714,31 @@ DIVA_W_run$BioGeoBEARS_model_object@params_table["e","est"] <- e_start # MLE wil
 ### Check what happen if using force_sparse == TRUE to save time in computation
 
 # Save settings before run
-saveRDS(object = DIVA_W_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_W_run.rds")
+# saveRDS(object = DIVA_W_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_W_run.rds")
+saveRDS(object = DIVA_W_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DIVA_W_run.rds")
 
 # No parallelization as it seems to be useful only when the number of states is big
 # DIVA_W_run$num_cores_to_use <- 1
 
-# Fit model using ML while recording logs
-log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DIVA_W_run_log.txt", open = "wt")
-sink(file = log_file, type = "output", split = TRUE)
-cat(paste0(Sys.time(), " - Start DIVALIKE+W model run\n"))
-Start_time <- Sys.time()
-DIVA_W_fit <- bears_optim_run(DIVA_W_run)
-End_time <- Sys.time()
-cat(paste0(Sys.time(), " - End of DIVALIKE+W model run\n"))
-cat(paste0("Total run time of:\n"))
-print(End_time - Start_time)
-sink()
-closeAllConnections()
-
-print(DIVA_W_fit)
-
-# Save model fit
-saveRDS(object = DIVA_W_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_W_fit.rds")
+# # Fit model using ML while recording logs
+# # log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DIVA_W_run_log.txt", open = "wt")
+# log_file <- file("./outputs/BioGeoBEARS_models/model_logs/Ponerinae_MCC_phylogeny_1534t/DIVA_W_run_log.txt", open = "wt")
+# sink(file = log_file, type = "output", split = TRUE)
+# cat(paste0(Sys.time(), " - Start DIVALIKE+W model run\n"))
+# Start_time <- Sys.time()
+# DIVA_W_fit <- bears_optim_run(DIVA_W_run)
+# End_time <- Sys.time()
+# cat(paste0(Sys.time(), " - End of DIVALIKE+W model run\n"))
+# cat(paste0("Total run time of:\n"))
+# print(End_time - Start_time)
+# sink()
+# closeAllConnections()
+# 
+# print(DIVA_W_fit)
+# 
+# # Save model fit
+# # saveRDS(object = DIVA_W_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_W_fit.rds")
+# saveRDS(object = DIVA_W_fit, file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_W_fit.rds")
 
 ### Loop to try several starting value for W 
 w_start_list <- seq(0, 1, 0.25)
@@ -1711,7 +1747,8 @@ w_start_list[1] <- 0.001
 for (i in seq_along(w_start_list))
 {
   ## Load run settings
-  DIVA_W_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_W_run.rds")
+  # DIVA_W_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_W_run.rds")
+  DIVA_W_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DIVA_W_run.rds")
   
   # No parallelization as it seems to be useful only when the number of states is big
   # DIVA_W_run$num_cores_to_use <- 1
@@ -1723,7 +1760,8 @@ for (i in seq_along(w_start_list))
   DIVA_W_run$BioGeoBEARS_model_object@params_table["w","est"] <- w_start # MLE will evolved after optimization
   
   # Fit model using ML while recording logs
-  log_file <- file(paste0("./outputs/BioGeoBEARS_models/model_logs/DIVA_W_",w_start,"_run_log.txt"), open = "wt")
+  # log_file <- file(paste0("./outputs/BioGeoBEARS_models/model_logs/DIVA_W_",w_start,"_run_log.txt"), open = "wt")
+  log_file <- file(paste0("./outputs/BioGeoBEARS_models/model_logs/Ponerinae_MCC_phylogeny_1534t/DIVA_W_",w_start,"_run_log.txt"), open = "wt")
   sink(file = log_file, type = "output", split = TRUE)
   cat(paste0(Sys.time(), " - Start DIVALIKE+W model run - W start = ",w_start,"\n"))
   Start_time <- Sys.time()
@@ -1738,14 +1776,19 @@ for (i in seq_along(w_start_list))
   print(DIVA_W_fit)
   
   # Save model fit
-  saveRDS(object = DIVA_W_fit, file = paste0("./outputs/BioGeoBEARS_models/model_fits/DIVA_W_",w_start,"_fit.rds"))
+  # saveRDS(object = DIVA_W_fit, file = paste0("./outputs/BioGeoBEARS_models/model_fits/DIVA_W_",w_start,"_fit.rds"))
+  saveRDS(object = DIVA_W_fit, file = paste0("./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_W_",w_start,"_fit.rds"))
   
 }
 
 # Load best model with w_start = 0.25
-DIVA_W_fit <- readRDS(file = paste0("./outputs/BioGeoBEARS_models/model_fits/DIVA_W_0.25_fit.rds"))
+# DIVA_W_fit <- readRDS(file = paste0("./outputs/BioGeoBEARS_models/model_fits/DIVA_W_0.25_fit.rds"))
+DIVA_W_fit <- readRDS(file = paste0("./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_W_0.25_fit.rds"))
 DIVA_W_fit$total_loglikelihood
-saveRDS(object = DIVA_W_fit, file = paste0("./outputs/BioGeoBEARS_models/model_fits/DIVA_W_fit.rds"))
+
+# Save best model for DIVA+W
+# saveRDS(object = DIVA_W_fit, file = paste0("./outputs/BioGeoBEARS_models/model_fits/DIVA_W_fit.rds"))
+saveRDS(object = DIVA_W_fit, file = paste0("./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_W_fit.rds"))
 
 
 ## Inspect results
@@ -1789,11 +1832,14 @@ DIVA_W_fit$ML_marginal_prob_each_state_at_branch_bottom_below_node # Same but fo
 ### 6.7/ Run DEC+J+W model ####
 
 ## Load run settings
-DEC_JW_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DEC_JW_run.rds")
+# DEC_JW_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DEC_JW_run.rds")
+DEC_JW_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DEC_JW_run.rds")
 
 ## Use MLE of DEC+J and DEC+W models as starting values
-DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
-DEC_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_W_fit.rds") # Best fit so far for w_start = 1
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
+DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_W_fit.rds") # Best fit so far for w_start = 1
+DEC_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_W_fit.rds") # Best fit so far for w_start = 1
 
 ## Set starting values for optimization based on MLE in the DEC+J model
 d_start <- DEC_J_fit$outputs@params_table["d","est"]
@@ -1813,13 +1859,15 @@ DEC_JW_run$BioGeoBEARS_model_object@params_table["w","est"] <- w_start # MLE wil
 ### Check what happen if using force_sparse == TRUE to save time in computation
 
 # Save settings before run
-saveRDS(object = DEC_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_JW_run.rds")
+# saveRDS(object = DEC_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/DEC_JW_run.rds")
+saveRDS(object = DEC_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DEC_JW_run.rds")
 
 # No parallelization as it seems to be useful only when the number of states is big
 # DEC_JW_run$num_cores_to_use <- 1
 
 # Fit model using ML while recording logs
-log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DEC_JW_run_log.txt", open = "wt")
+# log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DEC_JW_run_log.txt", open = "wt")
+log_file <- file("./outputs/BioGeoBEARS_models/model_logs/Ponerinae_MCC_phylogeny_1534t/DEC_JW_run_log.txt", open = "wt")
 sink(file = log_file, type = "output", split = TRUE)
 cat(paste0(Sys.time(), " - Start DEC+J+W model run\n"))
 Start_time <- Sys.time()
@@ -1834,7 +1882,8 @@ closeAllConnections()
 print(DEC_JW_fit)
 
 # Save model fit
-saveRDS(object = DEC_JW_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DEC_JW_fit.rds")
+# saveRDS(object = DEC_JW_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DEC_JW_fit.rds")
+saveRDS(object = DEC_JW_fit, file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_JW_fit.rds")
 
 
 ## Inspect results
@@ -1879,12 +1928,14 @@ DEC_JW_fit$ML_marginal_prob_each_state_at_branch_bottom_below_node # Same but fo
 ### 6.8/ Run DIVALIKE+J+W model ####
 
 ## Load run settings
-DIVA_JW_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_JW_run.rds")
+#  DIVA_JW_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_JW_run.rds")
+DIVA_JW_run <- readRDS(file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DIVA_JW_run.rds")
 
 ## Use MLE of DIVALIKE+J and DIVALIKE+W models as starting values
-DIVA_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_J_fit.rds")
-# DIVA_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_W_fit.rds")
-DIVA_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_W_fit.rds") # Best fit so far for w_start = 0.25
+# DIVA_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_J_fit.rds")
+DIVA_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_J_fit.rds")
+# DIVA_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_W_fit.rds") # Best fit so far for w_start = 0.25
+DIVA_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_W_fit.rds")  # Best fit so far for w_start = 0.25
 
 ## Set starting values for optimization based on MLE in the DEC+J model
 d_start <- DIVA_J_fit$outputs@params_table["d","est"]
@@ -1904,13 +1955,15 @@ DIVA_JW_run$BioGeoBEARS_model_object@params_table["w","est"] <- w_start # MLE wi
 ### Check what happen if using force_sparse == TRUE to save time in computation
 
 # Save settings before run
-saveRDS(object = DIVA_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_JW_run.rds")
+# saveRDS(object = DIVA_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/DIVA_JW_run.rds")
+saveRDS(object = DIVA_JW_run, file = "./outputs/BioGeoBEARS_models/model_runs/Ponerinae_MCC_phylogeny_1534t/DIVA_JW_run.rds")
 
 # No parallelization as it seems to be useful only when the number of states is big
 # DIVA_JW_run$num_cores_to_use <- 1
 
 # Fit model using ML while recording logs
-log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DIVA_JW_run_log.txt", open = "wt")
+# log_file <- file("./outputs/BioGeoBEARS_models/model_logs/DIVA_JW_run_log.txt", open = "wt")
+log_file <- file("./outputs/BioGeoBEARS_models/model_logs/Ponerinae_MCC_phylogeny_1534t/DIVA_JW_run_log.txt", open = "wt")
 sink(file = log_file, type = "output", split = TRUE)
 cat(paste0(Sys.time(), " - Start DIVALIKE+J+W model run\n"))
 Start_time <- Sys.time()
@@ -1925,7 +1978,8 @@ closeAllConnections()
 print(DIVA_JW_fit)
 
 # Save model fit
-saveRDS(object = DIVA_JW_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_JW_fit.rds")
+# saveRDS(object = DIVA_JW_fit, file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_JW_fit.rds")
+saveRDS(object = DIVA_JW_fit, file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_JW_fit.rds")
 
 
 ## Inspect results
@@ -1974,9 +2028,12 @@ DIVA_JW_fit$ML_marginal_prob_each_state_at_branch_bottom_below_node # Same but f
 ### 7.1/ For DEC model ####
 
 # Load DEC model output
-DEC_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_fit.rds")
+# DEC_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_fit.rds")
+DEC_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_fit.rds")
 
-pdf(file = "./outputs/Ancestral_range_estimates_maps/DEC_ARE_map.pdf", width = 40, height = 150)
+# pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_ARE_map.pdf", width = 40, height = 150)
+pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_ARE_map.pdf", width = 40, height = 150)
+
 # Subdivide our plotting area using layout
 layout(matrix(1:2, 1, 2), widths = c(0.2, 0.8))
 # Set plotting parameters
@@ -1995,9 +2052,12 @@ dev.off()
 ### 7.2/ For DIVALIKE model ####
 
 # Load DIVALIKE model output
-DIVA_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_fit.rds")
+# DIVA_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_fit.rds")
+DIVA_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_fit.rds")
 
-pdf(file = "./outputs/Ancestral_range_estimates_maps/DIVA_ARE_map.pdf", width = 40, height = 150)
+# pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DIVA_ARE_map.pdf", width = 40, height = 150)
+pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DIVA_ARE_map.pdf", width = 40, height = 150)
+
 # Subdivide our plotting area using layout
 layout(matrix(1:2, 1, 2), widths = c(0.2, 0.8))
 # Set plotting parameters
@@ -2016,9 +2076,12 @@ dev.off()
 ### 7.3/ For DEC+J model ####
 
 # Load DEC+J model output
-DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
+DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
 
-pdf(file = "./outputs/Ancestral_range_estimates_maps/DEC_J_ARE_map.pdf", width = 40, height = 150)
+# pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_ARE_map.pdf", width = 40, height = 150)
+pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_ARE_map.pdf", width = 40, height = 150)
+
 # Subdivide our plotting area using layout
 layout(matrix(1:2, 1, 2), widths = c(0.2, 0.8))
 # Set plotting parameters
@@ -2037,9 +2100,12 @@ dev.off()
 ### 7.4/ For DIVALIKE+J model ####
 
 # Load DIVALIKE+J model output
-DIVA_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_J_fit.rds")
+# DIVA_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_J_fit.rds")
+DIVA_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_J_fit.rds")
 
-pdf(file = "./outputs/Ancestral_range_estimates_maps/DIVA_J_ARE_map.pdf", width = 40, height = 150)
+# pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DIVA_J_ARE_map.pdf", width = 40, height = 150)
+pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DIVA_J_ARE_map.pdf", width = 40, height = 150)
+
 # Subdivide our plotting area using layout
 layout(matrix(1:2, 1, 2), widths = c(0.2, 0.8))
 # Set plotting parameters
@@ -2058,9 +2124,12 @@ dev.off()
 ### 7.5/ For DEC+W model ####
 
 # Load DEC+W model output
-DEC_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_W_fit.rds")
+# DEC_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_W_fit.rds")
+DEC_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_W_fit.rds")
 
-pdf(file = "./outputs/Ancestral_range_estimates_maps/DEC_W_ARE_map.pdf", width = 40, height = 150)
+# pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_W_ARE_map.pdf", width = 40, height = 150)
+pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_W_ARE_map.pdf", width = 40, height = 150)
+
 # Subdivide our plotting area using layout
 layout(matrix(1:2, 1, 2), widths = c(0.2, 0.8))
 # Set plotting parameters
@@ -2079,9 +2148,12 @@ dev.off()
 ### 7.6/ For DIVALIKE+W model ####
 
 # Load DIVALIKE+W model output
-DIVA_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_W_fit.rds")
+# DIVA_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_W_fit.rds")
+DIVA_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_W_fit.rds")
 
-pdf(file = "./outputs/Ancestral_range_estimates_maps/DIVA_W_ARE_map.pdf", width = 40, height = 150)
+# pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DIVA_W_ARE_map.pdf", width = 40, height = 150)
+pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DIVA_W_ARE_map.pdf", width = 40, height = 150)
+
 # Subdivide our plotting area using layout
 layout(matrix(1:2, 1, 2), widths = c(0.2, 0.8))
 # Set plotting parameters
@@ -2100,9 +2172,12 @@ dev.off()
 ### 7.7/ For DEC+J+W model ####
 
 # Load DEC+J+W model output
-DEC_JW_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_JW_fit.rds")
+# DEC_JW_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_JW_fit.rds")
+DEC_JW_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_JW_fit.rds")
 
-pdf(file = "./outputs/Ancestral_range_estimates_maps/DEC_JW_ARE_map.pdf", width = 40, height = 150)
+# pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_JW_ARE_map.pdf", width = 40, height = 150)
+pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_JW_ARE_map.pdf", width = 40, height = 150)
+
 # Subdivide our plotting area using layout
 layout(matrix(1:2, 1, 2), widths = c(0.2, 0.8))
 # Set plotting parameters
@@ -2121,9 +2196,12 @@ dev.off()
 ### 7.8/ For DIVALIKE+J+W model ####
 
 # Load DIVALIKE+J+W model output
-DIVA_JW_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_JW_fit.rds")
+# DIVA_JW_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_JW_fit.rds")
+DIVA_JW_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_JW_fit.rds")
 
-pdf(file = "./outputs/Ancestral_range_estimates_maps/DIVA_JW_ARE_map.pdf", width = 40, height = 150)
+# pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DIVA_JW_ARE_map.pdf", width = 40, height = 150)
+pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DIVA_JW_ARE_map.pdf", width = 40, height = 150)
+
 # Subdivide our plotting area using layout
 layout(matrix(1:2, 1, 2), widths = c(0.2, 0.8))
 # Set plotting parameters
@@ -2141,9 +2219,14 @@ dev.off()
 
 ### 7.9/ Aggregate ARE pdfs ####
 
-all_ARE_maps_path <- list.files(path = "./outputs/Ancestral_range_estimates_maps/", pattern = "ARE_map.pdf", full.names = T)
+# For roughly calibrated phylogeny
+# all_ARE_maps_path <- list.files(path = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/", pattern = "ARE_map.pdf", full.names = T)
+# qpdf::pdf_combine(input = all_ARE_maps_path, output = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/All_models_ARE_maps.pdf")
 
-qpdf::pdf_combine(input = all_ARE_maps_path, output = "./outputs/Ancestral_range_estimates_maps/All_models_ARE_maps.pdf")
+# For MCC tree
+all_ARE_maps_path <- list.files(path = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/", pattern = "ARE_map.pdf", full.names = T)
+qpdf::pdf_combine(input = all_ARE_maps_path, output = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/All_models_ARE_maps.pdf")
+
 
 ##### 8/ Compare models #####
 
@@ -2197,18 +2280,39 @@ compute_AICc <- function (AIC, nobs, k)
 
 ### 8.2/ Build summary table for all models ####
 
+# ## Load model fits for roughly calibrated tree
+# DEC_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_fit.rds")
+# DIVA_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
+# DIVA_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_J_fit.rds")
+# DEC_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_W_fit.rds")
+# DIVA_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_W_fit.rds")
+# DEC_JW_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_JW_fit.rds")
+# DIVA_JW_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DIVA_JW_fit.rds")
+
+## Load model fits for MCC tree
+DEC_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_fit.rds")
+DIVA_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_fit.rds")
+DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
+DIVA_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_J_fit.rds")
+DEC_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_W_fit.rds")
+DIVA_W_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_W_fit.rds")
+DEC_JW_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_JW_fit.rds")
+DIVA_JW_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DIVA_JW_fit.rds")
+
 # Extract number of observations (terminal taxa)
-nb_obs <- length(Ponerinae_phylogeny_1534t_short_names$tip.label)
+# nb_obs <- length(Ponerinae_phylogeny_1534t_short_names$tip.label)
+nb_obs <- length(Ponerinae_MCC_phylogeny_1534t_short_names$tip.label)
 
 # Combine models' fit n a list
 models_list <- list(DEC_fit, DIVA_fit, DEC_J_fit, DIVA_J_fit, DEC_W_fit, DIVA_W_fit, DEC_JW_fit, DIVA_JW_fit)
-# models_list <- list(DEC_fit, DIVA_fit, DEC_J_fit, DIVA_J_fit, DEC_W_fit, DIVA_W_fit)
+# models_list <- list(DEC_fit, DIVA_fit, DEC_J_fit, DIVA_J_fit)
 
 # Extract ln-likelihood, number of parameters, and AIC from models' list
 BIOGeoBEARS_models_comparison <- data.frame(model = c("DEC", "DIVALIKE", "DEC+J", "DIVALIKE+J", "DEC+W", "DIVALIKE+W", "DEC+J+W", "DIVALIKE+J+W"),
                                 logLk = sapply(X = models_list, FUN = get_LnL_from_BioGeoBEARS_results_object),
                                 k = sapply(X = models_list, FUN = extract_k_from_BioGeoBEARS_output))
-# BIOGeoBEARS_models_comparison <- data.frame(model = c("DEC", "DIVALIKE", "DEC+J", "DIVALIKE+J", "DEC+W", "DIVALIKE+W"),
+# BIOGeoBEARS_models_comparison <- data.frame(model = c("DEC", "DIVALIKE", "DEC+J", "DIVALIKE+J"),
 #                                             logLk = sapply(X = models_list, FUN = get_LnL_from_BioGeoBEARS_results_object),
 #                                             k = sapply(X = models_list, FUN = extract_k_from_BioGeoBEARS_output))
 
@@ -2217,6 +2321,10 @@ BIOGeoBEARS_models_comparison$AIC <- unlist(purrr::map2(.x = BIOGeoBEARS_models_
 
 # Compute AICc from AIC, k and nobs
 BIOGeoBEARS_models_comparison$AICc <- unlist(purrr::map2(.x = BIOGeoBEARS_models_comparison$AIC, nobs = nb_obs, .y = BIOGeoBEARS_models_comparison$k, .f = compute_AICc))
+
+# Compute Delta AICc
+best_AICc <- min(BIOGeoBEARS_models_comparison$AICc)
+BIOGeoBEARS_models_comparison$delta_AICc <- BIOGeoBEARS_models_comparison$AICc - best_AICc
 
 # Compute Akaike's weights from AIC
 BIOGeoBEARS_models_comparison$Akaike_weights <- round(phytools::aic.w(BIOGeoBEARS_models_comparison$AICc), 3) * 100
@@ -2231,9 +2339,12 @@ BIOGeoBEARS_models_comparison <- cbind(BIOGeoBEARS_models_comparison, models_MLE
 BIOGeoBEARS_models_comparison
 
 # Save results
-saveRDS(object = BIOGeoBEARS_models_comparison, file = "./outputs/BioGeoBEARS_models/BIOGeoBEARS_models_comparison.rds")
+# saveRDS(object = BIOGeoBEARS_models_comparison, file = "./outputs/BioGeoBEARS_models/BIOGeoBEARS_models_comparison.rds")
+saveRDS(object = BIOGeoBEARS_models_comparison, file = "./outputs/BioGeoBEARS_models/BIOGeoBEARS_models_comparison_for_MCC_phylogeny_1534t.rds")
+
 # Export results
-write.xlsx(x = BIOGeoBEARS_models_comparison, file = "./outputs/BioGeoBEARS_models/BIOGeoBEARS_models_comparison.xlsx")
+# write.xlsx(x = BIOGeoBEARS_models_comparison, file = "./outputs/BioGeoBEARS_models/BIOGeoBEARS_models_comparison.xlsx")
+write.xlsx(x = BIOGeoBEARS_models_comparison, file = "./outputs/BioGeoBEARS_models/BIOGeoBEARS_models_comparison_for_MCC_phylogeny_1534t.xlsx")
 
 
 ## Best model for 7 Time-Strata and 8 Bioregions is DEC+J

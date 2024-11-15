@@ -9051,11 +9051,11 @@ nrow(Biogeographic_database_Ponerinae_curated_no_duplicates)
 table(Biogeographic_database_Ponerinae_curated$Source)
 table(Biogeographic_database_Ponerinae_curated_no_duplicates$Source)
 
-# Compare Type of data: Inpterpolated or not
+# Compare Type of data: Interpolated or not
 table(Biogeographic_database_Ponerinae_curated$Interpolated_coordinates)
 table(Biogeographic_database_Ponerinae_curated_no_duplicates$Interpolated_coordinates)
 
-# Compare taxa list: should be the same: 2582 taxa
+# Compare taxa list: should be the same: 2580 taxa
 length(unique(Biogeographic_database_Ponerinae_curated$Current_name))
 length(unique(Biogeographic_database_Ponerinae_curated_no_duplicates$Current_name))
 
@@ -9533,6 +9533,10 @@ Biogeographic_database_Ponerinae_curated$Current_name[Biogeographic_database_Pon
 occ_ID <- Biogeographic_database_Ponerinae_curated$Occurrence_ID[replace_na(data = (Biogeographic_database_Ponerinae_curated$Current_name == "Odontoponera_transversa" & Biogeographic_database_Ponerinae_curated$bentity2_name == "Philippines"), replace = FALSE)]
 Biogeographic_database_Ponerinae_curated$Current_name[Biogeographic_database_Ponerinae_curated$Occurrence_ID %in% occ_ID] <- "Odontoponera_denticulata"
 
+# Reidentify records of Euponera_sharpi from Afrotropics as Euponera_brunoi
+occ_ID <- Biogeographic_database_Ponerinae_curated$Occurrence_ID[replace_na(data = (Biogeographic_database_Ponerinae_curated$Current_name == "Euponera_sharpi" & Biogeographic_database_Ponerinae_curated$Bioregion == "Afrotropics"), replace = FALSE)]
+Biogeographic_database_Ponerinae_curated$Current_name[Biogeographic_database_Ponerinae_curated$Occurrence_ID %in% occ_ID] <- "Euponera_brunoi"
+
 # Anochetus_siphneus => Anochetus_katonae_nr2. Change all specimens records from Zambia!!!
 Biogeographic_database_Ponerinae_curated$Current_status[(Biogeographic_database_Ponerinae_curated$Current_name == "Anochetus_siphneus") & (Biogeographic_database_Ponerinae_curated$Country_ISO3_name == "Zambia")] <- "morphotaxon"
 Biogeographic_database_Ponerinae_curated$Current_name[(Biogeographic_database_Ponerinae_curated$Current_name == "Anochetus_siphneus") & (Biogeographic_database_Ponerinae_curated$Country_ISO3_name == "Zambia")] <- "Anochetus_katonae_nr2"
@@ -9544,11 +9548,19 @@ Biogeographic_database_Ponerinae_curated$Current_name[(Biogeographic_database_Po
 Biogeographic_database_Ponerinae_curated$Current_status[(Biogeographic_database_Ponerinae_curated$Current_name == "Odontomachus_brunneus") & (Biogeographic_database_Ponerinae_curated$Bioregion == "Neotropical")] <- "morphotaxon"
 Biogeographic_database_Ponerinae_curated$Current_name[(Biogeographic_database_Ponerinae_curated$Current_name == "Odontomachus_brunneus") & (Biogeographic_database_Ponerinae_curated$Bioregion == "Neotropical")] <- "Odontomachus_brunneus_nr"
 
-
 # Change all Hypoponera punctatissima records to Hypoponera ergatandria, except for the specimens in South Africa identified by Phil
-
-
-
+View(Biogeographic_database_Ponerinae_curated[Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_punctatissima",])
+True_Hypoponera_punctatissima_Codes <- c("casent0884422", "casent0884423", "casent0884424", "casent0884432")
+Biogeographic_database_Ponerinae_curated$Current_name[Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_punctatissima" & !(Biogeographic_database_Ponerinae_curated$Specimen_code %in% True_Hypoponera_punctatissima_Codes)] <- "Hypoponera_ergatandria"
+Biogeographic_database_Ponerinae_curated$Name_updated[Biogeographic_database_Ponerinae_curated$Initial_name == "Hypoponera_punctatissima" & !(Biogeographic_database_Ponerinae_curated$Specimen_code %in% True_Hypoponera_punctatissima_Codes)] <- TRUE
+# Treat bioregion outlier in Egypt as an Afrotropics record.
+Biogeographic_database_Ponerinae_curated$Bioregion[Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_ergatandria"] <- "Afrotropics"
+Biogeographic_database_Ponerinae_curated$Bioregion_7_PaleA[Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_ergatandria"] <- "Afrotropics"
+Biogeographic_database_Ponerinae_curated$Bioregion_7_Malagasy[Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_ergatandria"] <- "Afrotropics"
+Biogeographic_database_Ponerinae_curated$Bioregion_8[Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_ergatandria"] <- "Afrotropics"
+# Check updated database
+View(Biogeographic_database_Ponerinae_curated[Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_punctatissima",])
+View(Biogeographic_database_Ponerinae_curated[Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_ergatandria",])
 
 # View(geoBoundaries_adm1_sf[geoBoundaries_adm1_sf$adm1_shapeGroup == "CUB", ])
 # View(geoBoundaries_adm2_sf[geoBoundaries_adm2_sf$adm2_shapeGroup == "CUB", ])
@@ -9569,6 +9581,102 @@ Biogeographic_database_Ponerinae_curated$Current_name[(Biogeographic_database_Po
 ### 9.3/ Occurrences to add from new AntWeb update to fill gaps ####
 
 # Use Brian's updated AntWeb database
+Last_update_AntWeb_df <- read_excel("input_data/AntWeb_data/AntWeb_database_Ponerinae_2024_05_30.xlsx")
+
+## Leptogenys_falcigera
+View(Biogeographic_database_Ponerinae_curated[Biogeographic_database_Ponerinae_curated$Current_name == "Leptogenys_falcigera",])
+# Keep only records in continental Afrotropics
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated %>% 
+  filter(!(Current_name == "Leptogenys_falcigera" & Bioregion != "Afrotropics"))
+# Add records from continental Afrotropics previously recorded as Introduced
+New_records_Leptogenys_falcigera <- Last_update_AntWeb_df %>% 
+  filter(species == "falcigera" & bioregion == "Afrotropical") %>%
+  mutate(Current_name = "Leptogenys_falcigera",
+         Initial_name = "Leptogenys_falcigera",
+         Name_updated = FALSE,
+         Current_status = "valid",
+         In_phylogeny = TRUE,
+         Latitude_dec = decimal_latitude,
+         Longitude_dec = decimal_longitude,
+         Country_initial = country,
+         adm1 = adm1,
+         adm2 = "Mecufi", # To retrieve
+         Locality = localityname,
+         bentity2_name = country, # To adjust
+         Source = "AntWeb",
+         Specimen_code = SpecimenCode,
+         Locality_code = localitycode,
+         Elevation = elevation,
+         duplicate = FALSE, # To check
+         Latitude_dec_initial = decimal_latitude,
+         Longitude_dec_initial = decimal_longitude,
+         adm1_initial = adm1,
+         adm2_initial = adm2,
+         Locality_initial = localityname,
+         bentity2_name_initial = country, # To adjust
+         Elevation_initial = elevation,
+         Country_ISO3_name = country, # To adjust
+         Country_ISO3_code = "MOZ", # To adjust
+         valid_coordinates = TRUE,
+         Bioregion = "Afrotropics",
+         Interpolated_coordinates = FALSE,
+         SUBUNIT_name = country, # To adjust
+         Uncertainty_area = units::set_units(0, "km^2"), 
+         Interpolated_adm1 = FALSE,
+         Interpolated_adm2 = FALSE,
+         Uncertainty_adm2 = 0, 
+         Uncertainty_adm1 = 0, 
+         Interpolated_Bentity2 = FALSE,
+         Country_GB_name = country, # To adjust
+         valid_GB_Country_name = TRUE,
+         Latitude_rounded = round(decimal_latitude, 2),
+         Longitude_rounded = round(decimal_longitude, 2),
+         Bioregion_7_PaleA = "Afrotropics",
+         Bioregion_7_Malagasy = "Afrotropics",
+         Bioregion_8 = "Afrotropics",
+         Updated_coordinates = FALSE,
+         Updated_adm2 = TRUE,
+         Updated_adm1 = FALSE,
+         Updated_Bentity2 = FALSE,
+         Updated_Country = FALSE) %>%
+  select(Current_name, Initial_name, Name_updated, Current_status, In_phylogeny, Latitude_dec, Longitude_dec, Country_initial, adm1, adm2,
+         Locality, bentity2_name, Source, Specimen_code, Locality_code, Elevation, duplicate, Latitude_dec_initial, Longitude_dec_initial,
+         adm1_initial, adm2_initial, Locality_initial, bentity2_name_initial, Elevation_initial, Country_ISO3_name, Country_ISO3_code, 
+         valid_coordinates, Bioregion, Interpolated_coordinates, SUBUNIT_name, Uncertainty_area, Interpolated_adm1,
+         Interpolated_adm2, Uncertainty_adm1, Uncertainty_adm1, Interpolated_Bentity2, Country_GB_name, valid_GB_Country_name,
+         Latitude_rounded, Longitude_rounded, Bioregion_7_PaleA, Bioregion_7_Malagasy, Bioregion_8,
+         Updated_coordinates, Updated_adm2, Updated_adm1, Updated_Bentity2, Updated_Country)
+# Retrieve adm2
+# View(geoBoundaries_adm2_sf[geoBoundaries_adm2_sf$adm2_shapeGroup == "MOZ", "adm2_shapeName"])
+# plot(geoBoundaries_adm2_sf[geoBoundaries_adm2_sf$adm2_shapeGroup == "MOZ", "adm2_shapeName"])
+# Add occurrence_ID
+last_occurrence_ID <- max(Biogeographic_database_Ponerinae_curated$Occurrence_ID)
+New_records_Leptogenys_falcigera$Occurrence_ID <- (last_occurrence_ID + 1):(last_occurrence_ID + nrow(New_records_Leptogenys_falcigera))
+# Flag duplicates based on GPS coordinates
+New_records_Leptogenys_falcigera <- New_records_Leptogenys_falcigera %>% 
+  group_by(Current_name, Latitude_rounded, Longitude_rounded) %>% # Group by taxa and GPS coordinates
+  arrange(Source, Locality, .by_group = TRUE) %>% # AntWeb 1st, GABI 2nd. NA Locality as last
+  mutate(Duplicates_GPS_rank = row_number()) %>% 
+  mutate(Duplicates_GPS_flag = Duplicates_GPS_rank > 1) %>%
+  mutate(duplicate = Duplicates_GPS_flag) %>%
+  ungroup() %>% 
+  arrange(Occurrence_ID)
+# Add missing columns
+template_df <- Biogeographic_database_Ponerinae_curated[0,]
+New_records_Leptogenys_falcigera <- left_join(New_records_Leptogenys_falcigera, template_df)
+New_records_Leptogenys_falcigera <- New_records_Leptogenys_falcigera %>% 
+  select(names(Biogeographic_database_Ponerinae_curated))
+# Add geometry
+New_records_Leptogenys_falcigera$Latitude_copy <- New_records_Leptogenys_falcigera$Latitude_dec
+New_records_Leptogenys_falcigera$Longitude_copy <- New_records_Leptogenys_falcigera$Longitude_dec
+New_records_Leptogenys_falcigera <- sf::st_as_sf(New_records_Leptogenys_falcigera, coords = c("Longitude_copy", "Latitude_copy"), crs = sp::CRS('+init=EPSG:4326'))
+# Set CRS
+sf::st_crs(New_records_Leptogenys_falcigera) <- sp::CRS('+init=EPSG:4326')
+# Add to occurrence database
+Biogeographic_database_Ponerinae_curated <- rbind(Biogeographic_database_Ponerinae_curated, New_records_Leptogenys_falcigera)
+# Check updated database
+View(Biogeographic_database_Ponerinae_curated[Biogeographic_database_Ponerinae_curated$Current_name == "Leptogenys_falcigera", ])
+
 
 ### 9.4/ Occurrences to remove (not credible, or introduced) ####
 
@@ -9595,6 +9703,10 @@ bioreg_outliers_ID <- Biogeographic_database_Ponerinae_curated_no_duplicates$Occ
 dist_outliers_ID <- Biogeographic_database_Ponerinae_curated_no_duplicates$Occurrence_ID[(Biogeographic_database_Ponerinae_curated_no_duplicates$Current_name == "Odontomachus_simillimus" & !Biogeographic_database_Ponerinae_curated_no_duplicates$bioregion_outlier & Biogeographic_database_Ponerinae_curated_no_duplicates$distance_outlier)]
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Occurrence_ID %in% dist_outliers_ID), ]
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Occurrence_ID %in% bioreg_outliers_ID), ]
+
+# Parvaponera_darwinii: Remove outlier from UAE. Also remove Afrotropics records as suspected from Introduction.
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated %>% 
+  filter(!(Current_name == "Parvaponera_darwinii" & Bioregion %in% c("Afrotropics", "Palearctic")))
 
 # Platythyrea_parallela: Remove distance outliers
 dist_outliers_ID <- Biogeographic_database_Ponerinae_curated_no_duplicates$Occurrence_ID[(Biogeographic_database_Ponerinae_curated_no_duplicates$Current_name == "Platythyrea_parallela" & !Biogeographic_database_Ponerinae_curated_no_duplicates$bioregion_outlier & Biogeographic_database_Ponerinae_curated_no_duplicates$distance_outlier)]
@@ -9708,6 +9820,9 @@ Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_cur
 # Mesoponera_australis: Remove Sumatra records
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Mesoponera_australis" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Sumatra")), ]
 
+# Mesoponera_melanaria: Remove from Seychelles as suspected from introduction
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Mesoponera_melanaria" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Seychelles")), ]
+
 # Mesoponera_rubra: Remove bioregion outliers in PNG and Australia
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Mesoponera_rubra" & Biogeographic_database_Ponerinae_curated$Country_ISO3_code %in% c("AUS", "PNG")), ]
 
@@ -9808,6 +9923,11 @@ Biogeographic_database_Ponerinae_curated$Bioregion[replace_na(data = Biogeograph
 # Anochetus_risii: Remove bioregion outliers in the Pacific islands
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Anochetus_risii" & Biogeographic_database_Ponerinae_curated$Bioregion %in% c("Australasia")), ]
 
+# Anochetus_sedilloti: Keep only records from continental Africa (Afrotropics + Western Palearctic)
+View(Biogeographic_database_Ponerinae_curated[Biogeographic_database_Ponerinae_curated$Current_name == "Anochetus_sedilloti",])
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated %>% 
+  filter(!(Current_name == "Anochetus_sedilloti" & (Bioregion != "Afrotropics" & Country_ISO3_name != "Tunisia")))
+
 # Bothroponera_sulcata: Remove bioregion oulier in Himachal Pradesh
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Bothroponera_sulcata" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Himachal Pradesh")), ]
 # Bothroponera_sulcata: Treat bioregion outliers in Jammu & Kashmir as Indomalaya records
@@ -9827,6 +9947,9 @@ Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_cur
 # Cryptopone_motschulskyi: Remove bioregion outliers in Philippines
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Cryptopone_motschulskyi" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Philippines")), ]
 
+# Emeryopone_loebli: Remove Malaysia/Singapore records
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Emeryopone_loebli" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Malaysia and Singapore")), ]
+
 # Euponera_pilosior: Remove bioregion outliers from Ogasawara Islands and Volcano Islands
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Euponera_pilosior" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Ogasawara Islands", "Volcano Islands")), ]
 
@@ -9838,6 +9961,9 @@ Biogeographic_database_Ponerinae_curated$Bioregion[replace_na(data = Biogeograph
 
 # Hypoponera_biroi: Remove bioregion outliers in Taiwan, Sumatra and Java
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_biroi" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Taiwan", "Sumatra", "Java")), ]
+
+# Hypoponera_gibbinota: Remove the two occurrences. Is from Neotropics, but no georeferenced occurrence there.
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_gibbinota"), ]
 
 # Hypoponera_nippona: Remove record from Volcano Islands in Ogasawara, Japan
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_nippona" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Volcano Islands")), ]
@@ -9865,6 +9991,9 @@ Biogeographic_database_Ponerinae_curated$Bioregion[replace_na(data = Biogeograph
 # Leptogenys_kitteli: Treat bioregion outliers in Sichuan and Himachal Pradesh as Indomalaya records
 Biogeographic_database_Ponerinae_curated$Bioregion[replace_na(data = Biogeographic_database_Ponerinae_curated$Current_name == "Leptogenys_kitteli" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Sichuan", "Himachal Pradesh"), replace = F)] <- "Indomalaya"
 
+# Leptogenys_reggae: Remove Vietnam record
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Leptogenys_reggae" & Biogeographic_database_Ponerinae_curated$Country_ISO3_code %in% c("VNM")), ]
+
 # Myopias_cribriceps: Remove bioregion outlier in Bali, Indonesia
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Myopias_cribriceps" & Biogeographic_database_Ponerinae_curated$adm1 %in% c("Bali")), ]
 
@@ -9882,10 +10011,16 @@ Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_cur
 # Odontomachus_opaculus: Remove bioregion outlier in Bali, Indonesia
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Odontomachus_opaculus" & Biogeographic_database_Ponerinae_curated$adm1 %in% c("Bali")), ]
 
+# Odontomachus_simillimus: Remove in Seychelles
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Odontomachus_simillimus" & Biogeographic_database_Ponerinae_curated$Country_ISO3_name %in% c("Seychelles")), ]
+
 # Platythyrea_sagei: Remove distance outliers in Singapour
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Platythyrea_sagei" & Biogeographic_database_Ponerinae_curated$Country_ISO3_code %in% c("SGP")), ]
 # Platythyrea_sagei: Treat bioregion outliers in Himachal Pradesh as Indomalaya records
 Biogeographic_database_Ponerinae_curated$Bioregion[replace_na(data = Biogeographic_database_Ponerinae_curated$Current_name == "Platythyrea_sagei" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Himachal Pradesh"), replace = F)] <- "Indomalaya"
+
+# Ponera_petila: Remove Seychelles and Mauritius records as suspected from Introduction
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Ponera_petila" & Biogeographic_database_Ponerinae_curated$Bioregion %in% c("Afrotropics")), ]
 
 # Ponera_scabra: Remove bioregion outlier in PNG
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Ponera_scabra" & Biogeographic_database_Ponerinae_curated$Country_ISO3_code %in% c("PNG")), ]
@@ -9903,8 +10038,33 @@ Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_cur
 # Pseudoneoponera_bispinosa: Treat bioregion outliers in Himalayan India as Indomalaya records
 Biogeographic_database_Ponerinae_curated$Bioregion[replace_na(data = Biogeographic_database_Ponerinae_curated$Current_name == "Pseudoneoponera_bispinosa" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Jammu & Kashmir", "Himachal Pradesh"), replace = F)] <- "Indomalaya"
 
+## Inspect potentially introduced occurrences in the Pacific region
+Oceania_occurrences_df <- Biogeographic_database_Ponerinae_curated %>% 
+  filter(Longitude_dec < -150 | Longitude_dec > 170) %>% 
+  filter(Country_ISO3_name != "New Zealand")
 
-# Remove errors with empty geometry
+Oceania_taxa_bentity2_df <- Oceania_occurrences_df %>%
+  st_drop_geometry() %>%
+  group_by(Current_name, bentity2_name) %>%
+  summarize(occ_counts = n())
+
+write.xlsx(x = st_drop_geometry(Oceania_occurrences_df), file = "./input_data/Biogeographic_data/Oceania_occurrences_df.xlsx")
+write.xlsx(x = Oceania_taxa_bentity2_df, file = "./input_data/Biogeographic_data/Oceania_taxa_bentity2_df.xlsx")
+
+# Anochetus_graeffei: Remove in Cook Islands
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Anochetus_graeffei" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Cook Islands")), ]
+# Hypoponera_johannae_cf: Remove in Austral Islands and Hawaii
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_johannae_cf" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Austral Islands", "Hawaii")), ]
+# Ponera_petila: Remove in Society Islands
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Ponera_petila" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Society Islands")), ]
+# Ponera_swezeyi: Remove in Hawaii
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Ponera_swezeyi" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Hawaii")), ]
+# Hypoponera_confinis: Remove in Marshall Islands
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Hypoponera_confinis" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Marshall Islands")), ]
+# Odontomachus_simillimus: Remove in Kiribati, Line Islands, Marshall Islands
+Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!(Biogeographic_database_Ponerinae_curated$Current_name == "Odontomachus_simillimus" & Biogeographic_database_Ponerinae_curated$bentity2_name %in% c("Kiribati", "Line Islands", "Marshall Islands")), ]
+
+## Remove errors with empty geometry
 Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_curated[!st_is_empty(Biogeographic_database_Ponerinae_curated), ]
 
 
@@ -9914,7 +10074,6 @@ Biogeographic_database_Ponerinae_curated <- Biogeographic_database_Ponerinae_cur
 
 ## Save Biogeographic database with all curated coordinates
 # saveRDS(object = Biogeographic_database_Ponerinae_curated, file = "./input_data/Biogeographic_data/Biogeographic_database_Ponerinae_curated.rds")
-
 
 
 #### Record changes in the database including duplicates. Then, rerun the duplicate detection (Section 7)
@@ -10356,6 +10515,14 @@ Biogeographic_database_Ponerinae_curated_no_duplicates <- left_join(x = Biogeogr
                                                                     y = st_drop_geometry(Biogeographic_database_Ponerinae_curated[, c("Occurrence_ID", "Bioregion_7_PaleA", "Bioregion_7_Malagasy", "Bioregion_8")]),
                                                                     by = "Occurrence_ID")
 
+# Biogeographic_database_Ponerinae_curated_no_duplicates <- Biogeographic_database_Ponerinae_curated_no_duplicates %>%
+#   rename(Bioregion_7_PaleA = Bioregion_7_PaleA.y,
+#          Bioregion_7_Malagasy = Bioregion_7_Malagasy.y,
+#          Bioregion_8 = Bioregion_8.y) %>%
+#   select(-Bioregion_7_PaleA.x,
+#          -Bioregion_7_Malagasy.x,
+#          -Bioregion_8.x)
+
 ## Save Biogeographic database with all curated coordinates
 saveRDS(object = Biogeographic_database_Ponerinae_curated, file = "./input_data/Biogeographic_data/Biogeographic_database_Ponerinae_curated.rds")
 saveRDS(object = Biogeographic_database_Ponerinae_curated_no_duplicates, file = "./input_data/Biogeographic_data/Biogeographic_database_Ponerinae_curated_no_duplicates.rds")
@@ -10367,7 +10534,7 @@ saveRDS(object = Biogeographic_database_Ponerinae_curated_no_duplicates, file = 
 Taxa_bioregions_quantitative_table <- Biogeographic_database_Ponerinae_curated_no_duplicates %>%
   st_drop_geometry() %>% 
   group_by(Current_name, Bioregion_8) %>% 
-  summarise(nb_occ = n()) %>% 
+  dplyr::summarise(nb_occ = dplyr::n()) %>% 
   pivot_wider(names_from = Bioregion_8, values_from = nb_occ) %>%
   mutate_all(., ~replace_na(.,0))
 
@@ -10375,7 +10542,7 @@ Taxa_bioregions_quantitative_table <- Biogeographic_database_Ponerinae_curated_n
 Taxa_bioregions_quantitative_table_with_duplicates <- Biogeographic_database_Ponerinae_curated %>%
   st_drop_geometry() %>% 
   group_by(Current_name, Bioregion_8) %>% 
-  summarise(nb_occ = n()) %>% 
+  dplyr::summarise(nb_occ = dplyr::n()) %>% 
   pivot_wider(names_from = Bioregion_8, values_from = nb_occ) %>%
   mutate_all(., ~replace_na(.,0))
 
@@ -10417,7 +10584,7 @@ Taxa_bioregions_quantitative_table_for_analyses_with_duplicates$Total_occ_duplic
 
 taxa_without_occurrences <- Taxa_bioregions_quantitative_table_for_analyses$Current_name[Taxa_bioregions_quantitative_table_for_analyses$Total_occ == 0]
 
-# 11 taxa without occurrences
+# 12 taxa without occurrences
 taxa_without_occurrences
 
 # Ectomomyrmex_horni. Is from Taiwan => Indomalaya
@@ -10425,6 +10592,9 @@ Taxa_bioregions_binary_table_for_analyses[Taxa_bioregions_quantitative_table_for
 
 # Euponera_grandis. Is from Vietnam => Indomalaya
 Taxa_bioregions_binary_table_for_analyses[Taxa_bioregions_quantitative_table_for_analyses$Current_name == "Euponera_grandis", "Indomalaya"] <- TRUE
+
+# Hypoponera_gibbinota. Is from Neotropics
+Taxa_bioregions_binary_table_for_analyses[Taxa_bioregions_quantitative_table_for_analyses$Current_name == "Hypoponera_gibbinota", "Neotropics"] <- TRUE
 
 # Mayaponera_longidentata. Is from Colombia => Neotropics
 Taxa_bioregions_binary_table_for_analyses[Taxa_bioregions_quantitative_table_for_analyses$Current_name == "Mayaponera_longidentata", "Neotropics"] <- TRUE
@@ -10591,6 +10761,10 @@ Ponerinae_Macroevolution_taxa_database$Occurrences_nb_with_duplicates <- Taxa_bi
 hist(Ponerinae_Macroevolution_taxa_database$Occurrences_nb)
 hist(Ponerinae_Macroevolution_taxa_database$Occurrences_nb_with_duplicates)
 
+# Remove previous binary bioregion variables
+Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database %>% 
+  select(-Afrotropics, -Malagasy, -Indomalaya, -Australasia, -Neotropics, -`Western Palearctic`, -`Eastern Palearctic`, -Nearctic, -Palearctic, -Afrotropics_Malagasy)
+
 # Add Presence/Absence in each Bioregion
 Ponerinae_Macroevolution_taxa_database <- cbind(Ponerinae_Macroevolution_taxa_database, Taxa_bioregions_binary_table_for_analyses[, -1])
 
@@ -10642,5 +10816,60 @@ saveRDS(object = Ponerinae_Biogeography_Genera_summary, file = "./input_data/Pon
 write.xlsx(x = Ponerinae_Biogeography_Genera_summary, file = "./input_data/Biogeographic_data/Ponerinae_Biogeography_Genera_summary.xlsx")
 
 
+##### 15/ Create Bioregion-level summary table ####
 
+## Load Ponerinae_Macroevolution_taxa_database
+Ponerinae_Macroevolution_taxa_database <- readRDS(file = "./input_data/Ponerinae_Macroevolution_taxa_database.rds")
+
+table(Ponerinae_Macroevolution_taxa_database$Current_status, Ponerinae_Macroevolution_taxa_database$In_phylogeny)
+
+Ponerinae_Macroevolution_taxa_database$Current_status[Ponerinae_Macroevolution_taxa_database$Current_status == "new"] <- "morphotaxon"
+
+# Compute number and proportion of valid species per bioregions
+Valid_taxa_per_bioregions_df <- Ponerinae_Macroevolution_taxa_database %>% 
+  select(-Afrotropics) %>%
+  rename(Afrotropics = Afrotropics_Malagasy) %>%
+  pivot_longer(cols = c("Afrotropics", "Indomalaya", "Australasia", "Neotropics", "Western Palearctic", "Eastern Palearctic", "Nearctic"), names_to = "Bioregions_7_PaleA", values_to = "PA") %>%
+  group_by(Bioregions_7_PaleA, In_phylogeny) %>%
+  summarize(taxa_counts = sum(PA)) %>%
+  pivot_wider(names_from = "In_phylogeny", values_from = "taxa_counts") %>%
+  rename("Grafted_counts" = `FALSE`,
+         "UCE_counts" = `TRUE`) %>%
+  mutate(Total_taxa = Grafted_counts + UCE_counts) %>%
+  mutate(Grafted_perc = round(Grafted_counts / Total_taxa * 100, 1)) %>%
+  mutate(UCE_perc = round(UCE_counts / Total_taxa * 100, 1))
+
+# Save summary table for Grafted vs. UCE data across bioregions
+saveRDS(object = Valid_taxa_per_bioregions_df, file = "./input_data/Biogeographic_data/Valid_taxa_per_bioregions_df.rds")
+
+
+##### 16/ Export clean occurrence database for Supplementary Data 4 ####
+
+## Load Biogeographic database with all curated coordinates
+Biogeographic_database_Ponerinae_curated <- readRDS(file = "./input_data/Biogeographic_data/Biogeographic_database_Ponerinae_curated.rds")
+
+Biogeographic_database_Ponerinae_cleaned <- Biogeographic_database_Ponerinae_curated %>% 
+  mutate(AOW_Ponerinae_Occ_ID = paste0("AOTW_Ponerinae_Occ_", 1:nrow(Biogeographic_database_Ponerinae_curated))) %>%
+  rename(Taxa_name = Current_name,
+         AntWeb_ID = Specimen_code,
+         bentity2_temp = bentity2,
+         bentity2 = bentity2_name,
+         Bioregion_temp = Bioregion,
+         Bioregion = Bioregion_7_PaleA) %>%
+  sf::st_drop_geometry() %>%
+  dplyr::select(AOW_Ponerinae_Occ_ID, Source, AntWeb_ID, GABI_accession_ID, Accession_ID,
+                Taxa_name, Initial_name, Current_status,
+                Latitude_dec, Longitude_dec,
+                Country_ISO3_name, Country_ISO3_code,
+                bentity2, adm1, adm2, Locality,
+                Bioregion, duplicate,
+                Interpolated_coordinates, Uncertainty_area,
+                Interpolated_Bentity2, Interpolated_adm1, Interpolated_adm2,
+                Uncertainty_adm1, Uncertainty_adm2,
+                Updated_coordinates, Updated_Bentity2, Updated_adm1, Updated_adm2, Updated_Locality)
+
+## Save Supplementary Data 3
+saveRDS(Biogeographic_database_Ponerinae_cleaned, file = "./input_data/Biogeographic_data/Biogeographic_database_Ponerinae_cleaned.rds")
+## Export in Excel
+openxlsx::write.xlsx(x = Biogeographic_database_Ponerinae_cleaned, file = "./input_data/Biogeographic_data/Biogeographic_database_Ponerinae_cleaned.xlsx")
 

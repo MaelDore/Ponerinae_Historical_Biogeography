@@ -52,6 +52,50 @@ Paleomaps_time_series <- unlist(lapply(X = Paleomaps_with_bioregions_sf, FUN = f
 # Bioregion_hulls_reconstruct_all_ages <- readRDS(file = "./outputs/Paleomaps/Bioregion_hulls_reconstruct_all_ages.rds")
 # # Need to extract centroids
 
+## 1.2.1/ Plot current bioregion to use as background on Long/Lat gradient plots
+
+# Set color scheme for areas/bioregions (Use the BSM color scheme)
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
+bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
+names(colors_list_for_areas) <- bioregion_names
+colors_list_for_areas_with_Antarctica <- c("grey90", colors_list_for_areas)
+bioregion_names_with_Antarctica <- c("Antarctica", bioregion_names)
+names(colors_list_for_areas_with_Antarctica) <- bioregion_names_with_Antarctica
+
+pdf(file = "./outputs/Paleomaps/Background_current_bioregions_WGS84.pdf", height = 8, width = 12)
+
+ggplot(data = data.frame()) +
+  
+  # Plot bioregion maps
+  geom_sf(data = Paleomaps_with_bioregions_sf[[1]],
+          mapping = aes(fill = Bioregion),
+          show.legend = F,
+          colour = "black",
+          alpha = 1.0) +
+  
+  # Adjust fill color scheme for bioregions
+  scale_fill_manual("Bioregions", breaks = bioregion_names_with_Antarctica, labels = bioregion_names_with_Antarctica, values = colors_list_for_areas_with_Antarctica) +
+
+  # Adjust aesthetics
+  theme_classic() +
+  
+  theme(panel.background = element_rect(fill = NA),
+        panel.border = element_rect(fill = NA, colour = NA),
+        panel.grid.major = element_line(colour = "grey70", linetype = "dashed", linewidth = 0.2), # Plot graticules
+        # plot.title = element_text(hjust = 0.5, size = 18, face = "bold", margin = margin(b = 20)),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        axis.line = element_blank(),
+        plot.margin = margin(0.0, 0.0, 0.0, 0.0, "cm"), # trbl
+        # axis.ticks = element_line(linewidth = 1.0),
+        # axis.ticks.length = unit(10, "pt"),
+        # axis.text = element_text(size = 21, color = "black", face = "bold"),
+        # axis.text.y = element_text(angle = 90, hjust = 0.5, margin = margin(l = 5, r = 10)),
+        # axis.text.x = element_text(margin = margin(t = 10, b = 5)),
+        axis.title = element_blank())
+
+dev.off()
+
 
 ### 1.3/ Define the sliding windows/time series ####
 
@@ -60,8 +104,9 @@ window_width <- 5 # Width = 5 My (Must be a multiple of window_steps)
 window_steps <- 1 # Steps = 1 My (Must be a divider of window_width)
 
 # Extract root age
-# root_age <- max(DEC_J_clado_events_tables[[1]]$time_bp)
-root_age <- 113
+# root_age <- 113
+Ponerinae_MCC_phylogeny_1534t_treedata <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata.rds")
+root_age <- round(max(phytools::nodeHeights(Ponerinae_MCC_phylogeny_1534t_treedata@phylo)), 1)
 
 # Generate start and end times of sliding windows
 start_time_list <- seq(from = 0, to = root_age - window_width, by = window_steps)
@@ -74,26 +119,32 @@ nodes_metadata_time_series <- floor(mean_time_list)
 ### 1.4/ Load network data ####
 
 ## Load overall node metadata
-nodes_metadata <- readRDS(file = "./outputs/Network_events_counts/nodes_metadata.rds")
+# nodes_metadata <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata.rds")
+nodes_metadata <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata.rds")
+
 ## Load node metadata per sliding windows
-nodes_metadata_per_sliding_windows <- readRDS(file = paste0("./outputs/Network_events_counts/nodes_metadata_per_sliding_windows_",window_width,"My.rds"))
+# nodes_metadata_per_sliding_windows <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata_per_sliding_windows_",window_width,"My.rds"))
+nodes_metadata_per_sliding_windows <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata_per_sliding_windows_",window_width,"My.rds"))
 
 ## Load overall edge metadata
-all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_counts/all_dispersal_events_overall_df.rds")
+# all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_df.rds")
+all_dispersal_events_overall_df <- readRDS(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_df.rds")
+
 # Load edge metadata per sliding windows
-all_dispersal_events_all_sliding_windows_df_list <- readRDS(file = paste0("./outputs/Network_events_counts/all_dispersal_events_all_sliding_windows_df_list_",window_width,"My.rds"))
+# all_dispersal_events_all_sliding_windows_df_list <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_sliding_windows_df_list_",window_width,"My.rds"))
+all_dispersal_events_all_sliding_windows_df_list <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_sliding_windows_df_list_",window_width,"My.rds"))
 
 
 ### 1.5 Adjust color scheme for a less shiny output ####
 
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
 colors_list_for_areas <- colors_list_for_states[c("A", "U", "I", "R", "N", "E", "W")]
 
 original_BSM_color_scheme <- c("#0000FF", "#00FFFF", "#00CD00", "#FFFF00", "#FFA500", "#FF0000", "#EE82EE")
 new_lighter_color_scheme <- c("royalblue3", "darkslategray2", "limegreen", "#ffff42", "orange1", "firebrick2", "plum1")
 names(new_lighter_color_scheme) <- c("A", "U", "I", "R", "N", "E", "W")
 
-saveRDS(new_lighter_color_scheme, file = "./outputs/BSM/BSM_maps/colors_list_for_areas_light.rds")
+saveRDS(new_lighter_color_scheme, file = "./outputs/BSM/colors_list_for_areas_light.rds")
 
 ### 1.6/ Function to generate polgyons from data.frame ####
 
@@ -123,7 +174,7 @@ reconstruct_initial_polygon_with_sfheaders <- function (sf)
 
 ##### 2/ Compute centroids of bioregions through time #####
 
-# Create East/West hemisphere pôlygons
+# Create East/West hemisphere polygons
 West_hemisphere <- st_as_sf(x = st_as_sfc(x = st_bbox(c(xmin = -180, xmax = 0, ymax = 90, ymin = -90), crs = st_crs(4326))))
 East_hemisphere <- st_as_sf(x = st_as_sfc(x = st_bbox(c(xmin = 0, xmax = 180, ymax = 90, ymin = -90), crs = st_crs(4326))))
 EW_polygons <- rbind(East_hemisphere, West_hemisphere) %>% 
@@ -223,7 +274,8 @@ for (i in seq_along(nodes_metadata_time_series))
 }
 
 # Save node metadata with updated coords
-saveRDS(object = nodes_metadata_per_sliding_windows_updated_coords, file = paste0("./outputs/Network_events_counts/nodes_metadata_per_sliding_windows_",window_width,"My_updated_coords.rds"))
+# saveRDS(object = nodes_metadata_per_sliding_windows_updated_coords, file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata_per_sliding_windows_",window_width,"My_updated_coords.rds"))
+saveRDS(object = nodes_metadata_per_sliding_windows_updated_coords, file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata_per_sliding_windows_",window_width,"My_updated_coords.rds"))
 
 
 ## For T = 0 overall total
@@ -242,7 +294,8 @@ nodes_metadata_updated_coords <- nodes_metadata %>%
   left_join(Bioregion_centroids_T0)
 
 # Save node metadata for T=0 with updated coords
-saveRDS(object = nodes_metadata_updated_coords, file = paste0("./outputs/Network_events_counts/nodes_metadata_updated_coords.rds"))
+# saveRDS(object = nodes_metadata_updated_coords, file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata_updated_coords.rds"))
+saveRDS(object = nodes_metadata_updated_coords, file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata_updated_coords.rds"))
 
 
 ### 3.2/ Inform edge metadata ####
@@ -296,7 +349,8 @@ for (i in seq_along(nodes_metadata_time_series))
 }
 
 # Save edge metadata with updated coords
-saveRDS(object = all_dispersal_events_all_sliding_windows_df_list_updated_coords, file = paste0("./outputs/Network_events_counts/all_dispersal_events_all_sliding_windows_df_list_",window_width,"My_updated_coords.rds"))
+# saveRDS(object = all_dispersal_events_all_sliding_windows_df_list_updated_coords, file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_sliding_windows_df_list_",window_width,"My_updated_coords.rds"))
+saveRDS(object = all_dispersal_events_all_sliding_windows_df_list_updated_coords, file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_sliding_windows_df_list_",window_width,"My_updated_coords.rds"))
 
 ## For T = 0 overall total
 
@@ -327,7 +381,8 @@ all_dispersal_events_overall_df_updated_coords <- all_dispersal_events_overall_d
          dest_latitude_Mollweide = Latitude_Mollweide)
 
 # Save edge metadata for T=0 with updated coords
-saveRDS(object = all_dispersal_events_overall_df_updated_coords, file = paste0("./outputs/Network_events_counts/all_dispersal_events_overall_df_updated_coords.rds"))
+#saveRDS(object = all_dispersal_events_overall_df_updated_coords, file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_df_updated_coords.rds"))
+saveRDS(object = all_dispersal_events_overall_df_updated_coords, file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_df_updated_coords.rds"))
 
 
 ##### 4/ Map overall network for T=0 #####
@@ -335,10 +390,12 @@ saveRDS(object = all_dispersal_events_overall_df_updated_coords, file = paste0("
 ### 4.1/ Prepare stuff ####
 
 ## Load overall node metadata for T=0 with updated coordinates
-nodes_metadata_updated_coords <- readRDS(file = paste0("./outputs/Network_events_counts/nodes_metadata_updated_coords.rds"))
+# nodes_metadata_updated_coords <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata_updated_coords.rds"))
+nodes_metadata_updated_coords <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata_updated_coords.rds"))
 
 ## Load overall edge metadata for T=0 with updated coords
-all_dispersal_events_overall_df_updated_coords <- readRDS(file = paste0("./outputs/Network_events_counts/all_dispersal_events_overall_df_updated_coords.rds"))
+# all_dispersal_events_overall_df_updated_coords <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_df_updated_coords.rds"))
+all_dispersal_events_overall_df_updated_coords <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_df_updated_coords.rds"))
 
 # Set minimum nb of dispersal events to display
 min_counts_threshold <- 5
@@ -346,7 +403,7 @@ min_counts_threshold <- 5
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
 # colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
 # colors_list_for_areas <- colors_list_for_states[c("A", "U", "I", "R", "N", "E", "W")]
-colors_list_for_areas <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_areas_light.rds")
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 names(colors_list_for_areas) <- bioregion_names
 colors_list_for_areas_with_Antarctica <- c("grey90", colors_list_for_areas)
@@ -464,7 +521,8 @@ geol_scale_plot <- ggplot(fake_ts_data_df) +
 
 
 ## GGplot
-pdf(file = "./outputs/Network_events_counts/all_dispersal_events_overall_updated_ggplot.pdf",
+# pdf(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_updated_ggplot.pdf",
+pdf(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_updated_ggplot.pdf",
     width = 9, height = 6)
 
 ### 4.2/ Create network map plot ####
@@ -607,10 +665,12 @@ dev.off()
 ### 5.1/ Load data ####
 
 ## Load node metadata per sliding windows  with updated coordinates
-nodes_metadata_per_sliding_windows_updated_coords <- readRDS(file = paste0("./outputs/Network_events_counts/nodes_metadata_per_sliding_windows_",window_width,"My_updated_coords.rds"))
+# nodes_metadata_per_sliding_windows_updated_coords <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/nodes_metadata_per_sliding_windows_",window_width,"My_updated_coords.rds"))
+nodes_metadata_per_sliding_windows_updated_coords <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/nodes_metadata_per_sliding_windows_",window_width,"My_updated_coords.rds"))
 
 # Load edge metadata of mean counts per sliding windows with updated coords
-all_dispersal_events_all_sliding_windows_df_list_updated_coords <- readRDS(file = paste0("./outputs/Network_events_counts/all_dispersal_events_all_sliding_windows_df_list_",window_width,"My_updated_coords.rds"))
+# all_dispersal_events_all_sliding_windows_df_list_updated_coords <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_all_sliding_windows_df_list_",window_width,"My_updated_coords.rds"))
+all_dispersal_events_all_sliding_windows_df_list_updated_coords <- readRDS(file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_all_sliding_windows_df_list_",window_width,"My_updated_coords.rds"))
 
 ## Create polygons of extreme values to ensure all the bbox is plotted
 E_patch <- data.frame(Latitude_dec = c(0, 0, 0.01, 0.01, 0),
@@ -657,9 +717,9 @@ st_crs(S_patch) <- st_crs(4326)
 ### 5.2/ Set color scheme ####
 
 # Set color scheme for areas/bioregions (Use the BSM color scheme)
-# colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
+# colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
 # colors_list_for_areas <- colors_list_for_states[c("A", "U", "I", "R", "N", "E", "W")]
-colors_list_for_areas <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_areas_light.rds")
+colors_list_for_areas <- readRDS(file = "./outputs/BSM/colors_list_for_areas_light.rds")
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 names(colors_list_for_areas) <- bioregion_names
 colors_list_for_areas_with_Antarctica <- c("grey90", colors_list_for_areas)
@@ -674,11 +734,13 @@ names(colors_list_for_areas_with_Antarctica) <- bioregion_names_with_Antarctica
 # min_counts_threshold <- 1
 # min_counts_threshold_list <- rep(min_counts_threshold, length(all_dispersal_events_all_sliding_windows_df_list))
 
-min_counts_threshold_early <- 1 # From 110 to 20My
-min_counts_threshold_middle <- 2 # From 19 to 8My
-min_counts_threshold_late <- 3  # From 7 to 2My
+min_counts_threshold_early <- 1 # From 123.6 to 20My
+# min_counts_threshold_middle <- 2 # From 19 to 8My
+min_counts_threshold_middle <- 1 # From 19 to 13My
+# min_counts_threshold_late <- 3  # From 12 to 2My
+min_counts_threshold_late <- 2  # From 12 to 2My
 time_threshold_1 <- 20 # Transition at 20My
-time_threshold_2 <- 8 # Transition at 8My
+time_threshold_2 <- 13 # Transition at 13My
 
 min_counts_threshold_list <- rep(min_counts_threshold_early, length(nodes_metadata_time_series))
 names(min_counts_threshold_list) <- nodes_metadata_time_series
@@ -763,6 +825,7 @@ geol_scale_plot <- ggplot(fake_ts_data_df) +
 ### 5.5/ Plot ggplot for each sliding window ####
 
 for (i in seq_along(nodes_metadata_time_series))
+# for (i in 1:25)
 {
   # i <- 1
   # i <- 31
@@ -871,7 +934,8 @@ for (i in seq_along(nodes_metadata_time_series))
   ## 5.5.3/ Plot map and network ####
   
   # Plot PDF
-  pdf(file = paste0("./outputs/Network_events_counts/plots_for_sliding_windows_moving_continents/all_dispersal_events_mean_counts_sliding_windows_",i,"_",window_width,"My_moving_continents_ggplot.pdf"),
+  # pdf(file = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/plots_for_sliding_windows_moving_continents/all_dispersal_events_mean_counts_sliding_windows_",i,"_",window_width,"My_moving_continents_ggplot.pdf"),
+  pdf(file = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/plots_for_sliding_windows_moving_continents/all_dispersal_events_mean_counts_sliding_windows_",i,"_",window_width,"My_moving_continents_ggplot.pdf"),
       width = 9, height = 6)
   
   all_dispersal_events_sliding_windows_i_ggplot <- ggplot(data = nodes_metadata_sliding_windows_i) +
@@ -1028,7 +1092,8 @@ for (i in seq_along(nodes_metadata_time_series))
 
 ## 6.1.1/ With overlap (all windows)
 
-all_ggplots_path <- list.files(path = "./outputs/Network_events_counts/plots_for_sliding_windows_moving_continents/", pattern = "all_dispersal_events_mean_counts_sliding_windows_", full.names = T)
+# all_ggplots_path <- list.files(path = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/plots_for_sliding_windows_moving_continents/", pattern = "all_dispersal_events_mean_counts_sliding_windows_", full.names = T)
+all_ggplots_path <- list.files(path = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/plots_for_sliding_windows_moving_continents/", pattern = "all_dispersal_events_mean_counts_sliding_windows_", full.names = T)
 all_ggplots_path <- all_ggplots_path[str_detect(string = all_ggplots_path, pattern = paste0(window_width,"My"))]
 all_ggplots_path <- all_ggplots_path[str_detect(string = all_ggplots_path, pattern = "ggplot.pdf")]
 nb_ggplots <- length(all_ggplots_path)
@@ -1039,7 +1104,8 @@ all_ggplots_path_prefix <- str_remove(string = all_ggplots_path, pattern = "_mea
 all_ggplots_path_suffix <- paste0("_",window_width,"My_moving_continents_ggplot.pdf")
 all_ggplots_path_reordered <- paste0(all_ggplots_path_prefix, "_mean_counts_sliding_windows_", indices, all_ggplots_path_suffix)
 
-qpdf::pdf_combine(input = all_ggplots_path_reordered, output = paste0("./outputs/Network_events_counts/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot.pdf"))
+# qpdf::pdf_combine(input = all_ggplots_path_reordered, output = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot.pdf"))
+qpdf::pdf_combine(input = all_ggplots_path_reordered, output = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot.pdf"))
 
 ## 6.1.2/ Without overlap
 
@@ -1048,19 +1114,24 @@ indices_no_overlap <- seq(from = 1, to = nb_ggplots, by = (window_coverage + 1))
 
 all_ggplots_path_reordered_no_overlap <- paste0(all_ggplots_path_prefix[1], "_mean_counts_sliding_windows_", indices_no_overlap, all_ggplots_path_suffix[1])
 
-qpdf::pdf_combine(input = all_ggplots_path_reordered_no_overlap, output = paste0("./outputs/Network_events_counts/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_no_overlap.pdf"))
+# qpdf::pdf_combine(input = all_ggplots_path_reordered_no_overlap, output = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_no_overlap.pdf"))
+qpdf::pdf_combine(input = all_ggplots_path_reordered_no_overlap, output = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_no_overlap.pdf"))
 
 
 ### 6.2/ Aggregate all ggplot in forward timeline + overall ####
 
 ## 6.2.1/ With overlap (all windows)
 
-overall_ggplot_path <- "./outputs/Network_events_counts/all_dispersal_events_overall_updated_ggplot.pdf"
-qpdf::pdf_combine(input = c(rev(all_ggplots_path_reordered), overall_ggplot_path), output = paste0("./outputs/Network_events_counts/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_forward.pdf"))
+# overall_ggplot_path <- "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_updated_ggplot.pdf"
+overall_ggplot_path <- "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_overall_updated_ggplot.pdf"
+
+# qpdf::pdf_combine(input = c(rev(all_ggplots_path_reordered), overall_ggplot_path), output = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_forward.pdf"))
+qpdf::pdf_combine(input = c(rev(all_ggplots_path_reordered), overall_ggplot_path), output = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_forward.pdf"))
 
 ## 6.2.2/ Without overlap
 
-qpdf::pdf_combine(input = c(rev(all_ggplots_path_reordered_no_overlap), overall_ggplot_path), output = paste0("./outputs/Network_events_counts/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_forward_no_overlap.pdf"))
+# qpdf::pdf_combine(input = c(rev(all_ggplots_path_reordered_no_overlap), overall_ggplot_path), output = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_forward_no_overlap.pdf"))
+qpdf::pdf_combine(input = c(rev(all_ggplots_path_reordered_no_overlap), overall_ggplot_path), output = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_forward_no_overlap.pdf"))
 
 
 ### 6.3/ Convert to GIF ####
@@ -1071,12 +1142,14 @@ window_width <- 5
 fps <- 5
 # fps <- 10
 
-pdf_pointer_mean_counts <- magick::image_read_pdf(path = paste0("./outputs/Network_events_counts/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_forward.pdf"),
+# pdf_pointer_mean_counts <- magick::image_read_pdf(path = paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_forward.pdf"),
+pdf_pointer_mean_counts <- magick::image_read_pdf(path = paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_forward.pdf"),
                                                  pages = NULL, density = 150)
 magick::image_info(pdf_pointer_mean_counts)
 
 image_resize_and_write_gif(image = pdf_pointer_mean_counts,
-                           path =  paste0("./outputs/Network_events_counts/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_forward_",fps,"fps.gif"),
+                           # path =  paste0("./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_forward_",fps,"fps.gif"),
+                           path =  paste0("./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/all_dispersal_events_mean_counts_all_sliding_windows_",window_width,"My_moving_continents_ggplot_forward_",fps,"fps.gif"),
                            delay = 1/fps, # Time between frames in seconds
                            width = 1350, height = 900,
                            loop = FALSE,
@@ -1092,7 +1165,7 @@ image_resize_and_write_gif(image = pdf_pointer_mean_counts,
 
 
 ## All can be segregated per clades!
-# Across clades to compare clades dynamics
+# Across clades to compare clades dynamics. # Use a different color (or type of arrows, per clades)
 # Within clades, to zoom on a particular subclade of interest
 
 
