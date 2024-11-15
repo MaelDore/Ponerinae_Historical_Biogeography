@@ -107,7 +107,10 @@ compute_residence_times_by_time_stratum <-  function (simmap, model_fit, stratum
   
   # Extract full range list
   returned_mats <- get_Qmat_COOmat_from_BioGeoBEARS_run_object(BioGeoBEARS_run_object = model_fit$inputs, include_null_range = model_fit$inputs$include_null_range)
-  ranges_list <- returned_mats$ranges_list
+  # ranges_list <- returned_mats$ranges_list
+  reduced_ranges_list <- returned_mats$ranges_list
+  max_range_size <- max(nchar(reduced_ranges_list))
+  ranges_list <- generate_list_ranges(areas_list = returned_mats$areanames, max_range_size = max_range_size, include_null_range = model_fit$inputs$include_null_range)
   
   # Compute residence times per states
   edge_states_matrix <- plyr::ldply(.data = state_maps_i, rbind)
@@ -139,7 +142,10 @@ compute_residence_times_for_all_time_strata <-  function (simmap, model_fit)
   
   # Extract full range list
   returned_mats <- get_Qmat_COOmat_from_BioGeoBEARS_run_object(BioGeoBEARS_run_object = model_fit$inputs, include_null_range = model_fit$inputs$include_null_range)
-  ranges_list <- returned_mats$ranges_list
+  # ranges_list <- returned_mats$ranges_list
+  reduced_ranges_list <- returned_mats$ranges_list
+  max_range_size <- max(nchar(reduced_ranges_list))
+  ranges_list <- generate_list_ranges(areas_list = returned_mats$areanames, max_range_size = max_range_size, include_null_range = model_fit$inputs$include_null_range)
   
   # Initiate final array
   state_times_per_strata <- array(data = NA,

@@ -104,7 +104,7 @@ compute_residence_times_per_sliding_windows_on_Simmap <- function (simmap,
     
     ## Remove time in edges overlapping rootward time boundary
     
-    if(sum(nodes_age_df_i$edge_on_rootward_time) > 0)
+    if (sum(nodes_age_df_i$edge_on_rootward_time) > 0)
     {
       # Compute cumulative time from root
       states_maps_cumtime_from_root_i <- lapply(X = state_maps_i, FUN = cumsum)
@@ -112,7 +112,7 @@ compute_residence_times_per_sliding_windows_on_Simmap <- function (simmap,
       # Remove time before 
       for (j in which(nodes_age_df_i$edge_on_rootward_time))
       {
-        # j <- 3
+        # j <- 1
         
         branch_ID <- as.character(j)
         
@@ -179,7 +179,7 @@ compute_residence_times_per_sliding_windows_on_Simmap <- function (simmap,
     
     # Compute residence times per states
     edge_states_matrix <- plyr::ldply(.data = state_maps_i, .fun = base::rbind)
-    edge_states_matrix <- edge_states_matrix[,-1] # Remove node ID
+    edge_states_matrix <- edge_states_matrix[,-1, drop = F] # Remove node ID
     state_times <- apply(X = edge_states_matrix, MARGIN = 2, FUN = sum, na.rm = T)
     state_times_reordered <- setNames(object = rep(0, length(ranges_list)), nm = ranges_list)
     state_times_reordered[names(state_times)] <- state_times
