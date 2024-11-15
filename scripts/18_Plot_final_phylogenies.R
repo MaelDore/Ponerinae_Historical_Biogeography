@@ -90,6 +90,11 @@ Ponerinae_MCC_phylogeny_789t_treedata <- readRDS(file = "./input_data/Phylogenie
 Ponerinae_MCC_phylogeny_789t_treedata@phylo$tip.label
 View(Ponerinae_MCC_phylogeny_789t_treedata@data)
 
+# MRCA_pruin_eut <- getMRCA(phy = Ponerinae_MCC_phylogeny_789t_treedata@phylo, tip = c("Hypoponera_pruinosa_EX3070_CASENT0650367", "Hypoponera_eutrepta_D2080_CASENT0882074"))
+# MRCA_pruin_dul <- getMRCA(phy = Ponerinae_MCC_phylogeny_789t_treedata@phylo, tip = c("Hypoponera_pruinosa_EX3070_CASENT0650367", "Hypoponera_dulcis_EX2808_CASENT0783280"))
+# Ponerinae_MCC_phylogeny_789t_treedata[Ponerinae_MCC_phylogeny_789t_treedata@data$node == MRCA_pruin_eut, ]
+# Ponerinae_MCC_phylogeny_789t_treedata[Ponerinae_MCC_phylogeny_789t_treedata@data$node == MRCA_pruin_dul, ]
+
 # Demultiplex the HPD range values
 Ponerinae_MCC_phylogeny_789t_treedata@data$age_HPD_0.025 <- unlist(lapply(X = Ponerinae_MCC_phylogeny_789t_treedata@data$height_0.95_HPD, FUN = function (x) {x[1]} ))
 Ponerinae_MCC_phylogeny_789t_treedata@data$age_HPD_0.975 <- unlist(lapply(X = Ponerinae_MCC_phylogeny_789t_treedata@data$height_0.95_HPD, FUN = function (x) {x[2]} ))
