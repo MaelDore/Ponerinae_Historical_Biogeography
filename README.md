@@ -9,7 +9,7 @@ for this research article:
 **Doré et al., 2025 - Timing is everything: Evolution of ponerine ants
 highlights how dispersal history shapes modern biodiversity. in prep.**
 
-To modify!
+**To modify!**
 
 [![DOI](https://zenodo.org/badge/DOI/10.1111/ele.14198.svg)](https://doi.org/10.1111/ele.14198)
 
@@ -31,7 +31,7 @@ considering the timing of past biogeographic and evolutionary events, in
 complement to the scrutiny of differences in current diversification
 rates, to gain a deeper understanding of Earth’s biodiversity patterns.
 
-To modify!
+**To modify!**
 
 All content is available on
 [GitHub](https://github.com/MaelDore/Ponerinae_Historical_Biogeography)
@@ -85,7 +85,7 @@ URL](/archive/master.zip). After unzipping:
 
 Please cite this research article as:
 
-To update!
+**To update!**
 
 > Doré et al., 2025 - Timing is everything: Evolution of ponerine ants
 > highlights how dispersal history shapes modern biodiversity. in prep.
@@ -93,7 +93,7 @@ To update!
 
 ## Associated online archives
 
-To modify!
+**To modify!**
 
 The **Supplementary Data** of the article including metadata for voucher
 specimens, fossil calibrations, grafting information, geolocalized
