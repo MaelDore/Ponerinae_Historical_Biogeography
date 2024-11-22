@@ -71,7 +71,8 @@ optionally [RStudio
 Desktop](https://rstudio.com/products/rstudio/download/).
 
 You can download the entire project as a `.zip` from [this
-URL](/archive/master.zip). After unzipping:
+URL](https://github.com/MaelDore/Ponerinae_Historical_Biogeography/zipball/master/).
+After unzipping:
 
 - Open the `Ponerinae_Historical_Biogeography.Rproj` file, found at the
   root of the project, in RStudio
