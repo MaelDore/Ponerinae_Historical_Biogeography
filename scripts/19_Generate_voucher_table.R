@@ -7,7 +7,9 @@
 
 ### Goals
 
-# Generate Voucher table needed for sequence upload in NCBI - BioSample
+# Generate Voucher table needed for raw sequence upload in NCBI SRA - BioSample (only newly sequenced data)
+# Generate voucher metadata table for Supplementary Data 1 (includes all taxa in the phylogeny)
+  # Includes NCBI SRA - BioSample for raw data, and NCBI GenBank accession ID for UCE contigs and COI
 
 ###
 
@@ -15,6 +17,7 @@
 
 # AntWeb specimen database accessed on 30 May 2024
 # Phylogeny with metadata including voucher codes
+# Source table tracking source of extracts
 # Curated occurrence database
 
 ###
@@ -165,7 +168,7 @@ View(Biogeographic_database_to_merge)
 
 ## Get coordinates in proper format
 
-# Convert long/lat to degrees
+# Convert degrees to long/lat
 decimal_to_degrees_minutes <- function (lat, long)
 {
   abs_lat <- abs(lat)
@@ -342,9 +345,248 @@ NCBI_BioSample_Voucher_table$description <- paste0("The DNA voucher specimen ", 
 saveRDS(object = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.rds")
 write.xlsx(x = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.xlsx")
 
+##### 8/ Filter to keep only newly sequenced data in the Biosample table ####
+
+# Load Biosample voucher table
+# NCBI_BioSample_Voucher_table <- readRDS(file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.rds")
+NCBI_BioSample_Voucher_table <- openxlsx::read.xlsx(xlsxFile = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.xlsx")
+
+# Save the non-filtered version to build the SD1 table with all taxa
+SD1_Voucher_specimens_metadata <- NCBI_BioSample_Voucher_table
+saveRDS(object = SD1_Voucher_specimens_metadata, file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
+
+# Load Source table
+AoW_Ponerinae_sequence_sources <- openxlsx::read.xlsx(xlsxFile = "./input_data/Molecular_data/AoW ponerine sequence source.xlsx")
+
+table(AoW_Ponerinae_sequence_sources$status)
+
+# Mismatch for outgroups (3) and subspecies (2)
+AoW_Ponerinae_sequence_sources$Current_name[which(!(AoW_Ponerinae_sequence_sources$Current_name %in% NCBI_BioSample_Voucher_table$organism))]
+
+AoW_Ponerinae_sequence_sources <- AoW_Ponerinae_sequence_sources %>% 
+  arrange(Current_name)
+
+# Fixed subspecies mismatch by using full_name
+NCBI_BioSample_Voucher_table$Full_name <- paste0(NCBI_BioSample_Voucher_table$organism, "_", NCBI_BioSample_Voucher_table$infra.specific.name)
+NCBI_BioSample_Voucher_table$Full_name <- str_remove(string = NCBI_BioSample_Voucher_table$Full_name, pattern = "_NA$")
+
+table(AoW_Ponerinae_sequence_sources$Current_name %in% NCBI_BioSample_Voucher_table$Full_name)
+
+# Mismatch order for "Neoponera_metanotalis" vs. "Neoponera_metanotalis_2"
+AoW_Ponerinae_sequence_sources$Current_name[which(!(AoW_Ponerinae_sequence_sources$Current_name == NCBI_BioSample_Voucher_table$Full_name))]
+
+NCBI_BioSample_Voucher_table <- NCBI_BioSample_Voucher_table %>% 
+  left_join(y = AoW_Ponerinae_sequence_sources[, c("Current_name", "status")], by = join_by("Full_name" == "Current_name"))
+
+# Remove non-newly sequenced data
+NCBI_BioSample_Voucher_table <- NCBI_BioSample_Voucher_table %>% 
+  filter(status == "sequenced") %>%
+  dplyr::select(-status, - Full_name)
+
+### Save/Export the Voucher table
+saveRDS(object = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.rds")
+write.xlsx(x = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.xlsx")
+
+# Need to be pasted in the formatted version "_AOW_Ponerinae"
 
 
 ## Info
 # dev_stage = lifestage # Need to be manually curated (or removed)
 # `infra specific rank` = to tag morphospecies
 # `infra specific name` = to name subspecies
+
+
+##### 9/ Create Supplementary data for all taxa ####
+
+# Load Source table
+# SD1_Voucher_specimens_metadata <- openxlsx::read.xlsx(xlsxFile = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.xlsx")
+SD1_Voucher_specimens_metadata <- readRDS(file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
+
+# Deal with dates
+SD1_Voucher_specimens_metadata$collection_date
+date_vector <- lubridate::as_date(x = SD1_Voucher_specimens_metadata$collection_date, origin = "1899-12-30")
+formatted_date_vector <- format(date_vector, "%Y-%m-%d")
+SD1_Voucher_specimens_metadata$collection_date <- formatted_date_vector
+
+### 9.1/ Merge with Source table ####
+
+# Load Source table
+AoW_Ponerinae_sequence_sources <- openxlsx::read.xlsx(xlsxFile = "./input_data/Molecular_data/AoW ponerine sequence source.xlsx")
+
+# Mismatch for subspecies (2)
+AoW_Ponerinae_sequence_sources$Current_name[which(!(AoW_Ponerinae_sequence_sources$Current_name %in% SD1_Voucher_specimens_metadata$organism))]
+
+AoW_Ponerinae_sequence_sources <- AoW_Ponerinae_sequence_sources %>% 
+  arrange(Current_name)
+
+# Fixed subspecies mismatch by using full_name
+SD1_Voucher_specimens_metadata$Full_name <- paste0(SD1_Voucher_specimens_metadata$organism, "_", SD1_Voucher_specimens_metadata$infra.specific.name)
+SD1_Voucher_specimens_metadata$Full_name <- str_remove(string = SD1_Voucher_specimens_metadata$Full_name, pattern = "_NA$")
+
+table(AoW_Ponerinae_sequence_sources$Current_name %in% SD1_Voucher_specimens_metadata$Full_name)
+
+# Mismatch order for "Neoponera_metanotalis" vs. "Neoponera_metanotalis_2"
+AoW_Ponerinae_sequence_sources$Current_name[which(!(AoW_Ponerinae_sequence_sources$Current_name == SD1_Voucher_specimens_metadata$Full_name))]
+
+# Merge and rename fields
+SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
+  left_join(y = AoW_Ponerinae_sequence_sources, by = join_by("Full_name" == "Current_name")) %>% 
+  rename(Specimen_code_Sources = Specimen_code) %>% 
+  rename(Extraction_code_Sources = Extraction_code) %>% 
+  rename(Outgroup = outgroup) %>% 
+  rename(Status_data = status) %>% 
+  rename(Reference = ref) %>%
+  rename(Taxa_name = Full_name) %>%
+  rename(Voucher_specimen_code = specimen_voucher) %>%
+  rename(Collection_date = collection_date) %>%
+  rename(Locality = geo_loc_name) %>%
+  rename(Host_institution = biomaterial_provider) %>%
+  rename(Collected_by = collected_by) %>%
+  rename(Identified_by = identified_by) %>%
+  rename(Status_taxa = infra.specific.rank) %>%
+  rename(Description = description) %>%
+  rename(BioSample_ID = Biosample) %>%
+  rename(BioProject_ID = BioProject)
+  dplyr::select(Taxa_name, Status_taxa, Outgroup, Status_data, Voucher_specimen_code, Specimen_code_Sources, Extraction_code_Sources, note, BioProject_ID, BioSample_ID, Reference, Reference_DOI, Host_institution, Collection_date, Locality, lat_lon, Collected_by, Identified_by, Description)
+
+
+### 9.2/ Merge with Macroevolution_taxa_database  ####
+
+Ponerinae_Macroevolution_taxa_database <- readRDS(file = "./input_data/Ponerinae_Macroevolution_taxa_database.rds")
+
+# Extraction code to double check with Sources's codes
+# Subspecies
+
+SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
+  left_join(y = Ponerinae_Macroevolution_taxa_database[, c("Current_name", "Specimen_phylogeny_Extraction_code", "Subspecies")], by = join_by("Taxa_name" == "Current_name")) %>% 
+  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Specimen_code_Sources, Extraction_code_Sources, Specimen_phylogeny_Extraction_code, note, BioProject_ID, BioSample_ID, Reference, Reference_DOI, Host_institution, Collection_date, Locality, lat_lon, Collected_by, Identified_by, Description)
+
+
+### 9.3/ Curate fields ####
+
+## Fill Subspecies for outgroups
+SD1_Voucher_specimens_metadata$Subspecies[is.na(SD1_Voucher_specimens_metadata$Subspecies)] <- F
+table(SD1_Voucher_specimens_metadata$Subspecies)
+
+## Fill Status_taxa for valid names
+SD1_Voucher_specimens_metadata$Status_taxa[is.na(SD1_Voucher_specimens_metadata$Status_taxa)] <- "valid"
+table(SD1_Voucher_specimens_metadata$Status_taxa)
+
+## Check Specimen codes
+table(SD1_Voucher_specimens_metadata$Voucher_specimen_code == SD1_Voucher_specimens_metadata$Specimen_code_Sources)
+SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
+  dplyr::select(-Specimen_code_Sources)
+
+## Check Extraction codes
+# Fill missing codes for outgroups
+SD1_Voucher_specimens_metadata$Specimen_phylogeny_Extraction_code[is.na(SD1_Voucher_specimens_metadata$Specimen_phylogeny_Extraction_code)] <- SD1_Voucher_specimens_metadata$Extraction_code_Sources[is.na(SD1_Voucher_specimens_metadata$Specimen_phylogeny_Extraction_code)]
+table(SD1_Voucher_specimens_metadata$Extraction_code_Sources == SD1_Voucher_specimens_metadata$Specimen_phylogeny_Extraction_code)
+View(SD1_Voucher_specimens_metadata[!(SD1_Voucher_specimens_metadata$Extraction_code_Sources == SD1_Voucher_specimens_metadata$Specimen_phylogeny_Extraction_code), c("Extraction_code_Sources", "Specimen_phylogeny_Extraction_code", "note")])
+# Mismatch for extract with failing attempt ("a" added to the label) # Use the codes from the phylogeny
+SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
+  rename(Extraction_code = Specimen_phylogeny_Extraction_code) %>%
+  dplyr::select(-Extraction_code_Sources, -note)
+
+## Convert latitude/longitude back to decimals
+
+# Convert long/lat to degrees
+degrees_minutes_to_decimal <- function (lat_long)
+{
+  lat_long_vector <- unlist(str_split(string = lat_long, pattern = " |\\."))
+  
+  if (lat_long_vector[3] == "S") { sign_lat <- "-" } else { sign_lat <- "" } # Get sign
+  lat_degrees <- lat_long_vector[1] # Get degrees
+  lat_minutes <- round(as.numeric(lat_long_vector[2]) * 100 / 60, 0) # Get rounded minutes
+  
+  if (lat_long_vector[6] == "W") { sign_long <- "-" } else { sign_long <- "" } # Get sign
+  long_degrees <- lat_long_vector[4] # Get degrees
+  long_minutes <- round(as.numeric(lat_long_vector[5]) * 100 / 60, 0) # Get rounded minutes
+  
+  # Aggregate result
+  lat_dec <- as.numeric(paste0(sign_lat, lat_degrees, ".", lat_minutes))
+  long_dec <- as.numeric(paste0(sign_long, long_degrees, ".", long_minutes))
+  return(list(lat_dec = lat_dec, long_dec = long_dec))
+}
+
+SD1_Voucher_specimens_metadata$Latitude_decimal <- SD1_Voucher_specimens_metadata$Longitude_decimal <- NA
+for (i in 1:nrow(SD1_Voucher_specimens_metadata))
+{
+  # i <- 1
+  
+  lat_long_i <- degrees_minutes_to_decimal(SD1_Voucher_specimens_metadata$lat_lon[i])
+  
+  SD1_Voucher_specimens_metadata$Latitude_decimal[i] <- lat_long_i$lat_dec
+  SD1_Voucher_specimens_metadata$Longitude_decimal[i] <- lat_long_i$long_dec
+}
+SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
+  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, Reference, Reference_DOI, Host_institution, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
+
+
+## Add additional fields for sequence references
+SD1_Voucher_specimens_metadata$Read_sequences_SRA_SRR_ID <- NA
+SD1_Voucher_specimens_metadata$UCE_TLS_GenBank_ID <- NA
+SD1_Voucher_specimens_metadata$COX1_GenBank_ID <- NA
+SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
+  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, Read_sequences_SRA_SRR_ID, UCE_TLS_GenBank_ID, COX1_GenBank_ID, Reference, Reference_DOI, Host_institution, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
+
+# Save updated table
+saveRDS(object = SD1_Voucher_specimens_metadata , file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
+write.xlsx(x = SD1_Voucher_specimens_metadata, file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.xlsx")
+
+
+### 9.4/ Add GenBank metadata from previous studies ####
+
+# SD1_Voucher_specimens_metadata <- read.xlsx(xlsxFile = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.xlsx")
+SD1_Voucher_specimens_metadata <- readRDS(file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
+
+# Load Metadata from Longino & Branstetter 2020 (DOI: 10.1093/isd/ixaa004)
+ixaa004_data <- read.xlsx(xlsxFile = "./input_data/Molecular_data/ixaa004_suppl_supplementary_tables.xlsx", sheet = "S4-NCBI-Accession#s")
+
+# Match on BioSample ID
+SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
+  left_join(y = ixaa004_data[, c("BioSample#", "SRA.SRR#", "TLS.GenBank#.[UCEs]", "GenBank#.[COI]")], by = join_by("BioSample_ID" == "BioSample#")) %>%
+  rename(Read_sequences_SRA_SRR_ID_2 = `SRA.SRR#`) %>%
+  rename(UCE_TLS_GenBank_ID_2 = `TLS.GenBank#.[UCEs]`) %>%
+  rename(COX1_GenBank_ID_2 = `GenBank#.[COI]`) %>%
+  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, Read_sequences_SRA_SRR_ID, Read_sequences_SRA_SRR_ID_2, UCE_TLS_GenBank_ID, UCE_TLS_GenBank_ID_2, COX1_GenBank_ID, COX1_GenBank_ID_2, Reference, Reference_DOI, Host_institution, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
+
+# Check that ID matches
+View(SD1_Voucher_specimens_metadata)
+
+# Remove previous data
+SD1_Voucher_specimens_metadata$Read_sequences_SRA_SRR_ID <- SD1_Voucher_specimens_metadata$Read_sequences_SRA_SRR_ID_2
+SD1_Voucher_specimens_metadata$UCE_TLS_GenBank_ID <- SD1_Voucher_specimens_metadata$UCE_TLS_GenBank_ID_2
+SD1_Voucher_specimens_metadata$COX1_GenBank_ID <- SD1_Voucher_specimens_metadata$COX1_GenBank_ID_2
+SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
+  dplyr::select(-Read_sequences_SRA_SRR_ID_2, -UCE_TLS_GenBank_ID_2, -COX1_GenBank_ID_2)
+
+# Load Metadata from Branstetter & Longino (2022) (DOI: 10.1093/isd/ixab031)
+ixab031_data <- read.xlsx(xlsxFile = "./input_data/Molecular_data/ixab031_suppl_supplementary_tables.xlsx", sheet = "S4-NCBI-Accessions")
+ixab031_data <- ixab031_data %>% 
+  filter(!is.na(ixab031_data$`BioSample#`))
+
+# Match on BioSample ID
+SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
+  left_join(y = ixab031_data[, c("BioSample#", "SRA.SRR#", "TLS.GenBank#.[UCEs]", "GenBank#.[COI]")], by = join_by("BioSample_ID" == "BioSample#")) %>%
+  rename(Read_sequences_SRA_SRR_ID_2 = `SRA.SRR#`) %>%
+  rename(UCE_TLS_GenBank_ID_2 = `TLS.GenBank#.[UCEs]`) %>%
+  rename(COX1_GenBank_ID_2 = `GenBank#.[COI]`) %>%
+  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, Read_sequences_SRA_SRR_ID, Read_sequences_SRA_SRR_ID_2, UCE_TLS_GenBank_ID, UCE_TLS_GenBank_ID_2, COX1_GenBank_ID, COX1_GenBank_ID_2, Reference, Reference_DOI, Host_institution, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
+
+# Check that ID matches
+View(SD1_Voucher_specimens_metadata)
+
+# Inform new metadata
+SD1_Voucher_specimens_metadata$Read_sequences_SRA_SRR_ID[!is.na(SD1_Voucher_specimens_metadata$Read_sequences_SRA_SRR_ID_2)] <- SD1_Voucher_specimens_metadata$Read_sequences_SRA_SRR_ID_2[!is.na(SD1_Voucher_specimens_metadata$Read_sequences_SRA_SRR_ID_2)]
+SD1_Voucher_specimens_metadata$UCE_TLS_GenBank_ID[!is.na(SD1_Voucher_specimens_metadata$UCE_TLS_GenBank_ID_2)] <- SD1_Voucher_specimens_metadata$UCE_TLS_GenBank_ID_2[!is.na(SD1_Voucher_specimens_metadata$UCE_TLS_GenBank_ID_2)]
+SD1_Voucher_specimens_metadata$COX1_GenBank_ID[!is.na(SD1_Voucher_specimens_metadata$COX1_GenBank_ID_2)] <- SD1_Voucher_specimens_metadata$COX1_GenBank_ID_2[!is.na(SD1_Voucher_specimens_metadata$COX1_GenBank_ID_2)]
+SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
+  dplyr::select(-Read_sequences_SRA_SRR_ID_2, -UCE_TLS_GenBank_ID_2, -COX1_GenBank_ID_2)
+
+
+# Save updated table
+saveRDS(object = SD1_Voucher_specimens_metadata, file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
+write.xlsx(x = SD1_Voucher_specimens_metadata, file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.xlsx")
+  
+
+# Need to be pasted in the Supplementary Data file as SD1

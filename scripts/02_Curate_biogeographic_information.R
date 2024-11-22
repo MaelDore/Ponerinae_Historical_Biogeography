@@ -88,6 +88,12 @@ GABI_database_Ponerinae <- readRDS(file = "./input_data/GABI_Data_Release1.0_180
 AntWeb_database_curated <- readRDS(file = "./input_data/AntWeb_data/AntWeb_database_curated.rds")
 Biogeographic_database_Ponerinae <- readRDS(file = "./input_data/Biogeographic_data/Biogeographic_database_Ponerinae.rds")
 
+# date_table <- str_split(string = AntWeb_database_curated$datecollectedstartstr, pattern = "-", simplify = T)
+# table(date_table[(nchar(date_table[,1]) == 4), ])
+# 
+# View(AntWeb_database_curated[str_detect(string = AntWeb_database_curated$datecollectedstartstr, pattern = "1812-"), ])
+
+
 ## Load taxa-level summary df
 Ponerinae_Macroevolution_taxa_database <- readRDS(file = "./input_data/Ponerinae_Macroevolution_taxa_database.rds")
 

@@ -3394,6 +3394,67 @@ dev.off()
 # Can even become interactive with leaflet?
 # To display richness by clicking?
 
+
+
+## Plot only background map of bioregions
+# pdf(file = "./outputs/Network_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_overall_ggplot.pdf",
+pdf(file = "./outputs/Network_events_counts/Ponerinae_MCC_phylogeny_1534t/background_bioregion_map_ggplot.pdf",
+    width = 9, height = 4)
+
+background_bioregion_map_ggplot <- ggplot(data = Bioregions_sf_Bioregions_level) +
+  
+  # Plot bioregion maps
+  geom_sf(data = Bioregions_sf_Bioregions_level,
+          mapping = aes(fill = Bioregion),
+          colour = "black",
+          alpha = 0.8) +
+  
+  # Adjust fill color scheme for bioregions
+  scale_fill_manual("Bioregions", breaks = bioregion_names, labels = bioregion_names, values = colors_list_for_areas) +
+  
+  # Adjust CRS
+  # coord_sf(default_crs = sf::st_crs(4326)) +
+  coord_sf(crs = "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=km +no_defs",
+           clip = "off", # To allow plotting arrow outside of Wrodl map
+           expand = FALSE) +
+  
+  # Add title
+  ggtitle(label = paste0("Bioregions\n",
+                         "Present-day (0 My)")) +
+  
+  # Adjust legend aesthetics
+  guides(color = "none",
+         size = "none",
+         fill = guide_legend(order = 1),
+         linewidth = guide_legend(order = 2,
+                                  override.aes = list(arrow = 0.2))
+  ) +
+  
+  # Adjust aesthetics
+  theme_classic() +
+  
+  theme(panel.background = element_rect(fill = NA),
+        panel.border = element_rect(fill = NA, colour = NA),
+        # panel.grid.major = element_line(colour = "grey70", linetype = "dashed", linewidth = 0.5), # Plot graticules
+        plot.title = element_text(hjust = 0.5, size = 18, face = "bold", margin = margin(b = 25)),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        axis.line = element_blank(),
+        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"), # trbl
+        # legend.position = c(1.1, 0.9),
+        legend.box.margin = margin(l = 15, b = 15),
+        # axis.ticks = element_line(linewidth = 1.0),
+        # axis.ticks.length = unit(10, "pt"),
+        # axis.text = element_text(size = 21, color = "black", face = "bold"),
+        # axis.text.y = element_text(angle = 90, hjust = 0.5, margin = margin(l = 5, r = 10)),
+        # axis.text.x = element_text(margin = margin(t = 10, b = 5)),
+        axis.title = element_blank())
+
+print(background_bioregion_map_ggplot)
+
+dev.off()
+
+
 ### 8.5/ Plot as a Chord diagram ####
   
 # Use bidirectional chord diagrams?
