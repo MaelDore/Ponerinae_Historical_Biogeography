@@ -3,8 +3,9 @@
 
 ## Research Article
 
-This repository contains the code and data used to carry out analyses
-for this research article:
+This repository contains the code and data used to carry out **data
+curation, tree grafting, and biogeographic and diversification
+analyses** for this research article:
 
 **Doré et al., 2025 - Timing is everything: Evolution of ponerine ants
 highlights how dispersal history shapes modern biodiversity. in prep.**
@@ -96,16 +97,23 @@ Please cite this research article as:
 
 **To modify!**
 
-The **Supplementary Data** of the article including metadata for voucher
-specimens, fossil calibrations, grafting information, geolocalized
-occurrences, biogeographic membership, bioregion adjacency matrices, and
-phylogenies are publicly available at
+Supplementary files associated to this study are grouped in a **Zenodo
+Archive** publicly available at
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6277769.svg)](https://doi.org/10.5281/zenodo.XXXX).
 
-The scripts and files used to carry out **phylogenetic inferences** in
-this study are publicly available at
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6277769.svg)](https://doi.org/10.5281/zenodo.XXXX).
+This archive contains four distinct blocks:
 
-The scripts and files used to carry out **divergence dating** analyses
-in this study are publicly available at
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6277769.svg)](https://doi.org/10.5281/zenodo.XXXX)
+- The **Supplementary Data** of the article including metadata for
+  voucher specimens, fossil calibrations, grafting information,
+  geolocalized occurrences, biogeographic membership, bioregion
+  adjacency matrices, and ready-to-use phylogenies.
+
+- The scripts and files used to carry out **phylogenetic inferences**.
+
+- The scripts and files used to carry out **divergence dating**
+  analyses.
+
+- The script and files of this [GitHub
+  repository](https://github.com/MaelDore/Ponerinae_Historical_Biogeography)
+  used to carry out **data curation, tree grafting, and biogeographic
+  and diversification analyses**.
