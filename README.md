@@ -12,7 +12,7 @@ highlights how dispersal history shapes modern biodiversity. in prep.**
 
 **To modify!**
 
-[![DOI](https://zenodo.org/badge/DOI/10.1111/ele.14198.svg)](https://doi.org/10.1111/ele.14198)
+[![DOI](https://zenodo.org/badge/DOI/10.1111/XXXX.svg)](https://doi.org/10.1111/XXXX)
 
 A cornerstone of biogeography since its early developments has been to
 disentangle the drivers of the distribution of biodiversity patterns
@@ -32,12 +32,9 @@ considering the timing of past biogeographic and evolutionary events, in
 complement to the scrutiny of differences in current diversification
 rates, to gain a deeper understanding of Earth’s biodiversity patterns.
 
-**To modify!**
-
 All content is available on
 [GitHub](https://github.com/MaelDore/Ponerinae_Historical_Biogeography)
-and on [Zenodo](https://doi.org/10.5281/zenodo.6277769)
-([![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6277769.svg)](https://doi.org/10.5281/zenodo.6277769)).
+and on [Zenodo](https://doi.org/10.5281/zenodo.14216556).
 
 ## Contents
 
@@ -89,24 +86,28 @@ Please cite this research article as:
 
 **To update!**
 
-> Doré et al., 2025 - Timing is everything: Evolution of ponerine ants
-> highlights how dispersal history shapes modern biodiversity. in prep.
+> Doré, M., Borowiec, M.L., Branstetter, M.G., Camacho, G., Fisher,
+> B.L., Longino, J.T., Ward, P.S., & Blaimer, B.B., 2025. Timing is
+> everything: Evolution of ponerine ants highlights how dispersal
+> history shapes modern biodiversity. in prep.
 > <https://doi.org/10.1111/XXXX>.
 
 ## Associated online archives
 
-**To modify!**
-
 Supplementary files associated to this study are grouped in a **Zenodo
 Archive** publicly available at
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6277769.svg)](https://doi.org/10.5281/zenodo.XXXX).
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14216556.svg)](https://doi.org/10.5281/zenodo.14216556).
 
-This archive contains four distinct blocks:
+This archive contains five distinct blocks:
 
 - The **Supplementary Data** of the article including metadata for
   voucher specimens, fossil calibrations, grafting information,
   geolocalized occurrences, biogeographic membership, bioregion
   adjacency matrices, and ready-to-use phylogenies.
+
+- The **Supplementary Movie 1 - Ponerinae Biogeographic History**: A
+  time-lapsed animation of ponerine ant biogeographic and
+  diversification history.
 
 - The scripts and files used to carry out **phylogenetic inferences**.
 
