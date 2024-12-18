@@ -3664,24 +3664,56 @@ Siberia_West_patch <- data.frame(Latitude_dec = c(89.0, 89.0, 85.0, 85.0, 89.0),
   reconstruct_initial_polygon_with_sfheaders()
 st_crs(Siberia_West_patch) <- st_crs(4326)
 
-Indian_early_patch <- data.frame(Latitude_dec = c(25.5, 18.5, 0, 0, 25.5),
+Indian_early_patch_1 <- data.frame(Latitude_dec = c(27.5, 20.5, 0, 0, 27.5),
                                  Longitude_dec = c(65.0, 90.0, 90.0, 55.0, 65.0)) %>% 
   st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
   mutate(Subregion = "Indian_patch_Indomalaya",
          seq_ID = row_number()) %>%
   reconstruct_initial_polygon_with_sfheaders()
-st_crs(Indian_early_patch) <- st_crs(4326)
+st_crs(Indian_early_patch_1) <- st_crs(4326)
+
+Indian_early_patch_1_2 <- data.frame(Latitude_dec = c(25.5, 18.5, 0, 0, 25.5),
+                                   Longitude_dec = c(65.0, 90.0, 90.0, 55.0, 65.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Indian_patch_Indomalaya",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Indian_early_patch_1_2) <- st_crs(4326)
+
+Indian_early_patch_2 <- data.frame(Latitude_dec = c(33.0, 30.0, 0, 0, 20, 33.0),
+                                   Longitude_dec = c(65.0, 70.0, 70.0, 55.0, 58.0, 65.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Indian_patch_2_Indomalaya",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Indian_early_patch_2) <- st_crs(4326)
+
+Indian_early_patch_2_2 <- data.frame(Latitude_dec = c(30.0, 28.0, 0, 0, 30.0),
+                                   Longitude_dec = c(65.0, 70.0, 70.0, 55.0, 65.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Indian_patch_2_Indomalaya",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Indian_early_patch_2_2) <- st_crs(4326)
+
+Indian_early_patch_3 <- data.frame(Latitude_dec = c(25.0, 25.0, 0, 0, 25.0),
+                                   Longitude_dec = c(55.0, 70.0, 70.0, 55.0, 55.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Indian_patch_3_Indomalaya",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Indian_early_patch_3) <- st_crs(4326)
 
 Indian_late_patch <- data.frame(Latitude_dec = c(-35.0, -35.0, -55.0, -55.0, -35.0),
-                                 Longitude_dec = c(35.0, 70.0, 70.0, 35.0, 35.0)) %>% 
+                                Longitude_dec = c(35.0, 70.0, 70.0, 35.0, 35.0)) %>% 
   st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
   mutate(Subregion = "Indian_patch_Indomalaya",
          seq_ID = row_number()) %>%
   reconstruct_initial_polygon_with_sfheaders()
 st_crs(Indian_late_patch) <- st_crs(4326)
 
-Myanmar_early_patch <- data.frame(Latitude_dec = c(31.0, 29.0, 21.0, 21.0, 31.0),
-                            Longitude_dec = c(85.0, 95.0, 95.0, 85.0, 85.0)) %>% 
+Myanmar_early_patch <- data.frame(Latitude_dec = c(31.0, 29.0, 21.0, 24.0, 31.0),
+                                  Longitude_dec = c(85.0, 95.0, 95.0, 85.0, 85.0)) %>% 
   st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
   mutate(Subregion = "Myanmar_patch_Indomalaya",
          seq_ID = row_number()) %>%
@@ -3689,20 +3721,157 @@ Myanmar_early_patch <- data.frame(Latitude_dec = c(31.0, 29.0, 21.0, 21.0, 31.0)
 st_crs(Myanmar_early_patch) <- st_crs(4326)
 
 Myanmar_middle_patch <- data.frame(Latitude_dec = c(33.0, 31.0, 23.0, 23.0, 33.0),
-                                  Longitude_dec = c(85.0, 95.0, 95.0, 85.0, 85.0)) %>% 
+                                   Longitude_dec = c(85.0, 95.0, 95.0, 85.0, 85.0)) %>% 
   st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
   mutate(Subregion = "Myanmar_patch_Indomalaya",
          seq_ID = row_number()) %>%
   reconstruct_initial_polygon_with_sfheaders()
 st_crs(Myanmar_middle_patch) <- st_crs(4326)
 
-Myanmar_late_patch <- data.frame(Latitude_dec = c(36.0, 36.0, 26.0, 26.0, 36.0),
-                                   Longitude_dec = c(90.0, 100.0, 100.0, 90.0, 90.0)) %>% 
+Myanmar_late_patch <- data.frame(Latitude_dec = c(34.0, 34.0, 23.0, 23.0, 34.0),
+                                 Longitude_dec = c(85.0, 96.0, 97.0, 85.0, 85.0)) %>% 
   st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
   mutate(Subregion = "Myanmar_patch_Indomalaya",
          seq_ID = row_number()) %>%
   reconstruct_initial_polygon_with_sfheaders()
 st_crs(Myanmar_late_patch) <- st_crs(4326)
+
+Myanmar_late_patch_2 <- data.frame(Latitude_dec = c(36.0, 36.0, 26.0, 26.0, 36.0),
+                                   Longitude_dec = c(90.0, 101.0, 101.0, 90.0, 90.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Myanmar_patch_2_Indomalaya",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Myanmar_late_patch_2) <- st_crs(4326)
+
+NW_India_very_early_patch <- data.frame(Latitude_dec = c(37.0, 32.0, 10.0, 10.0, 20.0, 37.0, 37.0),
+                                        Longitude_dec = c(72.0, 77.0, 77.0, 70.0, 63.0, 71.0, 72.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "NW_India_patch_Indomalaya",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(NW_India_very_early_patch) <- st_crs(4326)
+
+NW_India_very_early_patch_2 <- data.frame(Latitude_dec = c(35.0, 30.0, 10.0, 10.0, 20.0, 30.0, 35.0),
+                                        Longitude_dec = c(70.0, 77.0, 77.0, 70.0, 63.0, 65.0, 70.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "NW_India_patch_Indomalaya",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(NW_India_very_early_patch_2) <- st_crs(4326)
+
+NW_India_early_patch <- data.frame(Latitude_dec = c(34.0, 29.0, 10.0, 10.0, 20.0, 34.0, 34.0),
+                                   Longitude_dec = c(70.0, 77.0, 77.0, 70.0, 60.0, 68.0, 70.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "NW_India_patch_Indomalaya",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(NW_India_early_patch) <- st_crs(4326)
+
+NW_India_early_patch_2 <- data.frame(Latitude_dec = c(32.0, 27.0, 10.0, 10.0, 20.0, 32.0, 32.0),
+                                   Longitude_dec = c(70.0, 77.0, 77.0, 70.0, 60.0, 65.0, 70.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "NW_India_patch_Indomalaya",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(NW_India_early_patch_2) <- st_crs(4326)
+
+NW_India_middle_patch <- data.frame(Latitude_dec = c(28.0, 27.0, 20.0, 20.0, 28.0),
+                                    Longitude_dec = c(63.0, 70.0, 70.0, 62.0, 63.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "NW_India_patch_Indomalaya",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(NW_India_middle_patch) <- st_crs(4326)
+
+Pakistan_middle_patch <- data.frame(Latitude_dec = c(30.0, 30.0, 25.0, 25.0, 30.0),
+                                    Longitude_dec = c(57.0, 63.0, 63.0, 57.0, 57.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Pakistan_middle_patch_Eastern_Palearctic",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Pakistan_middle_patch) <- st_crs(4326)
+
+Himalaya_very_early_patch <- data.frame(Latitude_dec = c(34.0, 32.0, 28.0, 29.0, 34.0),
+                                   Longitude_dec = c(70.0, 88.0, 88.0, 77.0, 70.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Himalaya_patch_Eastern_Palearctic",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Himalaya_very_early_patch) <- st_crs(4326)
+
+Himalaya_very_early_patch_2 <- data.frame(Latitude_dec = c(32.0, 30.0, 26.0, 27.0, 32.0),
+                                        Longitude_dec = c(70.0, 88.0, 88.0, 77.0, 70.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Himalaya_patch_Eastern_Palearctic",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Himalaya_very_early_patch_2) <- st_crs(4326)
+
+Himalaya_early_patch <- data.frame(Latitude_dec = c(28.0, 28.0, 25.0, 25.0, 28.0),
+                                   Longitude_dec = c(75.0, 90.0, 90.0, 75.0, 75.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Himalaya_patch_Eastern_Palearctic",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Himalaya_early_patch) <- st_crs(4326)
+
+Himalaya_early_patch_2 <- data.frame(Latitude_dec = c(28.0, 28.0, 21.0, 21.0, 28.0),
+                                   Longitude_dec = c(75.0, 88.0, 88.0, 75.0, 75.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Himalaya_patch_2_Eastern_Palearctic",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Himalaya_early_patch_2) <- st_crs(4326)
+
+Himalaya_middle_patch_0 <- data.frame(Latitude_dec = c(25.0, 23.0, 19.0, 18.0, 25.0),
+                                   Longitude_dec = c(75.0, 87.0, 87.0, 75.0, 75.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Himalaya_patch_Eastern_Palearctic",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Himalaya_middle_patch_0) <- st_crs(4326)
+
+Himalaya_middle_patch_0_2 <- data.frame(Latitude_dec = c(23.0, 23.0, 17.0, 17.0, 23.0),
+                                      Longitude_dec = c(87.0, 89.0, 89.0, 87.0, 87.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Himalaya_patch_2_Eastern_Palearctic",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Himalaya_middle_patch_0_2) <- st_crs(4326)
+
+
+Himalaya_middle_patch_1 <- data.frame(Latitude_dec = c(25.0, 23.0, 18.0, 18.0, 25.0),
+                                    Longitude_dec = c(75.0, 87.0, 88.0, 75.0, 75.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Himalaya_patch_Eastern_Palearctic",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Himalaya_middle_patch_1) <- st_crs(4326)
+
+Himalaya_middle_patch_2 <- data.frame(Latitude_dec = c(25.0, 23.0, 18.0, 18.0, 25.0),
+                                    Longitude_dec = c(75.0, 87.0, 89.0, 75.0, 75.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Himalaya_patch_Eastern_Palearctic",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Himalaya_middle_patch_2) <- st_crs(4326)
+
+Himalaya_late_patch <- data.frame(Latitude_dec = c(25.0, 20.0, 15.0, 15.0, 25.0),
+                                      Longitude_dec = c(70.0, 88.0, 88.0, 70.0, 70.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "Himalaya_patch_Eastern_Palearctic",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(Himalaya_late_patch) <- st_crs(4326)
+
+South_Himalaya_early_patch <- data.frame(Latitude_dec = c(29.0, 29.0, 25.0, 25.0, 29.0),
+                                        Longitude_dec = c(79.0, 93.0, 93.0, 79.0, 79.0)) %>% 
+  st_as_sf(coords = c("Longitude_dec", "Latitude_dec")) %>%
+  mutate(Subregion = "South_Himalaya_early_patch_Indomalaya",
+         seq_ID = row_number()) %>%
+  reconstruct_initial_polygon_with_sfheaders()
+st_crs(South_Himalaya_early_patch) <- st_crs(4326)
 
 
 ## Loop per ages
@@ -3744,12 +3913,35 @@ for (i in seq_along(Subregion_hulls_polygons_reconstruct_all_ages))
   }
   
   ## Add patches to solve issues with India
-  
-  if (age_i %in% as.character(21:43))
+  if (age_i %in% as.character(21:29))
   {
-    Indian_early_patch_to_bind <- cbind(Indian_early_patch, metadata)
+    Indian_early_patch_1_to_bind <- cbind(Indian_early_patch_1, metadata)
     # Add patch to the list of subregion hulls
-    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Indian_early_patch_to_bind)
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Indian_early_patch_1_to_bind)
+  }
+  if (age_i %in% as.character(30:43))
+  {
+    Indian_early_patch_1_2_to_bind <- cbind(Indian_early_patch_1_2, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Indian_early_patch_1_2_to_bind)
+  }
+  if (age_i %in% as.character(21:29))
+  {
+    Indian_early_patch_2_to_bind <- cbind(Indian_early_patch_2, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Indian_early_patch_2_to_bind)
+  }
+  if (age_i %in% as.character(30:32))
+  {
+    Indian_early_patch_2_2_to_bind <- cbind(Indian_early_patch_2_2, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Indian_early_patch_2_2_to_bind)
+  }
+  if (age_i %in% as.character(33:43))
+  {
+    Indian_early_patch_3_to_bind <- cbind(Indian_early_patch_3, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Indian_early_patch_3_to_bind)
   }
   if (age_i %in% as.character(133:145))
   {
@@ -3759,25 +3951,132 @@ for (i in seq_along(Subregion_hulls_polygons_reconstruct_all_ages))
   }
 
   ## Add patches to solve issues with Myanmar
-  if (age_i %in% as.character(52:100))
+  if (age_i %in% as.character(52:90))
   {
     Myanmar_early_patch_to_bind <- cbind(Myanmar_early_patch, metadata)
     # Add patch to the list of subregion hulls
     Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Myanmar_early_patch_to_bind)
   }
-  if (age_i %in% as.character(101:114))
+  if (age_i %in% as.character(91:108))
   {
     Myanmar_middle_patch_to_bind <- cbind(Myanmar_middle_patch, metadata)
     # Add patch to the list of subregion hulls
     Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Myanmar_middle_patch_to_bind)
   }
-  if (age_i %in% as.character(115:145))
+  if (age_i %in% as.character(109:114))
   {
     Myanmar_late_patch_to_bind <- cbind(Myanmar_late_patch, metadata)
     # Add patch to the list of subregion hulls
     Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Myanmar_late_patch_to_bind)
   }
+  if (age_i %in% as.character(115:145))
+  {
+    Myanmar_late_patch_2_to_bind <- cbind(Myanmar_late_patch_2, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Myanmar_late_patch_2_to_bind)
+  }
 
+  ## Add patches to solve issues with South_Himalaya
+  if (age_i %in% as.character(1:5))
+  {
+    South_Himalaya_early_patch_to_bind <- cbind(South_Himalaya_early_patch, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, South_Himalaya_early_patch_to_bind)
+  }
+  
+  ## Add patches to solve issues with Himalaya
+  if (age_i %in% as.character(9:12))
+  {
+    Himalaya_very_early_patch_to_bind <- cbind(Himalaya_very_early_patch, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Himalaya_very_early_patch_to_bind)
+  }
+  if (age_i %in% as.character(13:20))
+  {
+    Himalaya_very_early_patch_2_to_bind <- cbind(Himalaya_very_early_patch_2, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Himalaya_very_early_patch_2_to_bind)
+  }
+  if (age_i %in% as.character(27:29))
+  {
+    Himalaya_early_patch_to_bind <- cbind(Himalaya_early_patch, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Himalaya_early_patch_to_bind)
+  }
+  if (age_i %in% as.character(30:45))
+  {
+    Himalaya_early_patch_2_to_bind <- cbind(Himalaya_early_patch_2, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Himalaya_early_patch_2_to_bind)
+  }
+  if (age_i %in% as.character(46:62))
+  {
+    Himalaya_middle_patch_0_to_bind <- cbind(Himalaya_middle_patch_0, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Himalaya_middle_patch_0_to_bind)
+  }
+  if (age_i %in% as.character(55:60))
+  {
+    Himalaya_middle_patch_0_2_to_bind <- cbind(Himalaya_middle_patch_0_2, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Himalaya_middle_patch_0_2_to_bind)
+  }
+  if (age_i %in% as.character(63:75))
+  {
+    Himalaya_middle_patch_1_to_bind <- cbind(Himalaya_middle_patch_1, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Himalaya_middle_patch_1_to_bind)
+  }
+  if (age_i %in% as.character(76:80))
+  {
+    Himalaya_middle_patch_2_to_bind <- cbind(Himalaya_middle_patch_2, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Himalaya_middle_patch_2_to_bind)
+  }
+  if (age_i %in% as.character(81:115))
+  {
+    Himalaya_late_patch_to_bind <- cbind(Himalaya_late_patch, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Himalaya_late_patch_to_bind)
+  }
+  
+  ## Add patches to solve issues with NW_India
+  if (age_i %in% as.character(1:4))
+  {
+    NW_India_very_early_patch_to_bind <- cbind(NW_India_very_early_patch, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, NW_India_very_early_patch_to_bind)
+  }
+  if (age_i %in% as.character(5:8))
+  {
+    NW_India_very_early_patch_2_to_bind <- cbind(NW_India_very_early_patch_2, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, NW_India_very_early_patch_2_to_bind)
+  }
+  if (age_i %in% as.character(9:12))
+  {
+    NW_India_early_patch_to_bind <- cbind(NW_India_early_patch, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, NW_India_early_patch_to_bind)
+  }
+  if (age_i %in% as.character(13:20))
+  {
+    NW_India_early_patch_2_to_bind <- cbind(NW_India_early_patch_2, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, NW_India_early_patch_2_to_bind)
+  }
+  if (age_i %in% as.character(33:38))
+  {
+    NW_India_middle_patch_to_bind <- cbind(NW_India_middle_patch, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, NW_India_middle_patch_to_bind)
+    
+    Pakistan_middle_patch_to_bind <- cbind(Pakistan_middle_patch, metadata)
+    # Add patch to the list of subregion hulls
+    Subregion_hulls_polygons_reconstruct_age_i <- rbind(Subregion_hulls_polygons_reconstruct_age_i, Pakistan_middle_patch_to_bind)
+  }
+  
+  
   # Plot results
   # plot(Subregion_hulls_polygons_reconstruct_age_i[, "Subregion"])
   
@@ -3811,6 +4110,7 @@ pdf(file = paste0("./outputs/Paleomaps/Plates_with_Subregion_hulls_MULLER2022_al
     width = 16, height = 8)
 
 for (i in seq_along(Subregion_hulls_polygons_reconstruct_all_ages))
+# for (i in 1:65)
 {
   # i <- 1
   
@@ -4016,7 +4316,7 @@ ages_list <- c(0:start_time)
 Paleomaps_sf <- readRDS(file = "./outputs/Paleomaps/Paleomaps_sf.rds")
 
 # Load color scheme for bioregions
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
 colors_list_for_areas <- colors_list_for_states[c("A", "U", "I", "R", "N", "E", "W")]
 colors_list_for_areas_reconstruct <- colors_list_for_areas
 
@@ -4318,7 +4618,7 @@ ages_list <- c(0:start_time)
 Paleomaps_sf <- readRDS(file = "./outputs/Paleomaps/Paleomaps_sf.rds")
 
 # Load color scheme for bioregions
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
 colors_list_for_areas <- colors_list_for_states[c("A", "U", "I", "R", "N", "E", "W")]
 # bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 bioregion_names_reconstruct <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern_Palearctic", "Western_Palearctic")
@@ -4519,7 +4819,7 @@ ages_list <- c(0:start_time)
 Paleomaps_sf <- readRDS(file = "./outputs/Paleomaps/Paleomaps_sf.rds")
 
 # Load color scheme for bioregions
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
 colors_list_for_areas <- colors_list_for_states[c("A", "U", "I", "R", "N", "E", "W")]
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 names(colors_list_for_areas) <- bioregion_names
@@ -4689,7 +4989,7 @@ ages_list <- c(0:start_time)
 Paleomaps_with_bioregions_sf <- readRDS(file = "./outputs/Paleomaps/Paleomaps_with_bioregions_sf.rds")
 
 # Load color scheme for bioregions
-colors_list_for_states <- readRDS(file = "./outputs/BSM/BSM_maps/colors_list_for_states.rds")
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
 colors_list_for_areas <- colors_list_for_states[c("A", "U", "I", "R", "N", "E", "W")]
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic")
 names(colors_list_for_areas) <- bioregion_names
