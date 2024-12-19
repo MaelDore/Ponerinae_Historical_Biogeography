@@ -86,7 +86,7 @@ Please cite this research article as:
 
 **To update!**
 
-> Doré, M., Borowiec, M.L., Branstetter, M.G., Camacho, G., Fisher,
+> Doré, M., Borowiec, M.L., Branstetter, M.G., Camacho, G.P., Fisher,
 > B.L., Longino, J.T., Ward, P.S., & Blaimer, B.B., 2025. Timing is
 > everything: Evolution of ponerine ants highlights how dispersal
 > history shapes modern biodiversity. in prep.
