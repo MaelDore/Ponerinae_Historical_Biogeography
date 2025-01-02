@@ -48,6 +48,7 @@ library(xlsx)      # Need the Java Development Kit (JDK) installed
 library(openxlsx)  # Use Rccp. No need of Java
 library(phytools)
 library(ape)
+library(treeio)
 
 ### 1.2/ Load databases ####
 
@@ -164,7 +165,7 @@ Biogeographic_database_to_merge <- Biogeographic_database_Ponerinae_curated %>%
   dplyr::select(specimen_voucher, Latitude_dec, Longitude_dec, Country_ISO3_name, adm1, adm2, Locality) %>%
   filter(specimen_voucher %in% NCBI_BioSample_Voucher_table$specimen_voucher)
 
-View(Biogeographic_database_to_merge)
+# View(Biogeographic_database_to_merge)
 
 ## Get coordinates in proper format
 
@@ -205,7 +206,7 @@ Biogeographic_database_to_merge$Locality <- str_replace_all(string = Biogeograph
 # Merge in one field
 Biogeographic_database_to_merge$geo_loc_name <- paste0(Biogeographic_database_to_merge$Country_ISO3_name, ": ", Biogeographic_database_to_merge$adm1, ", ", Biogeographic_database_to_merge$adm2, ", ", Biogeographic_database_to_merge$Locality)
   
-View(Biogeographic_database_to_merge)
+# View(Biogeographic_database_to_merge)
 
 # Merge with voucher data
 NCBI_BioSample_Voucher_table <- NCBI_BioSample_Voucher_table %>%
@@ -292,7 +293,7 @@ Biogeographic_database_complement_to_merge <- AntWeb_database %>%
 Biogeographic_database_complement_to_merge$adm1[Biogeographic_database_complement_to_merge$adm1 == "null"] <- NA
 Biogeographic_database_complement_to_merge$adm2[Biogeographic_database_complement_to_merge$adm2 == "null"] <- NA
 
-View(Biogeographic_database_complement_to_merge)
+# View(Biogeographic_database_complement_to_merge)
 
 ## Get coordinates in proper format
 
@@ -315,14 +316,13 @@ Biogeographic_database_complement_to_merge$localityname <- str_replace_all(strin
 # Merge in one field
 Biogeographic_database_complement_to_merge$geo_loc_name <- paste0(Biogeographic_database_complement_to_merge$country, ": ", Biogeographic_database_complement_to_merge$adm1, ", ", Biogeographic_database_complement_to_merge$adm2, ", ", Biogeographic_database_complement_to_merge$localityname)
 
-View(Biogeographic_database_complement_to_merge)
+# View(Biogeographic_database_complement_to_merge)
 
 # Merge with voucher data
 NCBI_BioSample_Voucher_table$lat_lon[Not_in_Occ_database_ID] <- Biogeographic_database_complement_to_merge$lat_lon
 NCBI_BioSample_Voucher_table$geo_loc_name[Not_in_Occ_database_ID] <- Biogeographic_database_complement_to_merge$geo_loc_name
 
 View(NCBI_BioSample_Voucher_table)
-
 
 ##### 6/ Deal with the outgroups #####
 
@@ -335,9 +335,57 @@ Ponerinae_uncalibrated_UCE_phylogeny_792t_treedata@phylo$tip.label[!(Ponerinae_u
 write.xlsx(x = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.xlsx")
 
 # Reload modified table
-test <- read.xlsx(xlsxFile = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.xlsx")
+NCBI_BioSample_Voucher_table <- read.xlsx(xlsxFile = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.xlsx")
 
-##### 7/ Add description field ####
+# Update error in manual dates
+NCBI_BioSample_Voucher_table$collection_date[NCBI_BioSample_Voucher_table$sample_name == "Amblyopone_australis_D0872_CASENT0106229"] <- "13-Jan-1999"
+NCBI_BioSample_Voucher_table$collection_date[NCBI_BioSample_Voucher_table$sample_name == "Paraponera_clavata_EX1573_CASENT0633292"] <- "8-Jun-2011"
+NCBI_BioSample_Voucher_table$collection_date[NCBI_BioSample_Voucher_table$sample_name == "Proceratium_google_MAMI0434_CASENT0035028"] <- "12-Mar-2003"
+
+##### 7/ Curate dev_stage and sex #####
+
+# NCBI_BioSample_Voucher_table <- readRDS(file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
+
+NCBI_BioSample_Voucher_table$caste_info <- NCBI_BioSample_Voucher_table$dev_stage
+NCBI_BioSample_Voucher_table$dev_stage <- NA
+
+# adult worker; female
+NCBI_BioSample_Voucher_table$dev_stage[NCBI_BioSample_Voucher_table$caste_info %in% c("Adult worker", "1 adult worker", "1 W", "1W", "1 worker", "1 worker (head detached)", "1 worker (missing abdomen)", "1w", "2 worker", "2 workers", "3 workers", "4 workers", "adult worker", "worker")] <- "adult worker"
+NCBI_BioSample_Voucher_table$sex[NCBI_BioSample_Voucher_table$caste_info %in% c("Adult worker", "1 adult worker", "1 W", "1W", "1 worker", "1 worker (head detached)", "1 worker (missing abdomen)", "1w", "2 worker", "2 workers", "3 workers", "4 workers", "adult worker", "worker")] <- "female"
+  
+# alate queen; female
+NCBI_BioSample_Voucher_table$dev_stage[NCBI_BioSample_Voucher_table$caste_info %in% c("1 alate queen", "1aq", "alate queen")] <- "alate queen"
+NCBI_BioSample_Voucher_table$sex[NCBI_BioSample_Voucher_table$caste_info %in% c("1 alate queen", "1aq", "alate queen")] <- "female"
+
+# queen; female
+NCBI_BioSample_Voucher_table$dev_stage[NCBI_BioSample_Voucher_table$caste_info %in% c("queen", "1eq")] <- "queen"
+NCBI_BioSample_Voucher_table$sex[NCBI_BioSample_Voucher_table$caste_info %in% c("queen", "1eq")] <- "female"
+
+# dealate queen; female
+NCBI_BioSample_Voucher_table$dev_stage[NCBI_BioSample_Voucher_table$caste_info %in% c("1 dealate queen", "1dq", "dealate queen")] <- "dealate queen"
+NCBI_BioSample_Voucher_table$sex[NCBI_BioSample_Voucher_table$caste_info %in% c("1 dealate queen", "1dq", "dealate queen")] <- "female"
+
+# adult male; male
+NCBI_BioSample_Voucher_table$dev_stage[NCBI_BioSample_Voucher_table$caste_info %in% c("1 male", "male")] <- "adult male"
+NCBI_BioSample_Voucher_table$sex[NCBI_BioSample_Voucher_table$caste_info %in% c("1 male", "male")] <- "male"
+
+# missing; missing
+NCBI_BioSample_Voucher_table$dev_stage[NCBI_BioSample_Voucher_table$caste_info %in% c("1 dealate queen, 1 worker")] <- "missing"
+NCBI_BioSample_Voucher_table$sex[NCBI_BioSample_Voucher_table$caste_info %in% c("1 dealate queen, 1 worker")] <- "missing"
+
+# missing; missing
+NCBI_BioSample_Voucher_table$dev_stage[NCBI_BioSample_Voucher_table$caste_info %in% c("null")] <- "missing"
+NCBI_BioSample_Voucher_table$sex[NCBI_BioSample_Voucher_table$caste_info %in% c("null")] <- "missing"
+
+NCBI_BioSample_Voucher_table$caste_info[is.na(NCBI_BioSample_Voucher_table$dev_stage)]
+table(is.na(NCBI_BioSample_Voucher_table$dev_stage))
+table(is.na(NCBI_BioSample_Voucher_table$sex))
+
+# Remove temporary field
+NCBI_BioSample_Voucher_table <- NCBI_BioSample_Voucher_table %>% 
+  dplyr::select(-caste_info)
+
+##### 8/ Add description field ####
 
 NCBI_BioSample_Voucher_table$description <- paste0("The DNA voucher specimen ", NCBI_BioSample_Voucher_table$specimen_voucher," is deposited at ", NCBI_BioSample_Voucher_table$biomaterial_provider," with data available on www.antweb.org. The voucher is the same specimen as the one used for extraction, or is by default from the same nest/series/locality as the sequenced specimen.")
 
@@ -345,7 +393,10 @@ NCBI_BioSample_Voucher_table$description <- paste0("The DNA voucher specimen ", 
 saveRDS(object = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.rds")
 write.xlsx(x = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.xlsx")
 
-##### 8/ Filter to keep only newly sequenced data in the Biosample table ####
+## Reorder by inversing for "Neoponera_metanotalis" vs. "Neoponera_metanotalis_2"
+
+
+##### 9/ Filter to keep only newly sequenced data in the Biosample table ####
 
 # Load Biosample voucher table
 # NCBI_BioSample_Voucher_table <- readRDS(file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.rds")
@@ -354,6 +405,9 @@ NCBI_BioSample_Voucher_table <- openxlsx::read.xlsx(xlsxFile = "./input_data/Mol
 # Save the non-filtered version to build the SD1 table with all taxa
 SD1_Voucher_specimens_metadata <- NCBI_BioSample_Voucher_table
 saveRDS(object = SD1_Voucher_specimens_metadata, file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
+
+# NCBI_BioSample_Voucher_table <- readRDS(file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
+
 
 # Load Source table
 AoW_Ponerinae_sequence_sources <- openxlsx::read.xlsx(xlsxFile = "./input_data/Molecular_data/AoW ponerine sequence source.xlsx")
@@ -383,6 +437,24 @@ NCBI_BioSample_Voucher_table <- NCBI_BioSample_Voucher_table %>%
   filter(status == "sequenced") %>%
   dplyr::select(-status, - Full_name)
 
+# Remove "_" in organism names
+NCBI_BioSample_Voucher_table$organism <- str_replace(string = NCBI_BioSample_Voucher_table$organism, pattern = "_", replacement = " ")
+
+# Add missing in missing collection dates
+NCBI_BioSample_Voucher_table$collection_date[is.na(NCBI_BioSample_Voucher_table$collection_date)] <- "missing"
+
+# Detect non-ASCII characters
+detect_non_ASCII_characters_from_df <- function (df)
+{
+  all_chars <- paste(unlist(df), collapse = "")
+  all_non_ASCII_chars <- unique(unlist(str_extract_all(string = all_chars, pattern = "[^\t\n\r\x20-\x7E]")))
+  cat(paste0(length(all_non_ASCII_chars), " unique non-ASCII characters detected: ", paste(all_non_ASCII_chars, collapse = " ")))
+}
+detect_non_ASCII_characters_from_df(df = NCBI_BioSample_Voucher_table)
+
+# Replace non-ASCII characters
+# Run str_replace on all columns
+
 ### Save/Export the Voucher table
 saveRDS(object = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.rds")
 write.xlsx(x = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.xlsx")
@@ -391,12 +463,11 @@ write.xlsx(x = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data
 
 
 ## Info
-# dev_stage = lifestage # Need to be manually curated (or removed)
 # `infra specific rank` = to tag morphospecies
 # `infra specific name` = to name subspecies
 
 
-##### 9/ Create Supplementary data for all taxa ####
+##### 10/ Create Supplementary data for all taxa ####
 
 # Load Source table
 # SD1_Voucher_specimens_metadata <- openxlsx::read.xlsx(xlsxFile = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.xlsx")
@@ -408,7 +479,7 @@ date_vector <- lubridate::as_date(x = SD1_Voucher_specimens_metadata$collection_
 formatted_date_vector <- format(date_vector, "%Y-%m-%d")
 SD1_Voucher_specimens_metadata$collection_date <- formatted_date_vector
 
-### 9.1/ Merge with Source table ####
+### 10.1/ Merge with Source table ####
 
 # Load Source table
 AoW_Ponerinae_sequence_sources <- openxlsx::read.xlsx(xlsxFile = "./input_data/Molecular_data/AoW ponerine sequence source.xlsx")
@@ -440,17 +511,19 @@ SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>%
   rename(Voucher_specimen_code = specimen_voucher) %>%
   rename(Collection_date = collection_date) %>%
   rename(Locality = geo_loc_name) %>%
+  rename(Caste = dev_stage) %>%
+  rename(Sex = sex) %>%
   rename(Host_institution = biomaterial_provider) %>%
   rename(Collected_by = collected_by) %>%
   rename(Identified_by = identified_by) %>%
   rename(Status_taxa = infra.specific.rank) %>%
   rename(Description = description) %>%
   rename(BioSample_ID = Biosample) %>%
-  rename(BioProject_ID = BioProject)
-  dplyr::select(Taxa_name, Status_taxa, Outgroup, Status_data, Voucher_specimen_code, Specimen_code_Sources, Extraction_code_Sources, note, BioProject_ID, BioSample_ID, Reference, Reference_DOI, Host_institution, Collection_date, Locality, lat_lon, Collected_by, Identified_by, Description)
+  rename(BioProject_ID = BioProject) %>%
+  dplyr::select(Taxa_name, Status_taxa, Outgroup, Status_data, Voucher_specimen_code, Specimen_code_Sources, Extraction_code_Sources, note, BioProject_ID, BioSample_ID, Reference, Reference_DOI, Host_institution, Caste, Sex, Collection_date, Locality, lat_lon, Collected_by, Identified_by, Description)
 
 
-### 9.2/ Merge with Macroevolution_taxa_database  ####
+### 10.2/ Merge with Macroevolution_taxa_database  ####
 
 Ponerinae_Macroevolution_taxa_database <- readRDS(file = "./input_data/Ponerinae_Macroevolution_taxa_database.rds")
 
@@ -459,10 +532,10 @@ Ponerinae_Macroevolution_taxa_database <- readRDS(file = "./input_data/Ponerinae
 
 SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
   left_join(y = Ponerinae_Macroevolution_taxa_database[, c("Current_name", "Specimen_phylogeny_Extraction_code", "Subspecies")], by = join_by("Taxa_name" == "Current_name")) %>% 
-  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Specimen_code_Sources, Extraction_code_Sources, Specimen_phylogeny_Extraction_code, note, BioProject_ID, BioSample_ID, Reference, Reference_DOI, Host_institution, Collection_date, Locality, lat_lon, Collected_by, Identified_by, Description)
+  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Specimen_code_Sources, Extraction_code_Sources, Specimen_phylogeny_Extraction_code, note, BioProject_ID, BioSample_ID, Reference, Reference_DOI, Host_institution, Caste, Sex, Collection_date, Locality, lat_lon, Collected_by, Identified_by, Description)
 
 
-### 9.3/ Curate fields ####
+### 10.3/ Curate fields ####
 
 ## Fill Subspecies for outgroups
 SD1_Voucher_specimens_metadata$Subspecies[is.na(SD1_Voucher_specimens_metadata$Subspecies)] <- F
@@ -519,7 +592,7 @@ for (i in 1:nrow(SD1_Voucher_specimens_metadata))
   SD1_Voucher_specimens_metadata$Longitude_decimal[i] <- lat_long_i$long_dec
 }
 SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
-  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, Reference, Reference_DOI, Host_institution, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
+  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, Reference, Reference_DOI, Host_institution, Caste, Sex, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
 
 
 ## Add additional fields for sequence references
@@ -527,14 +600,14 @@ SD1_Voucher_specimens_metadata$Read_sequences_SRA_SRR_ID <- NA
 SD1_Voucher_specimens_metadata$UCE_TLS_GenBank_ID <- NA
 SD1_Voucher_specimens_metadata$COX1_GenBank_ID <- NA
 SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
-  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, Read_sequences_SRA_SRR_ID, UCE_TLS_GenBank_ID, COX1_GenBank_ID, Reference, Reference_DOI, Host_institution, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
+  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, Read_sequences_SRA_SRR_ID, UCE_TLS_GenBank_ID, COX1_GenBank_ID, Reference, Reference_DOI, Host_institution, Caste, Sex, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
 
 # Save updated table
-saveRDS(object = SD1_Voucher_specimens_metadata , file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
+saveRDS(object = SD1_Voucher_specimens_metadata, file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
 write.xlsx(x = SD1_Voucher_specimens_metadata, file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.xlsx")
 
 
-### 9.4/ Add GenBank metadata from previous studies ####
+### 10.4/ Add GenBank metadata from previous studies ####
 
 # SD1_Voucher_specimens_metadata <- read.xlsx(xlsxFile = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.xlsx")
 SD1_Voucher_specimens_metadata <- readRDS(file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
@@ -548,7 +621,7 @@ SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>%
   rename(Read_sequences_SRA_SRR_ID_2 = `SRA.SRR#`) %>%
   rename(UCE_TLS_GenBank_ID_2 = `TLS.GenBank#.[UCEs]`) %>%
   rename(COX1_GenBank_ID_2 = `GenBank#.[COI]`) %>%
-  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, Read_sequences_SRA_SRR_ID, Read_sequences_SRA_SRR_ID_2, UCE_TLS_GenBank_ID, UCE_TLS_GenBank_ID_2, COX1_GenBank_ID, COX1_GenBank_ID_2, Reference, Reference_DOI, Host_institution, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
+  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, Read_sequences_SRA_SRR_ID, Read_sequences_SRA_SRR_ID_2, UCE_TLS_GenBank_ID, UCE_TLS_GenBank_ID_2, COX1_GenBank_ID, COX1_GenBank_ID_2, Reference, Reference_DOI, Host_institution, Caste, Sex, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
 
 # Check that ID matches
 View(SD1_Voucher_specimens_metadata)
@@ -571,7 +644,7 @@ SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>%
   rename(Read_sequences_SRA_SRR_ID_2 = `SRA.SRR#`) %>%
   rename(UCE_TLS_GenBank_ID_2 = `TLS.GenBank#.[UCEs]`) %>%
   rename(COX1_GenBank_ID_2 = `GenBank#.[COI]`) %>%
-  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, Read_sequences_SRA_SRR_ID, Read_sequences_SRA_SRR_ID_2, UCE_TLS_GenBank_ID, UCE_TLS_GenBank_ID_2, COX1_GenBank_ID, COX1_GenBank_ID_2, Reference, Reference_DOI, Host_institution, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
+  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, Read_sequences_SRA_SRR_ID, Read_sequences_SRA_SRR_ID_2, UCE_TLS_GenBank_ID, UCE_TLS_GenBank_ID_2, COX1_GenBank_ID, COX1_GenBank_ID_2, Reference, Reference_DOI, Host_institution, Caste, Sex, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
 
 # Check that ID matches
 View(SD1_Voucher_specimens_metadata)
