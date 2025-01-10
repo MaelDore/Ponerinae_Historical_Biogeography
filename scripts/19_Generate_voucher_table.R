@@ -159,41 +159,71 @@ View(NCBI_BioSample_Voucher_table)
 # geo_loc_name = Country: Localityname (without ":") (Use data from curated occurrences)
 # lat_lon = "d[d.dddd] N|S d[dd.dddd] W|E", eg, 38.98 N 77.11 W. (Use data from curated occurrences)
 
-
 Biogeographic_database_to_merge <- Biogeographic_database_Ponerinae_curated %>% 
+  sf::st_drop_geometry() %>% 
   mutate(specimen_voucher = str_to_upper(Specimen_code)) %>%
   dplyr::select(specimen_voucher, Latitude_dec, Longitude_dec, Country_ISO3_name, adm1, adm2, Locality) %>%
   filter(specimen_voucher %in% NCBI_BioSample_Voucher_table$specimen_voucher)
 
 # View(Biogeographic_database_to_merge)
 
+
 ## Get coordinates in proper format
 
-# Convert degrees to long/lat
-decimal_to_degrees_minutes <- function (lat, long)
+# No need to convert in degrees! Only to cut down to two decimals
+
+Biogeographic_database_to_merge$lat_lon <- NA
+
+decimal_to_Biosample_format <- function (lat, long)
 {
   abs_lat <- abs(lat)
   lat_degrees <- floor(abs_lat) # Get degrees
-  lat_minutes <- round((abs_lat - lat_degrees) * 60, 0) # Get rounded minutes
+  lat_decimals <- round((abs_lat - lat_degrees) * 100, 0) # Get rounded decimals
   if (abs_lat == lat) { lat_card <- "N" } else { lat_card <- "S" } # Get cardinal
-  
+
   abs_long <- abs(long)
   long_degrees <- floor(abs_long) # Get degrees
-  long_minutes <- round((abs_long - long_degrees) * 60, 0) # Get rounded minutes
+  long_decimals <- round((abs_long - long_degrees) * 100, 0) # Get rounded decimals
   if (abs_long == long) { long_card <- "E" } else { long_card <- "W" } # Get cardinal
-  
+
   # Aggregate result
-  lat_long_deg <- paste0(lat_degrees, ".", lat_minutes, " ", lat_card, " ", long_degrees, ".", long_minutes, " ", long_card)
-  return(lat_long_deg)
+  lat_long_decimals <- paste0(lat_degrees, ".", lat_decimals, " ", lat_card, " ", long_degrees, ".", long_decimals, " ", long_card)
+  return(lat_long_decimals)
 }
 
 # Loop per entry
 Biogeographic_database_to_merge$lat_lon <- NA
 for (i in 1:nrow(Biogeographic_database_to_merge))
 {
-  Biogeographic_database_to_merge$lat_lon[i] <- decimal_to_degrees_minutes(lat = Biogeographic_database_to_merge$Latitude_dec[i],
+  Biogeographic_database_to_merge$lat_lon[i] <- decimal_to_Biosample_format(lat = Biogeographic_database_to_merge$Latitude_dec[i],
                                                                            long = Biogeographic_database_to_merge$Longitude_dec[i])
 }
+
+# # Convert degrees to long/lat
+# decimal_to_degrees_minutes <- function (lat, long)
+# {
+#   abs_lat <- abs(lat)
+#   lat_degrees <- floor(abs_lat) # Get degrees
+#   lat_minutes <- round((abs_lat - lat_degrees) * 60, 0) # Get rounded minutes
+#   if (abs_lat == lat) { lat_card <- "N" } else { lat_card <- "S" } # Get cardinal
+#   
+#   abs_long <- abs(long)
+#   long_degrees <- floor(abs_long) # Get degrees
+#   long_minutes <- round((abs_long - long_degrees) * 60, 0) # Get rounded minutes
+#   if (abs_long == long) { long_card <- "E" } else { long_card <- "W" } # Get cardinal
+#   
+#   # Aggregate result
+#   lat_long_deg <- paste0(lat_degrees, ".", lat_minutes, " ", lat_card, " ", long_degrees, ".", long_minutes, " ", long_card)
+#   return(lat_long_deg)
+# }
+# 
+# # Loop per entry
+# Biogeographic_database_to_merge$lat_lon <- NA
+# for (i in 1:nrow(Biogeographic_database_to_merge))
+# {
+#   Biogeographic_database_to_merge$lat_lon[i] <- decimal_to_degrees_minutes(lat = Biogeographic_database_to_merge$Latitude_dec[i],
+#                                                                            long = Biogeographic_database_to_merge$Longitude_dec[i])
+# }
 
 ## Get locality info in proper format
 
@@ -215,6 +245,14 @@ NCBI_BioSample_Voucher_table <- NCBI_BioSample_Voucher_table %>%
   arrange(sample_name)
 
 View(NCBI_BioSample_Voucher_table)
+
+## Change Honk Kong S.A.R. for Honk Kong (BioSample rule)
+
+NCBI_BioSample_Voucher_table$geo_loc_name <- str_replace(string = NCBI_BioSample_Voucher_table$geo_loc_name, pattern = "Hong Kong S.A.R.", replacement = "Hong Kong")
+
+## Update location of CASENT0777939 specimen in Mozambique
+NCBI_BioSample_Voucher_table$lat_lon[NCBI_BioSample_Voucher_table$specimen_voucher == "CASENT0777939"] <- "12.82 S 39.70 E"
+NCBI_BioSample_Voucher_table$geo_loc_name[NCBI_BioSample_Voucher_table$specimen_voucher == "CASENT0777939"] <- "Mozambique: Cabo Delgado, Parque Nacional Quirimbas, Taratibu"
 
 
 ##### 5/ Deal with specimens with no match in databases ####
@@ -395,7 +433,6 @@ write.xlsx(x = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data
 
 ## Reorder by inversing for "Neoponera_metanotalis" vs. "Neoponera_metanotalis_2"
 
-
 ##### 9/ Filter to keep only newly sequenced data in the Biosample table ####
 
 # Load Biosample voucher table
@@ -408,6 +445,19 @@ saveRDS(object = SD1_Voucher_specimens_metadata, file = "./input_data/Molecular_
 
 # NCBI_BioSample_Voucher_table <- readRDS(file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
 
+test <- SD1_Voucher_specimens_metadata %>% 
+  filter(Voucher_specimen_code %in% NCBI_BioSample_Voucher_table$specimen_voucher)
+
+# Loop per entry
+test$lat_lon <- NA
+for (i in 1:nrow(test))
+{
+  test$lat_lon[i] <- decimal_to_Biosample_format(lat = test$Latitude_dec[i],
+                                                 long = test$Longitude_dec[i])
+}
+
+
+write.xlsx(x = test, file = "./input_data/Molecular_data/test.xlsx")
 
 # Load Source table
 AoW_Ponerinae_sequence_sources <- openxlsx::read.xlsx(xlsxFile = "./input_data/Molecular_data/AoW ponerine sequence source.xlsx")
