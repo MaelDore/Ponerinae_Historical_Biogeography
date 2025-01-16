@@ -31,7 +31,7 @@
 
 ### Outputs
 
-# Voucher table following template provided by NCBI - BioSample
+# Voucher table following template provided by NCBI - BioSample (missing proper biomaterial information)
 
 ###
 
@@ -167,29 +167,31 @@ Biogeographic_database_to_merge <- Biogeographic_database_Ponerinae_curated %>%
 
 # View(Biogeographic_database_to_merge)
 
-
 ## Get coordinates in proper format
 
 # No need to convert in degrees! Only to cut down to two decimals
 
 Biogeographic_database_to_merge$lat_lon <- NA
 
-decimal_to_Biosample_format <- function (lat, long)
+decimal_to_Biosample_format <- function (lat, long, nb_decimals = 2)
 {
+  factor <- 10^nb_decimals 
+    
   abs_lat <- abs(lat)
-  lat_degrees <- floor(abs_lat) # Get degrees
-  lat_decimals <- round((abs_lat - lat_degrees) * 100, 0) # Get rounded decimals
+  lat_rounded <- round(abs_lat * factor, 0) / factor
   if (abs_lat == lat) { lat_card <- "N" } else { lat_card <- "S" } # Get cardinal
 
   abs_long <- abs(long)
-  long_degrees <- floor(abs_long) # Get degrees
-  long_decimals <- round((abs_long - long_degrees) * 100, 0) # Get rounded decimals
+  long_rounded <- round(abs_long * factor, 0) / factor
   if (abs_long == long) { long_card <- "E" } else { long_card <- "W" } # Get cardinal
 
   # Aggregate result
-  lat_long_decimals <- paste0(lat_degrees, ".", lat_decimals, " ", lat_card, " ", long_degrees, ".", long_decimals, " ", long_card)
+  lat_long_decimals <- paste0(lat_rounded, " ", lat_card, " ", long_rounded, " ", long_card)
   return(lat_long_decimals)
 }
+
+# decimal_to_Biosample_format(lat = 4.08851, long = 52.67922, nb_decimals = 4)
+
 
 # Loop per entry
 Biogeographic_database_to_merge$lat_lon <- NA
@@ -247,7 +249,6 @@ NCBI_BioSample_Voucher_table <- NCBI_BioSample_Voucher_table %>%
 View(NCBI_BioSample_Voucher_table)
 
 ## Change Honk Kong S.A.R. for Honk Kong (BioSample rule)
-
 NCBI_BioSample_Voucher_table$geo_loc_name <- str_replace(string = NCBI_BioSample_Voucher_table$geo_loc_name, pattern = "Hong Kong S.A.R.", replacement = "Hong Kong")
 
 ## Update location of CASENT0777939 specimen in Mozambique
@@ -445,19 +446,19 @@ saveRDS(object = SD1_Voucher_specimens_metadata, file = "./input_data/Molecular_
 
 # NCBI_BioSample_Voucher_table <- readRDS(file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
 
-test <- SD1_Voucher_specimens_metadata %>% 
-  filter(Voucher_specimen_code %in% NCBI_BioSample_Voucher_table$specimen_voucher)
-
-# Loop per entry
-test$lat_lon <- NA
-for (i in 1:nrow(test))
-{
-  test$lat_lon[i] <- decimal_to_Biosample_format(lat = test$Latitude_dec[i],
-                                                 long = test$Longitude_dec[i])
-}
-
-
-write.xlsx(x = test, file = "./input_data/Molecular_data/test.xlsx")
+# test <- SD1_Voucher_specimens_metadata %>% 
+#   filter(Voucher_specimen_code %in% NCBI_BioSample_Voucher_table$specimen_voucher)
+# 
+# # Loop per entry
+# test$lat_lon <- NA
+# for (i in 1:nrow(test))
+# {
+#   test$lat_lon[i] <- decimal_to_Biosample_format(lat = test$Latitude_dec[i],
+#                                                  long = test$Longitude_dec[i])
+# }
+# 
+# 
+# write.xlsx(x = test, file = "./input_data/Molecular_data/test.xlsx")
 
 # Load Source table
 AoW_Ponerinae_sequence_sources <- openxlsx::read.xlsx(xlsxFile = "./input_data/Molecular_data/AoW ponerine sequence source.xlsx")
@@ -515,6 +516,16 @@ write.xlsx(x = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data
 ## Info
 # `infra specific rank` = to tag morphospecies
 # `infra specific name` = to name subspecies
+
+test <- SD1_Voucher_specimens_metadata
+
+# Loop per entry
+test$lat_lon <- NA
+for (i in 1:nrow(test))
+{
+  test$lat_lon[i] <- decimal_to_Biosample_format(lat = test$Latitude_dec[i],
+                                                 long = test$Longitude_dec[i])
+}
 
 
 ##### 10/ Create Supplementary data for all taxa ####
@@ -631,6 +642,7 @@ degrees_minutes_to_decimal <- function (lat_long)
   return(list(lat_dec = lat_dec, long_dec = long_dec))
 }
 
+
 SD1_Voucher_specimens_metadata$Latitude_decimal <- SD1_Voucher_specimens_metadata$Longitude_decimal <- NA
 for (i in 1:nrow(SD1_Voucher_specimens_metadata))
 {
@@ -706,10 +718,36 @@ SD1_Voucher_specimens_metadata$COX1_GenBank_ID[!is.na(SD1_Voucher_specimens_meta
 SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
   dplyr::select(-Read_sequences_SRA_SRR_ID_2, -UCE_TLS_GenBank_ID_2, -COX1_GenBank_ID_2)
 
+# SD1_Voucher_specimens_metadata <- read.xlsx(xlsxFile = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata_formatted.xlsx")
+
+# Load Metadata from Camacho et al., 2025
+SuppInfoS2_data <- read.xlsx(xlsxFile = "./input_data/Molecular_data/SuppInfoS2_Camacho et al.2024_Zooregions in Madagascar_final_14.i.25.xlsx", sheet = "Table S2.1 - Sequencing info")
+
+SuppInfoS2_data <- SuppInfoS2_data %>% 
+  filter(SuppInfoS2_data$Voucher.Code %in% SD1_Voucher_specimens_metadata$Voucher_specimen_code) %>% 
+  filter(SuppInfoS2_data$Data.Reference == "This study")
+
+View(SD1_Voucher_specimens_metadata[SD1_Voucher_specimens_metadata$Voucher_specimen_code %in% SuppInfoS2_data$Voucher.Code, ])
+
+# Match on BioSample ID
+SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
+  left_join(y = SuppInfoS2_data[, c("Voucher.Code", "BioSample#")], by = join_by("Voucher_specimen_code" == "Voucher.Code")) %>%
+  rename(BioSample_ID_2 = `BioSample#`) %>%
+  dplyr::select(Taxa_name, Status_taxa, Subspecies, Outgroup, Status_data, Voucher_specimen_code, Extraction_code, BioProject_ID, BioSample_ID, BioSample_ID_2, Read_sequences_SRA_SRR_ID, UCE_TLS_GenBank_ID, COX1_GenBank_ID, Reference, Reference_DOI, Host_institution, Caste, Sex, Collection_date, Locality, Latitude_decimal, Longitude_decimal, Collected_by, Identified_by, Description)
+
+# Check that ID matches
+View(SD1_Voucher_specimens_metadata)
+
+# Inform new metadata
+SD1_Voucher_specimens_metadata$BioSample_ID[!is.na(SD1_Voucher_specimens_metadata$BioSample_ID_2)] <- SD1_Voucher_specimens_metadata$BioSample_ID_2[!is.na(SD1_Voucher_specimens_metadata$BioSample_ID_2)]
+SD1_Voucher_specimens_metadata <- SD1_Voucher_specimens_metadata %>% 
+  dplyr::select(-BioSample_ID_2)
+
 
 # Save updated table
 saveRDS(object = SD1_Voucher_specimens_metadata, file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.rds")
 write.xlsx(x = SD1_Voucher_specimens_metadata, file = "./input_data/Molecular_data/SD1_Voucher_specimens_metadata.xlsx")
   
+
 
 # Need to be pasted in the Supplementary Data file as SD1

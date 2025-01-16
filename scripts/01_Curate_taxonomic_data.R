@@ -1398,7 +1398,7 @@ saveRDS(Ponerinae_Macroevolution_taxa_database, file = "./input_data/Ponerinae_M
 Ponerinae_Macroevolution_taxa_database <- readRDS(file = "./input_data/Ponerinae_Macroevolution_taxa_database.rds")
 # Ponerinae_Macroevolution_taxa_database <- read.xlsx(xlsxFile = "./input_data/Ponerinae_Macroevolution_taxa_database.xlsx")
 
-# load the curated AntWeb database
+# Load the curated AntWeb database
 AntWeb_database_curated <- readRDS(file = "./input_data/AntWeb_data/AntWeb_database_curated.rds")
 
 # Load trait dataset
@@ -1406,58 +1406,61 @@ AntWeb_database_curated <- readRDS(file = "./input_data/AntWeb_data/AntWeb_datab
 # Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2024_01_12.xlsx")
 # Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2024_02_05.xlsx")
 # Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2024_11_14.xlsx")
-Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2025_01_08.xlsx")
+# Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2025_01_08.xlsx")
+Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2025_01_13.xlsx")
 
 Trait_database <- Trait_database %>% 
   rename(Specimen_measured_Code = MeasSpecimen) %>% 
-  rename(Measurement_status = SD1_status) %>% 
-  dplyr::select(-c("PmSP", "PrSP", "PtSP")) %>%   # Remove spinescence measurements that have been abandoned
-  dplyr::select(Date, Lab, Notes, Measurement_status, Source, GenSp, Genus, Species, EXcode, Specimen_measured_Code, HW, HL, SL, ED, WL, PW, MtFL) %>%
-  filter((EXcode != "EX3093") | is.na(EXcode)) %>%   # Specimen is a male
+  rename(Extraction_Code = EXcode) %>%
+  rename(Taxa_measurement_status = EX_status) %>% 
+  mutate(Is_Ponerinae = TRUE) %>% # Add new field for Ponerinae membership
+  # dplyr::select(-c("PmSP", "PrSP", "PtSP")) %>%   # Remove spinescence measurements that have been abandoned
+  dplyr::select(Date, Lab, Source, Extraction_Code, Specimen_measured_Code, Current_name, Taxa_measurement_status, Is_Ponerinae, HW, HL, SL, ED, WL, PW, MtFL, PmSP, PrSP, PtSP, Notes) %>%
+  filter((Extraction_Code != "EX3093") | is.na(Extraction_Code)) %>%   # Specimen is a male
   filter(Specimen_measured_Code != "INBIOCRI0012278883"| is.na(Specimen_measured_Code)) # Remove duplicate with wrong Specimen code
 
-# Add new field to match names
-Trait_database$Genus_species <- paste0(Trait_database$Genus, "_", Trait_database$Species) 
-
-# Add new field for Ponerinae membership
-Trait_database$Ponerinae <- T
-
-# Remove duplicates
-
+# Inspect duplicates based on Specimen_measured_Code
 table(duplicated(Trait_database$Specimen_measured_Code, incomparables = NA))
 View(Trait_database[duplicated(Trait_database$Specimen_measured_Code), ])
 View(Trait_database[duplicated(Trait_database$Specimen_measured_Code, incomparables = NA), ])
 
-# Trait_database <- Trait_database[!duplicated(Trait_database$Specimen_measured_Code, incomparables = NA), ]
-Trait_database <- Trait_database[!duplicated(Trait_database$Specimen_measured_Code), ]
+# Remove duplicates based on Extraction code
 
-# Remove entries with no measurements data
-no_measurements <- apply(X = Trait_database[, c("HW", "HL", "SL", "ED", "WL", "PW", "MtFL")], MARGIN = 1, FUN = function (x) { all(is.na(x))} )
-Trait_database <- Trait_database[!no_measurements, ]
+table(duplicated(Trait_database$Extraction_Code, incomparables = NA))
+View(Trait_database[duplicated(Trait_database$Extraction_Code), ])
+View(Trait_database[duplicated(Trait_database$Extraction_Code, incomparables = NA), ])
 
+Trait_database <- Trait_database[!duplicated(Trait_database$Extraction_Code, incomparables = NA), ]
+# Trait_database <- Trait_database[!duplicated(Trait_database$Extraction_Code), ] # Remove NA too
+
+# # Remove entries with no measurements data
+# no_measurements <- apply(X = Trait_database[, c("HW", "HL", "SL", "ED", "WL", "PW", "MtFL")], MARGIN = 1, FUN = function (x) { all(is.na(x))} )
+# Trait_database <- Trait_database[!no_measurements, ]
 
 ### 3.4.1/ Retrieve name of specimens from the phylogeny ####
 
 # Load metadata from phylogeny
 Phylogeny_sample_data_789t <- readRDS(file = "./input_data/Phylogenies/Phylogeny_sample_data_789t.rds")
 
-# Extract usefull fields
-Phylogeny_sample_data_Specimen_code <- Phylogeny_sample_data_789t[, c("Specimen_Code", "Current_name")]
-Phylogeny_sample_data_Extraction_code <- Phylogeny_sample_data_789t[, c("Extraction_Code", "Current_name")]
+# Extract useful fields
+Phylogeny_sample_data_Specimen_code <- Phylogeny_sample_data_789t[, c("Specimen_Code", "Current_name")] %>% 
+  rename(Current_name_from_Specimen_code = Current_name)
+Phylogeny_sample_data_Extraction_code <- Phylogeny_sample_data_789t[, c("Extraction_Code", "Current_name")] %>% 
+  rename(Current_name_from_Extraction_code = Current_name)
 
 # Match on specimen code
-Trait_database <- left_join(Trait_database, Phylogeny_sample_data_Extraction_code, by = c("EXcode" = "Extraction_Code"))
+Trait_database <- left_join(Trait_database, Phylogeny_sample_data_Extraction_code, by = c("Extraction_Code" = "Extraction_Code"))
 # Match on extraction code
 Trait_database <- left_join(Trait_database, Phylogeny_sample_data_Specimen_code, by = c("Specimen_measured_Code" = "Specimen_Code"))
 
 # Merge both matches
 Trait_database <- Trait_database %>% 
-  rename(Current_name = Current_name.x)
-Trait_database$Current_name[is.na(Trait_database$Current_name)] <- Trait_database$Current_name.y[is.na(Trait_database$Current_name)]
+  rename(Current_name_Check = Current_name_from_Extraction_code)
+Trait_database$Current_name_Check[is.na(Trait_database$Current_name_Check)] <- Trait_database$Current_name_from_Specimen_code[is.na(Trait_database$Current_name_Check)]
 Trait_database <- Trait_database %>% 
-  dplyr::select(-Current_name.y)
+  dplyr::select(-Current_name_from_Specimen_code)
 
-### 3.4.1/ Retrieve missing name of specimens from AntWeb databases ####
+### 3.4.2/ Retrieve missing name of specimens from AntWeb databases ####
 
 # # Remove columns if already present
 # Trait_database <- Trait_database %>%
@@ -1465,22 +1468,21 @@ Trait_database <- Trait_database %>%
 #   # select(-Current_name.x, -Specimen_measured_AntWeb_name.x, -Current_name.y, -Specimen_measured_AntWeb_name.y)
 
 AntWeb_database_extract <- AntWeb_database_curated[, c("SpecimenCode", "Current_name", "AntWeb_Genus_species", "Current_status", "AntWeb_Mismatch_name")] %>% 
+  rename(Current_name_AntWeb_database = Current_name) %>% 
   rename(Specimen_measured_AntWeb_name = AntWeb_Genus_species) %>% 
   rename(Specimen_measured_AntWeb_name_Mismatch = AntWeb_Mismatch_name) %>% 
   mutate(SpecimenCode = str_to_upper(SpecimenCode))
 Trait_database <- left_join(Trait_database, AntWeb_database_extract, by = c("Specimen_measured_Code" = "SpecimenCode"))
 
 # Update Current names with new matches
+Trait_database$Current_name_Check[is.na(Trait_database$Current_name_Check)] <- Trait_database$Current_name_AntWeb_database[is.na(Trait_database$Current_name_Check)]
 Trait_database <- Trait_database %>% 
-  rename(Current_name = Current_name.x)
-Trait_database$Current_name[is.na(Trait_database$Current_name)] <- Trait_database$Current_name.y[is.na(Trait_database$Current_name)]
-Trait_database <- Trait_database %>% 
-  dplyr::select(-Current_name.y)
+  dplyr::select(-Current_name_AntWeb_database)
 
 View(Trait_database)
 
 ## Complete data for specimen that are introduced, thus not in curated database, but still have a specimen code and can be found in AntWeb
-Trait_data_Missing_specimens_Codes <- Trait_database$Specimen_measured_Code[is.na(Trait_database$Current_name)]
+Trait_data_Missing_specimens_Codes <- Trait_database$Specimen_measured_Code[is.na(Trait_database$Current_name_Check)]
 
 Missing_vouchers_database <- AntWeb_database %>% # Non curated AntWeb database
   filter(SpecimenCode %in% str_to_lower(Trait_data_Missing_specimens_Codes))
@@ -1495,7 +1497,7 @@ Missing_vouchers_database_curated <- Missing_vouchers_database %>%
 Trait_database <- Trait_database %>% 
   left_join(y = Missing_vouchers_database_curated[, c("SpecimenCode", "Current_name_Missing", "Specimen_measured_AntWeb_name_Missing", "Current_status_Missing", "Specimen_measured_AntWeb_name_Mismatch_Missing")], by = c("Specimen_measured_Code" = "SpecimenCode"))
 
-Trait_database$Current_name[is.na(Trait_database$Current_name)] <- Trait_database$Current_name_Missing[is.na(Trait_database$Current_name)] 
+Trait_database$Current_name_Check[is.na(Trait_database$Current_name_Check)] <- Trait_database$Current_name_Missing[is.na(Trait_database$Current_name_Check)] 
 Trait_database$Specimen_measured_AntWeb_name[is.na(Trait_database$Specimen_measured_AntWeb_name)] <- Trait_database$Specimen_measured_AntWeb_name_Missing[is.na(Trait_database$Specimen_measured_AntWeb_name)] 
 Trait_database$Current_status[is.na(Trait_database$Current_status)] <- Trait_database$Current_status_Missing[is.na(Trait_database$Current_status)] 
 Trait_database$Specimen_measured_AntWeb_name_Mismatch[is.na(Trait_database$Specimen_measured_AntWeb_name_Mismatch)] <- Trait_database$Specimen_measured_AntWeb_name_Mismatch_Missing[is.na(Trait_database$Specimen_measured_AntWeb_name_Mismatch)] 
@@ -1512,15 +1514,21 @@ saveRDS(Trait_database, file = "./input_data/Traits_data/Trait_database.rds")
 # Load curated Trait database
 Trait_database <- readRDS(file = "./input_data/Traits_data/Trait_database.rds")
 
-### 3.4.2/ Complete data for specimen that are not in AntWeb (ex: holotypes) ####
+### 3.4.3/ Complete data for specimen that are not in AntWeb (ex: holotypes) ####
 
+# Update missing Current_name with Current_name_Check
+View(Trait_database[is.na(Trait_database$Current_name_Check), ])
 View(Trait_database[is.na(Trait_database$Current_name), ])
+table(Trait_database$Current_name != Trait_database$Current_name_Check)
+
+Trait_database$Current_name[is.na(Trait_database$Current_name)] <- Trait_database$Current_name_Check[is.na(Trait_database$Current_name)] 
+
 
 # Get Current name and current status from Macroevolution taxa database
-No_AntWeb_vouchers_database <- Trait_database[is.na(Trait_database$Current_name), ]
+No_AntWeb_vouchers_database <- Trait_database[is.na(Trait_database$Current_name_Check), ]
 
-# Create current names from recorded Genus and species
-No_AntWeb_vouchers_database$Current_name <- paste0(No_AntWeb_vouchers_database$Genus, "_", No_AntWeb_vouchers_database$Species)
+# # Create current names from recorded Genus and species
+# No_AntWeb_vouchers_database$Current_name <- paste0(No_AntWeb_vouchers_database$Genus, "_", No_AntWeb_vouchers_database$Species)
 
 # Check if found in the Macroevolution taxa database
 No_AntWeb_vouchers_database <- No_AntWeb_vouchers_database %>% 
@@ -1532,19 +1540,16 @@ No_AntWeb_vouchers_database <- No_AntWeb_vouchers_database %>%
 table(is.na(No_AntWeb_vouchers_database$Current_status))
 View(No_AntWeb_vouchers_database)
 
+No_AntWeb_vouchers_database <- No_AntWeb_vouchers_database %>% 
+  filter(!is.na(Current_status))
+
 # Merge with Trait database
-Trait_database$Current_name[match(x = No_AntWeb_vouchers_database$Genus_species, table = Trait_database$Genus_species)] <- No_AntWeb_vouchers_database$Current_name
-Trait_database$Current_status[match(x = No_AntWeb_vouchers_database$Genus_species, table = Trait_database$Genus_species)] <- No_AntWeb_vouchers_database$Current_status
+Trait_database$Current_name_Check[match(x = No_AntWeb_vouchers_database$Current_name, table = Trait_database$Current_name)] <- No_AntWeb_vouchers_database$Current_name
+Trait_database$Current_status[match(x = No_AntWeb_vouchers_database$Current_name, table = Trait_database$Current_name)] <- No_AntWeb_vouchers_database$Current_status
 
-View(Trait_database[is.na(Trait_database$Current_name), ])
+View(Trait_database[is.na(Trait_database$Current_name_Check), ])
 
-### 3.4.3/ Fix last errors on case by case ####
-
-Trait_database$To_curate <- (Trait_database$Genus_species != Trait_database$Specimen_measured_AntWeb_name)
-table(Trait_database$To_curate)
-
-View(Trait_database[Trait_database$To_curate, ])
-View(Trait_database[is.na(Trait_database$Current_name), ])
+### 3.4.4/ Fix last errors on case by case ####
 
 # ## Case of Specimens in Introduced location (Not in the curated AntWeb dataset)
 # # CASENT0637780 # Ponera_swezeyi in AntWeb # Ponera_swezeyi in Phylogeny # Ponera_swezeyi in Current_name
@@ -1562,16 +1567,6 @@ View(Trait_database[is.na(Trait_database$Current_name), ])
 # # CASENT0872814 # Euponera_(indet) not used in the phylogeny
 # Trait_database <- Trait_database[!Trait_database$Specimen_measured_Code == "CASENT0872814", ]
 
-## Case of Specimen that is not a Ponerinae
-# CASENT0106229 # Amblyopone_australis is an Outgroup in the phylogeny. It is an Amblyoponinae.
-Trait_database$Current_name[Trait_database$Specimen_measured_Code == "CASENT0106229"] <- "Amblyopone_australis"
-Trait_database$Specimen_measured_AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0106229"] <- "Amblyopone_australis"
-Trait_database$Current_status[Trait_database$Specimen_measured_Code == "CASENT0106229"] <- "valid"
-Trait_database$Specimen_measured_AntWeb_name_Mismatch[Trait_database$Specimen_measured_Code == "CASENT0106229"] <- FALSE
-Trait_database$Ponerinae[Trait_database$Specimen_measured_Code == "CASENT0106229"] <- F
-# Trait_database$Specimen_phylogeny_AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0012708"] <- "Amblyopone_australis"
-# Trait_database$Phylo_name[Trait_database$Specimen_measured_Code == "CASENT0012708"] <- "Amblyopone_australis"
-
 # ## Case of mistake in the Specimen Code: CASENT02706126 does not exist. It is CASENT0270616
 # # CASENT0270616 is Odontomachus_animosus
 # Trait_database$Specimen_measured_Code[Trait_database$Genus_species == "Odontomachus_animosus"] <- "CASENT0270616"
@@ -1580,44 +1575,167 @@ Trait_database$Ponerinae[Trait_database$Specimen_measured_Code == "CASENT0106229
 # Trait_database$Current_status[Trait_database$Specimen_measured_Code == "CASENT0270616"] <- "valid"
 # Trait_database$Specimen_measured_AntWeb_name_Mismatch[Trait_database$Specimen_measured_Code == "CASENT0270616"] <- FALSE
 
+## Case of Specimen that is not a Ponerinae
+
+# D0872 ; CASENT0106229 # Amblyopone_australis is an Outgroup in the phylogeny. It is an Amblyoponinae.
+Trait_database$Current_name_Check[Trait_database$Specimen_measured_Code == "CASENT0106229"] <- "Amblyopone_australis"
+Trait_database$Specimen_measured_AntWeb_name[Trait_database$Specimen_measured_Code == "CASENT0106229"] <- "Amblyopone_australis"
+Trait_database$Current_status[Trait_database$Specimen_measured_Code == "CASENT0106229"] <- "valid"
+Trait_database$Specimen_measured_AntWeb_name_Mismatch[Trait_database$Specimen_measured_Code == "CASENT0106229"] <- FALSE
+Trait_database$Is_Ponerinae[Trait_database$Specimen_measured_Code == "CASENT0106229"] <- F
+Trait_database$Taxa_measurement_status[Trait_database$Specimen_measured_Code == "CASENT0106229"] <- "outgroup"
+
+# EX1573 # Paraponera_clavata is an Outgroup in the phylogeny. It is a Paraponerinae.
+Trait_database$Current_name_Check[Trait_database$Extraction_Code == "EX1573"] <- "Paraponera_clavata"
+Trait_database$Specimen_measured_AntWeb_name[Trait_database$Extraction_Code == "EX1573"] <- "Paraponera_clavata"
+Trait_database$Current_status[Trait_database$Extraction_Code == "EX1573"] <- "valid"
+Trait_database$Specimen_measured_AntWeb_name_Mismatch[Trait_database$Extraction_Code == "EX1573"] <- FALSE
+Trait_database$Is_Ponerinae[Trait_database$Extraction_Code == "EX1573"] <- F
+Trait_database$Taxa_measurement_status[Trait_database$Extraction_Code == "EX1573"] <- "outgroup"
+
+# MAMI0434 # Proceratium_google is an Outgroup in the phylogeny. It is a Proceratiinae.
+Trait_database$Current_name_Check[Trait_database$Extraction_Code == "MAMI0434"] <- "Proceratium_google"
+Trait_database$Specimen_measured_AntWeb_name[Trait_database$Extraction_Code == "MAMI0434"] <- "Proceratium_google"
+Trait_database$Current_status[Trait_database$Extraction_Code == "MAMI0434"] <- "valid"
+Trait_database$Specimen_measured_AntWeb_name_Mismatch[Trait_database$Extraction_Code == "MAMI0434"] <- FALSE
+Trait_database$Is_Ponerinae[Trait_database$Extraction_Code == "MAMI0434"] <- F
+Trait_database$Taxa_measurement_status[Trait_database$Extraction_Code == "MAMI0434"] <- "outgroup"
+
 # Should be no more errors
+View(Trait_database[is.na(Trait_database$Current_name_Check), ])
 View(Trait_database[is.na(Trait_database$Current_name), ])
 
+table(Trait_database$Current_name == Trait_database$Current_name_Check)
 
-### 3.4.4/ Match specimen based on Current_name to detect presence in the phylogeny ####
+Trait_database <- Trait_database %>% 
+  dplyr::select(-Current_name_Check)
 
-# Save updated df for Metadata of samples in the phylogeny
+### 3.4.5/ Match entries based on metadata in the phylogeny and GTL file ####
+
+# Load updated df for Metadata of samples in the phylogeny
 Phylogeny_sample_data_789t <- readRDS(file = "./input_data/Phylogenies/Phylogeny_sample_data_789t.rds")
 
-# Check for match of taxa
+# Load complete list of voucher specimens
+GTL_database <- openxlsx::read.xlsx(xlsxFile = "./input_data/Traits_data/Global_Taxon_List_2025_01_13.xlsx", sheet = "taxa")
+
+
+## Check for match of taxa name
 Trait_database$Taxa_in_phylogeny <- Trait_database$Current_name %in% Phylogeny_sample_data_789t$Current_name
 table(Trait_database$Taxa_in_phylogeny)
 
-# Check for match of specimen based on Specimen code to tag if specimen in phylogeny is the specimen measured for each taxa
-Trait_database$Specimen_measured_Is_phylogeny_voucher <- Trait_database$Specimen_measured_Code %in% Phylogeny_sample_data_789t$Specimen_Code
+# Add the 3 outgroups
+Trait_database$Taxa_in_phylogeny[Trait_database$Taxa_measurement_status == "outgroup"] <- TRUE
+table(Trait_database$Taxa_in_phylogeny)
+
+## Check for match of Extraction code
+Trait_database$Extraction_Code_In_phylogeny <- Trait_database$Extraction_Code %in% Phylogeny_sample_data_789t$Extraction_Code
+table(Trait_database$Extraction_Code_In_phylogeny)
+
+# Add the 3 outgroups
+Trait_database$Extraction_Code_In_phylogeny[Trait_database$Taxa_measurement_status == "outgroup"] <- TRUE
+table(Trait_database$Extraction_Code_In_phylogeny)
+
+## Extract Specimen_Code of the extract/phylogeny voucher and Current status from phylogeny metadata
+Phylogeny_metadata_to_merge <- Phylogeny_sample_data_789t %>% 
+  dplyr::select(Extraction_Code, Specimen_Code, Current_status) %>% 
+  rename(Current_status_to_update = Current_status) %>%
+  rename(Specimen_Code_Extract_voucher = Specimen_Code) 
+
+Trait_database <- Trait_database %>% 
+  left_join(y = Phylogeny_metadata_to_merge, join_by(Extraction_Code))
+
+# Add the 3 outgroups
+Trait_database$Specimen_Code_Extract_voucher[Trait_database$Extraction_Code == "D0872"] <- "CASENT0106229" # Amblyopone_australis
+Trait_database$Specimen_Code_Extract_voucher[Trait_database$Extraction_Code == "MAMI0434"] <- "CASENT0035028" # Proceratium_google
+Trait_database$Specimen_Code_Extract_voucher[Trait_database$Extraction_Code == "EX1573"] <- "CASENT0633292" # Paraponera_clavata
+
+table(is.na(Trait_database$Specimen_Code_Extract_voucher)) # 792 voucher specimens with codes
+
+# Update Current status
+table(Trait_database$Current_status == Trait_database$Current_status_to_update)
+View(Trait_database[Trait_database$Current_status != Trait_database$Current_status_to_update, ])
+
+Trait_database$Current_status[!is.na(Trait_database$Current_status_to_update)] <- Trait_database$Current_status_to_update[!is.na(Trait_database$Current_status_to_update)] 
+Trait_database <- Trait_database %>% 
+  dplyr::select(-Current_status_to_update)
+
+# Add the 3 outgroups
+Trait_database$Current_status[Trait_database$Taxa_measurement_status == "outgroup"] <- "valid"
+table(Trait_database$Current_status)
+
+## Extract Specimen_Code of the extract/phylogeny voucher from GTL file
+
+Extract_metadata_to_merge <- GTL_database %>% 
+  dplyr::select(ExtractionCode, voucher.specimen.code) %>% 
+  rename(Extraction_Code = ExtractionCode) %>%
+  rename(Specimen_Code_Extract_voucher_to_update = voucher.specimen.code) 
+
+Trait_database$Entry_ID <- 1:nrow(Trait_database)
+Trait_database <- Trait_database %>% 
+  left_join(y = Extract_metadata_to_merge, join_by(Extraction_Code), na_matches = "never") %>% 
+  filter(!(Specimen_Code_Extract_voucher_to_update == "CASENT0060381") | is.na(Specimen_Code_Extract_voucher_to_update)) # Error in GTL files with duplicated Extraction code
+
+# Remove space in Extraction_code
+Trait_database$Specimen_Code_Extract_voucher_to_update <- str_remove_all(string = Trait_database$Specimen_Code_Extract_voucher_to_update, pattern = " ")
+
+Trait_database <- Trait_database %>% 
+  select(-Entry_ID)
+
+# Update Specimen_Code_Extract_voucher
+table(Trait_database$Specimen_Code_Extract_voucher == Trait_database$Specimen_Code_Extract_voucher_to_update)
+View(Trait_database[Trait_database$Specimen_Code_Extract_voucher != Trait_database$Specimen_Code_Extract_voucher_to_update, ])
+
+table(is.na(Trait_database$Specimen_Code_Extract_voucher))
+
+Trait_database$Specimen_Code_Extract_voucher[is.na(Trait_database$Specimen_Code_Extract_voucher)] <- Trait_database$Specimen_Code_Extract_voucher_to_update[is.na(Trait_database$Specimen_Code_Extract_voucher)] 
+Trait_database <- Trait_database %>% 
+  dplyr::select(-Specimen_Code_Extract_voucher_to_update)
+
+table(is.na(Trait_database$Specimen_Code_Extract_voucher))
+
+# test$EX_voucher[!(test$EX_voucher %in% Trait_database$Specimen_Code_Extract_voucher)]
+
+## Check for match between measured specimen and voucher specimen based on Specimen code
+Trait_database$Specimen_measured_Is_phylogeny_voucher <- Trait_database$Specimen_measured_Code == Trait_database$Specimen_Code_Extract_voucher
 table(Trait_database$Specimen_measured_Is_phylogeny_voucher)
 
-# Also check for match of specimen based on Extraction code to tag if specimen in phylogeny is from the same series and should be selected as the best match
-Trait_database$Specimen_measured_Is_matching_phylogeny_extract <- Trait_database$EXcode %in% Phylogeny_sample_data_789t$Extraction_Code
-table(Trait_database$Specimen_measured_Is_matching_phylogeny_extract)
-
 table(Trait_database$Specimen_measured_Is_phylogeny_voucher, Trait_database$Taxa_in_phylogeny)
-View(Trait_database[!Trait_database$Taxa_in_phylogeny & Trait_database$Specimen_measured_Is_phylogeny_voucher, ])
+View(Trait_database[Trait_database$Taxa_in_phylogeny & !Trait_database$Specimen_measured_Is_phylogeny_voucher, ])
 
-table(Trait_database$Specimen_measured_Is_phylogeny_voucher, Trait_database$Specimen_measured_Is_matching_phylogeny_extract)
-View(Trait_database[!Trait_database$Specimen_measured_Is_matching_phylogeny_extract & Trait_database$Specimen_measured_Is_phylogeny_voucher, ])
+# # # Remove columns if already present
+# # Trait_database <- Trait_database %>%
+# #   # select(-Specimen_phylogeny_Code, -Specimen_phylogeny_AntWeb_name, -Phylo_name)
+# #   dplyr::select(-Specimen_phylogeny_Specimen_code, -Specimen_phylogeny_AntWeb_name, -Phylo_name)
+# 
+# # Add info on Specimen in phylogeny
+# Macroevol_database_extract <- Ponerinae_Macroevolution_taxa_database[, c("Current_name", "Specimen_phylogeny_Extraction_code", "Specimen_phylogeny_Specimen_code", "Specimen_phylogeny_AntWeb_name", "Phylo_name")]
+# Trait_database <- left_join(Trait_database, Macroevol_database_extract, by = c("Current_name" = "Current_name"))
 
 
-# # Remove columns if already present
-# Trait_database <- Trait_database %>%
-#   # select(-Specimen_phylogeny_Code, -Specimen_phylogeny_AntWeb_name, -Phylo_name)
-#   dplyr::select(-Specimen_phylogeny_Specimen_code, -Specimen_phylogeny_AntWeb_name, -Phylo_name)
+### 3.4.6/ Detect conflicts of "measured vouchers" with "extract voucher"
 
-# Add info on Specimen in phylogeny
-Macroevol_database_extract <- Ponerinae_Macroevolution_taxa_database[, c("Current_name", "Specimen_phylogeny_Extraction_code", "Specimen_phylogeny_Specimen_code", "Specimen_phylogeny_AntWeb_name", "Phylo_name")]
-Trait_database <- left_join(Trait_database, Macroevol_database_extract, by = c("Current_name" = "Current_name"))
+## Detect measured specimen which are extract vouchers of another extract that the one they are attributed too
 
-### 3.4.5/ Add flags for partial and complete trait measurements ####
+# Load complete list of voucher specimens
+GTL_database <- openxlsx::read.xlsx(xlsxFile = "./input_data/Traits_data/Global_Taxon_List_2025_01_13.xlsx", sheet = "taxa")
+
+## Based on taxa in the phylogeny
+# Without outgroups
+Trait_database$Specimen_measured_Is_any_phylogeny_voucher <- Trait_database$Specimen_measured_Code %in% Phylogeny_sample_data_789t$Specimen_Code
+# With outgroups
+Trait_database$Specimen_measured_Is_any_phylogeny_voucher <- Trait_database$Specimen_measured_Code %in% c(Phylogeny_sample_data_789t$Specimen_Code, "CASENT0106229", "CASENT0035028", "CASENT0633292")
+
+## Based on all taxa
+Trait_database$Specimen_measured_Is_any_phylogeny_voucher <- Trait_database$Specimen_measured_Code %in% c(GTL_database$voucher.specimen.code, Phylogeny_sample_data_789t$Specimen_Code, "CASENT0106229", "CASENT0035028", "CASENT0633292")
+
+table(Trait_database$Specimen_measured_Is_any_phylogeny_voucher, Trait_database$Specimen_measured_Is_phylogeny_voucher)
+
+Trait_database$Specimen_measured_Is_voucher_for_another_extract <- (Trait_database$Specimen_measured_Is_any_phylogeny_voucher & !Trait_database$Specimen_measured_Is_phylogeny_voucher)
+
+View(Trait_database[Trait_database$Specimen_measured_Is_voucher_for_another_extract, ])
+
+
+### 3.4.7/ Add flags for partial and complete trait measurements ####
 
 Trait_database[, c("HW", "HL", "SL", "ED", "WL", "PW", "MtFL")] <- round(apply(X = Trait_database[, c("HW", "HL", "SL", "ED", "WL", "PW", "MtFL")], MARGIN = 2, FUN = as.numeric), 3)
 Trait_matrix <- Trait_database[, c("HW", "HL", "SL", "ED", "WL", "PW", "MtFL")]
@@ -1634,7 +1752,30 @@ table(Trait_database$Partial_trait_measurements)
 saveRDS(Trait_database, file = "./input_data/Traits_data/Trait_database.rds")
 
 
+### 3.4.8/ Detect backup for extract in the phylogeny that are lacking measurements ####
+
+table(Trait_database$Extraction_Code_In_phylogeny, (is.na(Trait_database$Complete_trait_measurements) | !Trait_database$Complete_trait_measurements & !(Trait_database$Taxa_measurement_status %in% c("male based taxon, no workers", "queen based taxon, no workers"))))
+
+Trait_database$Missing_measurements_In_phylogeny <- Trait_database$Extraction_Code_In_phylogeny & (is.na(Trait_database$Complete_trait_measurements) | !Trait_database$Complete_trait_measurements)
+Trait_database$To_measure <- Trait_database$Extraction_Code_In_phylogeny & (is.na(Trait_database$Complete_trait_measurements) | !Trait_database$Complete_trait_measurements & !(Trait_database$Taxa_measurement_status %in% c("male based taxon, no workers", "queen based taxon, no workers")))
+
+View(Trait_database[Trait_database$Missing_measurements_In_phylogeny, ])
+View(Trait_database[Trait_database$To_measure, ])
+
+## Reorder as Taxa in phylogeny > Taxa name C Extract in Phylogeny > Extract
+# Easier to detect available backup for extract missing measurements
+
+Trait_database <- Trait_database %>% 
+  dplyr::arrange(desc(Taxa_in_phylogeny), Current_name, desc(Extraction_Code_In_phylogeny), Extraction_Code)
+
+View(Trait_database[Trait_database$To_measure, ])
+
+### 3.4.9/ Discriminate between "Description" and "Notes" ####
+
 ## Record comments in the Trait dataset
+
+# All entries where the measured specimen is not the extract voucher specimen should have a description
+
 # Export as Excel file. Write comments. Reimport. Save as .rds
 openxlsx::write.xlsx(x = Trait_database, file = "./input_data/Traits_data/Trait_database.xlsx", overwrite = T)
 Trait_database <- read_excel("./input_data/Traits_data/Trait_database.xlsx")
@@ -1642,17 +1783,16 @@ Trait_database <- read_excel("./input_data/Traits_data/Trait_database.xlsx")
 # Save updated df for Trait dataset
 saveRDS(Trait_database, file = "./input_data/Traits_data/Trait_database.rds")
 
-## Reorder columns and save
+
+### 3.4.10/ Reorder columns and save ####
+
 Trait_database <- Trait_database %>% 
-  dplyr::select(Date, Lab, Notes, Measurement_status, Source, GenSp, Genus, Species, EXcode, Specimen_measured_Code, 
-                HW, HL, SL, ED, WL, PW, MtFL,
-                Ponerinae, Taxa_in_phylogeny, 
-                Specimen_measured_Is_matching_phylogeny_extract, Specimen_measured_Is_phylogeny_voucher,
-                Complete_trait_measurements, Partial_trait_measurements,
-                Genus_species, Current_name, Specimen_measured_AntWeb_name, Current_status,
-                Specimen_measured_AntWeb_name_Mismatch, To_curate, 
-                Specimen_phylogeny_Extraction_code, Specimen_phylogeny_Specimen_code,
-                Specimen_phylogeny_AntWeb_name, Phylo_name)
+  dplyr::select(Date, Lab, Source, Extraction_Code, Specimen_measured_Code, Current_name, Current_status,  
+                Taxa_measurement_status, Is_Ponerinae, Taxa_in_phylogeny, Extraction_Code_In_phylogeny,
+                HW, HL, SL, ED, WL, PW, MtFL, PmSP, PrSP, PtSP,
+                Complete_trait_measurements, Partial_trait_measurements, Missing_measurements_In_phylogeny, To_measure,
+                Specimen_measured_AntWeb_name, Specimen_Code_Extract_voucher, Specimen_measured_Is_phylogeny_voucher, Specimen_measured_Is_any_phylogeny_voucher, Specimen_measured_Is_voucher_for_another_extract,
+                Description, Notes)
 
 # Save updated df for Trait dataset
 saveRDS(Trait_database, file = "./input_data/Traits_data/Trait_database.rds")
@@ -1660,19 +1800,19 @@ saveRDS(Trait_database, file = "./input_data/Traits_data/Trait_database.rds")
 openxlsx::write.xlsx(x = Trait_database, file = "./input_data/Traits_data/Trait_database.xlsx", overwrite = T)
 
 
+
 ### 3.4.6/ Merge the curated trait dataset with the taxa-level summary df ####
 
 names(Trait_database)
 
 Trait_database_for_merging <- Trait_database %>% 
-  filter(Ponerinae) %>% 
+  filter(Is_Ponerinae & Extraction_Code_In_phylogeny) %>% 
   rename(Notes_measurements = Notes) %>% 
+  rename(Description_measurements = Description) %>% 
   rename(Source_measurements = Source) %>% 
-  rename(Specimen_measured_Name = Genus_species) %>%
   rename(Specimen_measured_Specimen_code = Specimen_measured_Code) %>%
-  rename(Specimen_measured_Extraction_code = EXcode) %>%
-  # rename(Specimen_measured_Code = MeasSpecimen) %>%
-  dplyr::select(Current_name, Specimen_measured_Extraction_code, Specimen_measured_Specimen_code, Specimen_measured_Name, Specimen_measured_AntWeb_name, Specimen_measured_AntWeb_name_Mismatch, Specimen_measured_Is_matching_phylogeny_extract, Specimen_measured_Is_phylogeny_voucher, HW, HL, SL, ED, WL, PW, MtFL, Complete_trait_measurements, Partial_trait_measurements, Source_measurements, Notes_measurements)
+  rename(Specimen_measured_Extraction_code = Extraction_Code) %>%
+  dplyr::select(Current_name, Specimen_measured_Extraction_code, Specimen_measured_Specimen_code, Specimen_measured_AntWeb_name, HW, HL, SL, ED, WL, PW, MtFL, PmSP, PrSP, PtSP, Complete_trait_measurements, Partial_trait_measurements, Specimen_measured_Is_phylogeny_voucher, Specimen_measured_Is_any_phylogeny_voucher, Specimen_measured_Is_voucher_for_another_extract, Source_measurements, Taxa_measurement_status, Notes_measurements, Description_measurements)
 
 ## Merge both summary df to add other valid species in the df
 
@@ -1688,11 +1828,12 @@ Ponerinae_Macroevolution_taxa_database <- readRDS(file = "./input_data/Ponerinae
 
 # Remove fields that are already there only because I am rerunning the script.
 Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database %>%
-  dplyr::select(-Specimen_measured_Extraction_code, -Specimen_measured_Specimen_code, -Specimen_measured_Name, -Specimen_measured_AntWeb_name, -Specimen_measured_AntWeb_name_Mismatch, -Specimen_measured_Is_matching_phylogeny_extract, -Specimen_measured_Is_phylogeny_voucher, -HW, -HL, -SL, -ED, -WL, -PW, -MtFL, -Complete_trait_measurements, -Partial_trait_measurements, -Source_measurements, -Notes_measurements)
+  dplyr::select(-Specimen_measured_Specimen_code, -Specimen_measured_AntWeb_name, -HW, -HL, -SL, -ED, -WL, -PW, -MtFL, -PmSP, -PrSP, -PtSP, -Complete_trait_measurements, -Partial_trait_measurements, -Specimen_measured_Is_phylogeny_voucher, -Specimen_measured_Is_any_phylogeny_voucher, -Specimen_measured_Is_voucher_for_another_extract, -Source_measurements, -Taxa_measurement_status, -Notes_measurements, -Description_measurements)
+  # dplyr::select(-Specimen_measured_Extraction_code, -Specimen_measured_Specimen_code, -Specimen_measured_Name, -Specimen_measured_AntWeb_name, -Specimen_measured_AntWeb_name_Mismatch, -Specimen_measured_Is_matching_phylogeny_extract, -Specimen_measured_Is_phylogeny_voucher, -HW, -HL, -SL, -ED, -WL, -PW, -MtFL, -Complete_trait_measurements, -Partial_trait_measurements, -Source_measurements, -Notes_measurements)
 
 nrow(Ponerinae_Macroevolution_taxa_database) # 1534 rows in the Ponerinae_Macroevolution_taxa_database including all taxa in phylogeny + other valid species name
-Ponerinae_Macroevolution_taxa_database <- left_join(Ponerinae_Macroevolution_taxa_database, Trait_database_for_merging, by = "Current_name") %>% 
-  mutate(Nesting_habits = NA) %>%
+Ponerinae_Macroevolution_taxa_database <- left_join(x = Ponerinae_Macroevolution_taxa_database, y = Trait_database_for_merging, by = c("Current_name" = "Current_name", "Specimen_phylogeny_Extraction_code" = "Specimen_measured_Extraction_code")) %>% 
+  # mutate(Nesting_habits = NA) %>%
   # rename(Conservative_clade_Terminals_with_MRCA = Conservative_clade_Terminal_with_MRCA) %>%
   dplyr::select(Current_name, Current_status, In_phylogeny, 
                 Specimen_phylogeny_Specimen_code, Specimen_phylogeny_AntWeb_name, Specimen_phylogeny_AntWeb_name_Mismatch, Specimen_phylogeny_Extraction_code,
@@ -1703,44 +1844,45 @@ Ponerinae_Macroevolution_taxa_database <- left_join(Ponerinae_Macroevolution_tax
                 Exclusive_subclades_Terminals_with_MRCA, Exclusive_subclades_Notes,
                 Specimen_phylogeny_Country, Type_Country, Specimen_phylogeny_Bioregion, Type_Bioregion, Available_occurrences,
                 To_include_in_analyses, Notes, 
-                Specimen_measured_Is_matching_phylogeny_extract, Specimen_measured_Is_phylogeny_voucher, Specimen_measured_Specimen_code, Specimen_measured_Extraction_code, Specimen_measured_Name, Specimen_measured_AntWeb_name, Specimen_measured_AntWeb_name_Mismatch, HW, HL, SL, ED, WL, PW, MtFL, Complete_trait_measurements, Partial_trait_measurements, Source_measurements, Measurement_status, Notes_measurements,
+                Specimen_measured_Specimen_code, Specimen_measured_AntWeb_name, HW, HL, SL, ED, WL, PW, MtFL, PmSP, PrSP, PtSP, Complete_trait_measurements, Partial_trait_measurements, Specimen_measured_Is_phylogeny_voucher, Specimen_measured_Is_any_phylogeny_voucher, Specimen_measured_Is_voucher_for_another_extract, Source_measurements, Taxa_measurement_status, Notes_measurements, Description_measurements,
+                # Specimen_measured_Is_matching_phylogeny_extract, Specimen_measured_Is_phylogeny_voucher, Specimen_measured_Specimen_code, Specimen_measured_Extraction_code, Specimen_measured_Name, Specimen_measured_AntWeb_name, Specimen_measured_AntWeb_name_Mismatch, HW, HL, SL, ED, WL, PW, MtFL, Complete_trait_measurements, Partial_trait_measurements, Source_measurements, Measurement_status, Notes_measurements,
                 Nesting_habits,
-                To_measure, Specimen_to_measure_Code, Specimen_to_measure_Location, Specimen_to_measure_Only_queens_or_males, Specimen_to_measure_Notes,
+                # To_measure, Specimen_to_measure_Code, Specimen_to_measure_Location, Specimen_to_measure_Only_queens_or_males, Specimen_to_measure_Notes,
                 Occurrences_nb, Occurrences_nb_with_duplicates, Afrotropics, Malagasy, Indomalaya, Australasia, Neotropics, `Western Palearctic`, `Eastern Palearctic`, Nearctic, Palearctic, Afrotropics_Malagasy)
 
-nrow(Ponerinae_Macroevolution_taxa_database) # 1600 rows after merging
-# Number of row is not equivalent because there are duplicates in the trait dataset. Need to remove them.
+nrow(Ponerinae_Macroevolution_taxa_database) # 1534 rows after merging
 
-### 3.4.7/ Check for duplicates after curation ####
 
-# Reorder rows per taxa and keep entry using four hierarchical criteria: 1/ Specimen measured is phylogeny voucher, 2/ Match the extract used in the phylogeny, 3/ Data obtained from specimens rather than images, 4/ At random.
-Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database %>% 
-  arrange(Current_name, desc(Specimen_measured_Is_phylogeny_voucher), desc(Specimen_measured_Is_matching_phylogeny_extract), desc(Source_measurements)) %>% 
-  # select(Current_name, Specimen_measured_Is_phylogeny_voucher, Specimen_measured_Is_matching_phylogeny_extract, Source_measurements, everything()) %>%
-  group_by(Current_name) %>% 
-  mutate(Duplicates_counter = row_number(Current_name)) %>% 
-  ungroup()
-
-# Check visually the duplicates
-Taxa_with_duplicates <- Ponerinae_Macroevolution_taxa_database$Current_name[Ponerinae_Macroevolution_taxa_database$Duplicates_counter > 1]
-Trait_database_duplicates <- Trait_database_for_merging[Trait_database_for_merging$Current_name %in% Taxa_with_duplicates, ]
-Trait_database_duplicates <- Trait_database_duplicates %>% 
-  arrange(Current_name, desc(Specimen_measured_Is_phylogeny_voucher), desc(Specimen_measured_Is_matching_phylogeny_extract), desc(Source_measurements)) %>% 
-  # select(Current_name, Specimen_measured_Is_phylogeny_voucher, Specimen_measured_Is_matching_phylogeny_extract, Source_measurements, everything()) %>%
-  group_by(Current_name) %>% 
-  mutate(Duplicates_counter = row_number(Current_name)) %>% 
-  ungroup()
-View(Trait_database_duplicates)
-write.xlsx(x = Trait_database_duplicates, file = "./input_data/Traits_data/Trait_database_duplicates.xlsx")
-
-# Remove duplicates
-Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database %>% 
-  # filter(Duplicates_counter == 1 | Current_duplicate == T) %>%  # Remove duplicates from the trait dataset, but not duplicates from the phylogeny
-  filter(Duplicates_counter == 1) %>%  # Remove duplicates from the trait dataset
-  dplyr::select(-Duplicates_counter)
-
-nrow(Ponerinae_Macroevolution_taxa_database)
-# 1534 rows again after cleaning of duplicates # If difference, it is because new taxa in the trait measurements need to be updated from the current AntWeb database I am using...
+# ### 3.4.7/ Check for duplicates after curation ####
+# 
+# # Reorder rows per taxa and keep entry using four hierarchical criteria: 1/ Specimen measured is phylogeny voucher, 2/ Match the extract used in the phylogeny, 3/ Data obtained from specimens rather than images, 4/ At random.
+# Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database %>% 
+#   arrange(Current_name, desc(Specimen_measured_Is_phylogeny_voucher), desc(Specimen_measured_Is_matching_phylogeny_extract), desc(Source_measurements)) %>% 
+#   # select(Current_name, Specimen_measured_Is_phylogeny_voucher, Specimen_measured_Is_matching_phylogeny_extract, Source_measurements, everything()) %>%
+#   group_by(Current_name) %>% 
+#   mutate(Duplicates_counter = row_number(Current_name)) %>% 
+#   ungroup()
+# 
+# # Check visually the duplicates
+# Taxa_with_duplicates <- Ponerinae_Macroevolution_taxa_database$Current_name[Ponerinae_Macroevolution_taxa_database$Duplicates_counter > 1]
+# Trait_database_duplicates <- Trait_database_for_merging[Trait_database_for_merging$Current_name %in% Taxa_with_duplicates, ]
+# Trait_database_duplicates <- Trait_database_duplicates %>% 
+#   arrange(Current_name, desc(Specimen_measured_Is_phylogeny_voucher), desc(Specimen_measured_Is_matching_phylogeny_extract), desc(Source_measurements)) %>% 
+#   # select(Current_name, Specimen_measured_Is_phylogeny_voucher, Specimen_measured_Is_matching_phylogeny_extract, Source_measurements, everything()) %>%
+#   group_by(Current_name) %>% 
+#   mutate(Duplicates_counter = row_number(Current_name)) %>% 
+#   ungroup()
+# View(Trait_database_duplicates)
+# write.xlsx(x = Trait_database_duplicates, file = "./input_data/Traits_data/Trait_database_duplicates.xlsx")
+# 
+# # Remove duplicates
+# Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database %>% 
+#   # filter(Duplicates_counter == 1 | Current_duplicate == T) %>%  # Remove duplicates from the trait dataset, but not duplicates from the phylogeny
+#   filter(Duplicates_counter == 1) %>%  # Remove duplicates from the trait dataset
+#   dplyr::select(-Duplicates_counter)
+# 
+# nrow(Ponerinae_Macroevolution_taxa_database)
+# # 1534 rows again after cleaning of duplicates # If difference, it is because new taxa in the trait measurements need to be updated from the current AntWeb database I am using...
 
 ## Save taxa-level summary df
 # saveRDS(Ponerinae_Macroevolution_taxa_database, file = "./input_data/Ponerinae_Macroevolution_taxa_database.rds")
@@ -1852,9 +1994,13 @@ Ponerinae_Macroevolution_taxa_database <- Ponerinae_Macroevolution_taxa_database
          Conservative_clade_Node_ID, Conservative_clade_Terminals_with_MRCA, Conservative_clade_Notes,
          Exclusive_subclades_Node_ID, Exclusive_subclades_Terminals_with_MRCA, Exclusive_subclades_Notes,
          Specimen_phylogeny_Country, Type_Country, Specimen_phylogeny_Bioregion, Type_Bioregion, Available_occurrences, To_include_in_analyses, Notes,
-         Specimen_measured_Is_matching_phylogeny_extract, Specimen_measured_Is_phylogeny_voucher, Specimen_measured_Specimen_code, Specimen_measured_Extraction_code,  Specimen_measured_Name, Specimen_measured_AntWeb_name, Specimen_measured_AntWeb_name_Mismatch,
-         HW, HL, SL, ED, WL, PW, MtFL, Complete_trait_measurements, Partial_trait_measurements, Source_measurements, Notes_measurements,
-         To_measure, Specimen_to_measure_Code, Specimen_to_measure_Location, Specimen_to_measure_Only_queens_or_males, Specimen_to_measure_Notes)
+         Specimen_measured_Specimen_code, Specimen_measured_AntWeb_name, HW, HL, SL, ED, WL, PW, MtFL, PmSP, PrSP, PtSP, Complete_trait_measurements, Partial_trait_measurements,
+         Specimen_measured_Is_phylogeny_voucher, Specimen_measured_Is_any_phylogeny_voucher, Specimen_measured_Is_voucher_for_another_extract, Source_measurements, Taxa_measurement_status, Notes_measurements, Description_measurements,
+         # Specimen_measured_Is_matching_phylogeny_extract, Specimen_measured_Is_phylogeny_voucher, Specimen_measured_Specimen_code, Specimen_measured_Extraction_code,  Specimen_measured_Name, Specimen_measured_AntWeb_name, Specimen_measured_AntWeb_name_Mismatch,
+         # HW, HL, SL, ED, WL, PW, MtFL, Complete_trait_measurements, Partial_trait_measurements, Source_measurements, Notes_measurements,
+         # To_measure, Specimen_to_measure_Code, Specimen_to_measure_Location, Specimen_to_measure_Only_queens_or_males, Specimen_to_measure_Notes
+         Occurrences_nb, Occurrences_nb_with_duplicates, Afrotropics, Malagasy, Indomalaya, Australasia, Neotropics, `Western Palearctic`, `Eastern Palearctic`, Nearctic, Palearctic, Afrotropics_Malagasy
+         )
 
 ## Save taxa-level summary df
 saveRDS(Ponerinae_Macroevolution_taxa_database, file = "./input_data/Ponerinae_Macroevolution_taxa_database.rds")
