@@ -34,7 +34,7 @@ rm(list = ls())
 
 ##### 1/ Load stuff ####
 
-# Intall rgeos from Archive
+# Install rgeos from Archive
 # install.packages("./packages/rgeos_0.6-4.tar.gz", repos = NULL, type = "source")
 
 # Install lwgeom from Source

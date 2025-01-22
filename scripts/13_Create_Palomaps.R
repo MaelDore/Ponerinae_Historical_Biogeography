@@ -31,9 +31,13 @@ rm(list = ls())
 
 ### 1.1/ Load packages ####
 
+# Install rgdal from Archive
+# install.packages(pkgs = "./packages/rgdal_1.6-7.tar.gz", type = "source", repos = NULL)
+
+# Install paleoMap from GitHub
 # remotes::install_github("macroecology/paleoMap")
 
-library(paleoMap)
+# library(paleoMap)
 library(rgdal)
 library(sf)
 library(sp)
