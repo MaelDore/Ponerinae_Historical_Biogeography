@@ -194,5 +194,4 @@ NCBI_BioSample_Voucher_table <- NCBI_BioSample_Voucher_table %>%
 ### Save/Export the Voucher table
 saveRDS(object = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.rds")
 write.xlsx(x = NCBI_BioSample_Voucher_table, file = "./input_data/Molecular_data/NCBI_BioSample_Voucher_table.xlsx")
-
-
+  

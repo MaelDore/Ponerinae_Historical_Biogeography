@@ -1407,7 +1407,8 @@ AntWeb_database_curated <- readRDS(file = "./input_data/AntWeb_data/AntWeb_datab
 # Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2024_02_05.xlsx")
 # Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2024_11_14.xlsx")
 # Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2025_01_08.xlsx")
-Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2025_01_13.xlsx")
+# Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2025_01_13.xlsx")
+Trait_database <- read_excel("input_data/Traits_data/AoW_Ponerinae_measurements_2025_03_10.xlsx")
 
 Trait_database <- Trait_database %>% 
   rename(Specimen_measured_Code = MeasSpecimen) %>% 
@@ -1783,7 +1784,6 @@ Trait_database <- read_excel("./input_data/Traits_data/Trait_database.xlsx")
 # Save updated df for Trait dataset
 saveRDS(Trait_database, file = "./input_data/Traits_data/Trait_database.rds")
 
-
 ### 3.4.10/ Reorder columns and save ####
 
 Trait_database <- Trait_database %>% 
@@ -1799,7 +1799,7 @@ saveRDS(Trait_database, file = "./input_data/Traits_data/Trait_database.rds")
 # Excel version to copy-paste in DropBox
 openxlsx::write.xlsx(x = Trait_database, file = "./input_data/Traits_data/Trait_database.xlsx", overwrite = T)
 
-
+Trait_database_new <- Trait_database
 
 ### 3.4.6/ Merge the curated trait dataset with the taxa-level summary df ####
 

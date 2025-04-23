@@ -80,7 +80,7 @@ BAMM_path <- "./software/bamm-2.5.0/"
 # Ponerinae_phylogeny_1534t <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.rds")
 Ponerinae_MCC_phylogeny_1534t <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.rds")
 
-# Check if ultrametic
+# Check if ultrametric
 # is.ultrametric(Ponerinae_phylogeny_1534t)
 is.ultrametric(Ponerinae_MCC_phylogeny_1534t)
 # Check if fully resolved
@@ -337,7 +337,7 @@ my_div_control_file[outName_line] <- paste0("outName = ", run_prefix_for_output_
 ### 2.5/ Set the scaling operators = temperatures, to propose new values for sampled parameters ####
 
 # The highest scaling operators = temperatures = the bigger changes can be implemented
-  # Advantages = allows to exact suboptimum
+  # Advantages = allows to escape suboptimum
   # Cons = may be unstable / harder to reach convergence
 
 # Set scale parameter used for updating the initial speciation rate (lambda0) for each regime/process
@@ -399,8 +399,8 @@ my_div_control_file[updateRateLambda0_line] <- paste0("updateRateLambda0 = ", up
 # Set the relative frequency of MCMC moves that change the exponential shift parameter (alpha) of the speciation rate associated with a regime
    # alpha in lambda(t) = lamba0 x exp(alpha*t)
 updateRateLambdaShift <- 1
-updateRateLambda0_line <- which(str_detect(string = my_div_control_file, pattern = "updateRateLambda0 = "))[1]
-my_div_control_file[updateRateLambda0_line] <- paste0("updateRateLambda0 = ", updateRateLambda0)
+updateRateLambdaShift_line <- which(str_detect(string = my_div_control_file, pattern = "updateRateLambdaShift = "))[1]
+my_div_control_file[updateRateLambdaShift_line] <- paste0("updateRateLambdaShift = ", updateRateLambdaShift)
 
 # Set the relative frequency of MCMC moves that change the (initial) extinction rate associated with a regime
    # mu0 in mu(t) = mu0 x exp(alpha*t)
@@ -642,7 +642,7 @@ for (i in seq_along(expectedNumberOfShifts_range))
   
   # Extract prefix of output files
   # run_prefix_for_output_files <- paste0("BAMM_Ponerinae_test_run_nbshifts",expectedNumberOfShifts_i) # Test run
-  run_prefix_for_output_files <- paste0("BAMM_Ponerinae_nbshifts",expectedNumberOfShifts_i) # Full run
+  # run_prefix_for_output_files <- paste0("BAMM_Ponerinae_nbshifts",expectedNumberOfShifts_i) # Full run
   run_prefix_for_output_files <- paste0("BAMM_Ponerinae_MCC_nbshifts",expectedNumberOfShifts_i) # Full MCC run
   
   # Load the MCMC log file
@@ -704,7 +704,7 @@ pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/MCMC_traces_per_expecte
 MCMC_log_ggplot <- ggplot(data = MCMC_log_all_ExpNbShifts) +
   
   geom_line(mapping = aes(y = logLik, x = generation, col = ExpNbShifts),
-            linewidth = 2.0, alpha = 0.5) +
+            linewidth = 1.0, alpha = 0.5) +
   
   scale_color_manual("ExpNbShifts", values = RColorBrewer::brewer.pal(n = 4, name = "Spectral")) +
   
@@ -882,6 +882,8 @@ saveRDS(BAMM_posterior_samples_data, file = "./outputs/BAMM/Ponerinae_MCC_phylog
 str(BAMM_posterior_samples_data, max.level = 1)
 BAMM_posterior_samples_data$begin # Absolute time since root of edge/branch start
 BAMM_posterior_samples_data$end # Absolute time since root of edge/branch end
+BAMM_posterior_samples_data$downseq # Order of node visits when using a pre-order tree traversal
+BAMM_posterior_samples_data$lastvisit # ID of the last node visited when starting from the node in the corresponding position in downseq.
 BAMM_posterior_samples_data$numberEvents # Number of events/macroevolutionary regimes (k+1) recorded in each posterior configuration. k = number of shifts
 BAMM_posterior_samples_data$eventData # List of dataframes recording shift events in each posterior configuration
 BAMM_posterior_samples_data$eventData[[1]] # Dataframe recording shift events and macroevolutionary regimes in the focal posterior configuration. 1st line = Background root regime
@@ -893,7 +895,15 @@ BAMM_posterior_samples_data$eventData[[1]]$mu1 # Initial rate of extinction (mu0
 BAMM_posterior_samples_data$eventData[[1]]$mu2 # Extinction rate change parameter (alpha/z) of the regime. Should be fixed to 0 as extinction rates are constant in BAMM.
 BAMM_posterior_samples_data$eventVectors # List of integer vectors of regime membership per branches in each posterior configuration
 BAMM_posterior_samples_data$eventVectors[[1]] # Integer vectors of regime membership per branches
-BAMM_posterior_samples_data$eventBranchSegs[[1]] # Same but with matrix including tipward node ID (NOT the edge ID) and begin/end ages of the branches
+BAMM_posterior_samples_data$eventBranchSegs[[1]] # Same but for segments with matrix including tipward node ID (NOT the edge ID) and begin/end ages of the segments # An edge with a shift is split in multiple segments.
+  # Each row = a segment of an edge
+  # Number of rows = number of segments = nb of edges + nb of shifts (each shift adds a segment to an edge)
+  # Ordered by tipward node ID, then distance to root (older segments first)
+  # Root node ID is not in the matrix because it is not a tipward node
+BAMM_object$eventBranchSegs[[1]][,1] # Tipward node ID of the edge
+BAMM_object$eventBranchSegs[[1]][,2] # Distance of the rootward end of the segment to the root (Root age - rootward end age)
+BAMM_object$eventBranchSegs[[1]][,3] # Distance of the tipward end of the segment to the root (Root age - tipward end age)
+BAMM_object$eventBranchSegs[[1]][,4] # Regime ID
 BAMM_posterior_samples_data$tipStates[[1]] # Integer vectors of regime membership per tips
 BAMM_posterior_samples_data$tipLambda[[1]] # Integer vectors of final speciation rates at tips = current speciation rates
 BAMM_posterior_samples_data$meanTipLambda # Mean current tip speciation rates across all posterior configurations. Better to use the median and 95% HPD
@@ -1180,7 +1190,7 @@ dev.off()
 
 ##### 7/ Identify the most likely configuration ####
 
-### 7.1/ Maximum A posteriori Probability (MAP) configuration ###
+### 7.1/ Maximum A posteriori Probability (MAP) configuration ####
 
 ## Get the most frequent configuration = maximum a posteriori probability (MAP) shift configuration = the single configuration of shift location showing up the most in the posterior sample
 
@@ -3412,9 +3422,9 @@ dev.off()
 ?traitDependentBAMM
 
 # STRAPP = STructured Rate Permutations on Phylogenies
-# Alternative to SSE models (BiSSE, HiSSE, QuSSE, GeoSSE) that account for the number of independent shifts in diversifciation regimes
-# SSE models may be significative with only a single shift (but if this shift coincidence with a trait shift, why not... 
-# The issue is more about false positive Type I error leading to significant support for trait that are not synapomorphy of the focla clade, but of a wider clade including the focal clade)
+# Alternative to SSE models (BiSSE, HiSSE, QuSSE, GeoSSE) that account for the number of independent shifts in diversification regimes
+# SSE models may be significant with only a single shift (but if this shift coincidence with a trait shift, why not... 
+# The issue is more about false positive Type I error leading to significant support for trait that are not synapomorphy of the focal clade, but of a wider clade including the focal clade)
 # See also the Canonical Phylogenetic Ordination (CPO) in Title et al., 2024 for an alternative dedicated to detecting single diversification shift associated with trait shift
 
 #	Calculates a correlation coefficient and test for significance by permutating diversification rates on the phylogeny 
@@ -3971,7 +3981,7 @@ update_tipStates_and_tipRates_for_focal_time <- function (BAMM_object, time, upd
   all_edges_ID_df <- BAMM_object$edge
   colnames(all_edges_ID_df) <- c("rootward_node_ID", "tipward_node_ID")
   all_edges_df <- cbind(all_edges_df, all_edges_ID_df) %>% 
-    select("edge_ID", "rootward_node_ID", "tipward_node_ID", "rootward_node_age", "tipward_node_age")
+    dplyr::select("edge_ID", "rootward_node_ID", "tipward_node_ID", "rootward_node_age", "tipward_node_age")
   
   # Detect root node ID
   root_node_ID <- length(BAMM_object$tip.label) + 1
@@ -4102,8 +4112,9 @@ update_tipStates_and_tipRates_for_focal_time <- function (BAMM_object, time, upd
 }
 
 
-## 12.2.2/ Function to update states PP according to time ####
+## 12.2.2/ Functions to update states PP according to time ####
 
+## For binary states mapped in a single densityMap
 get_most_likely_binary_states_for_focal_time <- function (density_map, time)
 {
   
@@ -4121,7 +4132,7 @@ get_most_likely_binary_states_for_focal_time <- function (density_map, time)
   all_edges_ID_df <- density_map$tree$edge
   colnames(all_edges_ID_df) <- c("rootward_node_ID", "tipward_node_ID")
   all_edges_df <- cbind(all_edges_df, all_edges_ID_df) %>% 
-    select("edge_ID", "rootward_node_ID", "tipward_node_ID", "rootward_node_age", "tipward_node_age")
+    dplyr::select("edge_ID", "rootward_node_ID", "tipward_node_ID", "rootward_node_age", "tipward_node_age")
   
   # Detect root node ID
   root_node_ID <- length(density_map$tree$tip.label) + 1
@@ -4187,6 +4198,93 @@ get_most_likely_binary_states_for_focal_time <- function (density_map, time)
   }
   
   
+}
+
+# densityMaps <- DEC_J_density_map_all_bioregions
+# names(densityMaps) <- c("A", "N", "I", "U", "E", "W", "R")
+# 
+# get_most_likely_states_for_focal_time(densityMaps, 0)
+
+## For multinominal states mapped in multiple densityMaps
+get_most_likely_states_for_focal_time <- function (densityMaps, time)
+{
+  ## Identify edges present at focal time
+  
+  # Use the tree in the first map
+  density_map_1 <- densityMaps[[1]]
+  
+  # Edge, rootward_node, tipward_node, length (once cut)
+  
+  # Get node ages per branch (no root edge)
+  all_edges_df <- phytools::nodeHeights(density_map_1$tree)
+  root_age <- max(phytools::nodeHeights(density_map_1$tree)[,2])
+  all_edges_df <- as.data.frame(round(root_age - all_edges_df, 2))
+  names(all_edges_df) <- c("rootward_node_age", "tipward_node_age")
+  all_edges_df$edge_ID <- row.names(all_edges_df)
+  
+  all_edges_ID_df <- density_map_1$tree$edge
+  colnames(all_edges_ID_df) <- c("rootward_node_ID", "tipward_node_ID")
+  all_edges_df <- cbind(all_edges_df, all_edges_ID_df) %>% 
+    dplyr::select("edge_ID", "rootward_node_ID", "tipward_node_ID", "rootward_node_age", "tipward_node_age")
+  
+  # Detect root node ID
+  root_node_ID <- length(density_map_1$tree$tip.label) + 1
+  
+  # Identify edges present at time i
+  all_edges_df$rootward_test <- all_edges_df$rootward_node_age > time
+  all_edges_df$tipward_test <- all_edges_df$tipward_node_age <= time
+  all_edges_df$time_test <- all_edges_df$rootward_test & all_edges_df$tipward_test
+  all_edges_df$length <- all_edges_df$rootward_node_age - time
+  # all_edges_df$length[!all_edges_df$time_test] <- NA
+  
+  # If no edge present, send warning
+  if (sum(all_edges_df$time_test) == 0)
+  {
+    warning(paste0("No branch are present for time = ", time, ". Return an empty table.\n"))
+    
+    # Return a NULL object
+    trait_data <- NULL
+    return(trait_data)
+    
+  } else {
+    
+    # Extract only edge that are present
+    present_edges_df <- all_edges_df[all_edges_df$time_test, ]
+    present_edges_df$current_state <- NA
+    
+    # Loop per edge
+    for (i in 1:nrow(present_edges_df))
+    {
+      # i <- 1
+      
+      # Extract edge ID
+      edge_ID_i <- as.numeric(present_edges_df$edge_ID[i])
+      # Extract time to cut
+      edge_length_i <- present_edges_df$length[i]
+      # Extract edge map for all densityMaps
+      # edge_map_i <- density_map$tree$maps[[edge_ID_i]]
+      edge_map_i <- lapply(X = densityMaps, FUN = function (x) { x$tree$maps[[edge_ID_i]] } )
+      
+      # Identify segment matching the time cut based on the first map
+      cut_position_i <- which.min(cumsum(edge_map_i[[1]]) < edge_length_i)
+      # Extract PP for each state at the focal time
+      current_PP_i <- as.numeric(unlist(lapply(X = edge_map_i, FUN = function (x) { names(x)[cut_position_i] } )))
+      names(current_PP_i) <- names(densityMaps)
+      
+      # Identify current state by selecting state with the highest PP
+      current_state_i <- names(current_PP_i)[which.max(current_PP_i)]
+      present_edges_df$current_state[i] <- current_state_i
+    }
+    
+    # table(present_edges_df$current_state)
+    
+    # Format output = named vector of most likely states
+    trait_data <- present_edges_df$current_state
+    names(trait_data) <- present_edges_df$edge_ID
+    
+    # Export trait data
+    return(trait_data)
+  }
 }
 
 
@@ -5366,6 +5464,275 @@ dev.off()
 ## Add symbols to the vertical line and STRAPP test legend
 
 
+### 12.5/ STRAPP test along evolutionary time for All_bioregions #### 
+
+# Load the BAMM posterior samples object
+# BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+
+## Load the binary density map for All_bioregions
+# DEC_J_density_map_all_bioregions <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_all_areas"))
+DEC_J_density_map_all_bioregions <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
+
+# Rename density maps accroding to bioregion codes
+names(DEC_J_density_map_all_bioregions) <- c("A", "N", "I", "U", "E", "W", "R")
+
+# Load results from Trop_vs_Temp to use the updated BAMM objects
+STRAPP_data_Trop_vs_Temp_all_time <- readRDS(, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_data_Trop_vs_Temp_all_time.rds")
+
+
+# Load the custom STRAPP test function
+source("./functions/run_STRAPP_test.R")
+
+# Extract time scale from LTT data
+# LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/LTT_per_clades_melted_df.rds")
+LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/LTT_per_clades_melted_df.rds")
+time_scale <- unique(LTT_per_clades_melted_df$time)
+time_scale <- time_scale[order(time_scale, decreasing = T)]
+
+## May need to unload 'raster' package to avoid conflict
+detach("package:raster", unload = TRUE)
+
+## Set seed for reproducibility of permutation tests
+set.seed(seed = 12345)
+
+## Loop per time scale
+STRAPP_data_all_bioregions_all_time <- list()
+STRAPP_tests_all_bioregions_all_time <- list()
+for (i in seq_along(time_scale))
+  # for (i in 6:length(time_scale))
+{
+  # i <- 1
+  # i <- 100
+  
+  # Extract focal time
+  time_i <- time_scale[i]
+  
+  ## 12.5.1/ Get STRAPP data ####
+  
+  # # Get tip regimes and tip rates for focal time i
+  # BAMM_data_updated_i <- update_tipStates_and_tipRates_for_focal_time(BAMM_object = BAMM_posterior_samples_data, time = time_i, update_rates = T, verbose = T)
+  # 
+  # # Extract only $tipStates, $tipLambda and $tipMu in the loop per time to save place
+  # BAMM_data_updated_i <- BAMM_data_updated_i[c("tipStates", "tipLambda", "tipMu", "type", "tip.label")]
+  
+  # Use BAMM_data_updated from Trop_vs_Temp
+  BAMM_data_updated_i <- STRAPP_data_Trop_vs_Temp_all_time[[i]]$BAMM_data
+  
+  # Get tip states for focal time i
+  bioregion_data_all_bioregions_i <- get_most_likely_states_for_focal_time(densityMaps = DEC_J_density_map_all_bioregions, time = time_i)
+  table(bioregion_data_all_bioregions_i)
+
+  ## Store input data for STRAPP test
+  STRAPP_data_all_bioregions_all_time[[i]] <- list(BAMM_data = BAMM_data_updated_i,
+                                                   Bioregion_data_all_bioregions = bioregion_data_all_bioregions_i)
+  
+  # Save input data for STRAPP test
+  # saveRDS(STRAPP_data_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_data_all_bioregions_all_time.rds")
+  saveRDS(STRAPP_data_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_data_all_bioregions_all_time.rds")
+  
+  ## 12.5.2/ Run STRAPP test ####
+  
+  if (is.null(bioregion_data_all_bioregions_i) | (length(table(bioregion_data_all_bioregions_i)) < 2))
+  { # If not edge data, or only one level, provide NA
+    
+    STRAPP_test_all_bioregions_i <- list()
+    STRAPP_test_all_bioregions_i$estimate <- NA
+    STRAPP_test_all_bioregions_i$p.value <- NA
+    STRAPP_test_all_bioregions_i$obs.corr <- NA
+    STRAPP_test_all_bioregions_i$gen <- NA
+    STRAPP_test_all_bioregions_i$null <- NA
+    STRAPP_test_all_bioregions_i$test_stats <- NA
+    STRAPP_test_all_bioregions_i$stat_median <- NA
+    STRAPP_test_all_bioregions_i$stat_Q5 <- NA
+    
+  } else {
+    
+    # Run STRAPP test if edge data is present
+    STRAPP_test_all_bioregions_i <- run_STRAPP_test(BAMM_data = BAMM_data_updated_i,
+                                                    trait_data = bioregion_data_all_bioregions_i,
+                                                    reps = 1000, rate = "net diversification",
+                                                    return.full = T,
+                                                    method = "kruskal", # For categorical multinominal data (G > 2)
+                                                    logrates = F, # Do not use log for Kruskal-Wallis as it is a rank test, so there is no need, and it prevents removing the negative rates
+                                                    two.tailed = T,
+                                                    replace = FALSE,
+                                                    nthreads = 1)
+    
+    # # Explore output
+    # STRAPP_test_all_bioregions_i$estimate # Mean tip rates per categories
+    # STRAPP_test_all_bioregions_i$p.value
+    # STRAPP_test_all_bioregions_i$obs.corr # Observed statistic for each posterior sample
+    # STRAPP_test_all_bioregions_i$gen # Generation ID of the selected posterior sample
+    # STRAPP_test_all_bioregions_i$null # Null statistic for each posterior sample
+    
+    # Compute info for histogram 
+    STRAPP_test_all_bioregions_i$test_stats <- STRAPP_test_all_bioregions_i$null - STRAPP_test_all_bioregions_i$obs.corr
+    # summary(STRAPP_test_all_bioregions_i$test_stats)
+    # table(STRAPP_test_all_bioregions_i$test_stats > 0)
+    STRAPP_test_all_bioregions_i$stat_median <- median(STRAPP_test_all_bioregions_i$test_stats)
+    STRAPP_test_all_bioregions_i$stat_Q5 <- quantile(STRAPP_test_all_bioregions_i$test_stats, p = 0.05)
+  }
+  
+  # Store focal time information
+  STRAPP_test_all_bioregions_i$focal_time <- time_i
+  
+  ## Store test output
+  STRAPP_tests_all_bioregions_all_time[[i]] <- STRAPP_test_all_bioregions_i
+  
+  # Save STRAPP test outputs
+  # saveRDS(STRAPP_tests_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
+  saveRDS(STRAPP_tests_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
+  
+  ## Print progress
+  if (i %% 1 == 0)
+  {
+    cat(paste0(Sys.time(), " - STRAPP test ran for time = ",time_i," My - n°", i, "/", length(time_scale),"\n"))
+  }
+}
+
+## 12.5.3/ Plot evolution of p-value in time ####
+
+# # Load input data for STRAPP test
+# STRAPP_data_all_bioregions_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_data_all_bioregions_all_time.rds")
+# STRAPP_data_all_bioregions_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_data_all_bioregions_all_time.rds")
+
+# Load STRAPP test outputs
+# STRAPP_tests_all_bioregions_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
+STRAPP_tests_all_bioregions_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
+
+# Focal-time = 0 My; Q5 = -53.58, p = 0.594
+STRAPP_tests_all_bioregions_all_time[[100]]
+
+# Focal-time = 10 My; Q5 = -11.55, p = 0.678
+STRAPP_tests_all_bioregions_all_time[[92]]
+
+# Focal-time = 23.7 My; Q5 = -11.94, p = 0.164
+STRAPP_tests_all_bioregions_all_time[[81]]
+
+
+# Extract p-value and time
+STRAPP_tests_all_bioregions_df <- data.frame(time = unlist(lapply(STRAPP_tests_all_bioregions_all_time, FUN = function (x) { x$focal_time }) ),
+                                           p_value = unlist(lapply(STRAPP_tests_all_bioregions_all_time, FUN = function (x) { x$p.value } )))
+STRAPP_tests_all_bioregions_df
+
+# Save STRAPP tests through evolutionary time df for OW vs NW
+# saveRDS(STRAPP_tests_all_bioregions_df, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_all_bioregions_df.rds")
+saveRDS(STRAPP_tests_all_bioregions_df, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_all_bioregions_df.rds")
+
+# Extract root age
+root_age <- time_scale[1]
+max_age <- root_age
+# Set plot limits to Miocene
+max_age <- 23
+
+# Prepare data for significance area
+significance_area_poly_df <- data.frame(p_value = c(0.00, 0.00, 0.05, 0.05),
+                                        # time = c(root_age, 0, 0, root_age), 
+                                        time = c(max_age, 0, 0, max_age), 
+                                        poly_ID = rep(1, 4))
+
+# Prepare data for significance gradient
+# One polygon per Y/p-value
+p_value_y <- 0.05
+p_value_y_data <- c()
+nb_poly <- 0
+max_gradient <- 0.10
+y_increment <- 0.001
+while (p_value_y < max_gradient)
+{
+  p_value_y_data_i <- c(p_value_y, p_value_y, p_value_y + y_increment, p_value_y + y_increment)
+  p_value_y_data <- c(p_value_y_data, p_value_y_data_i)
+  
+  p_value_y <- p_value_y + y_increment
+  nb_poly <- nb_poly + 1
+}
+
+significance_area_gradient_df <- data.frame(p_value = p_value_y_data,
+                                            # time = rep(x = c(root_age, 0, 0, root_age), times = nb_poly),
+                                            time = rep(x = c(max_age, 0, 0, max_age), times = nb_poly),
+                                            poly_ID = rep(1:nb_poly, each = 4))
+
+# No period of significance! Min p-value = 0.164 at 23.7 My
+STRAPP_tests_all_bioregions_df[which.min(STRAPP_tests_all_bioregions_df$p_value), ]
+
+
+## GGplot
+# pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_all_bioregions_pvalTT.pdf", height = 6, width = 8)
+pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_all_bioregions_pvalTT.pdf", height = 6, width = 8)
+
+STRAPP_tests_all_bioregions_plot <- ggplot(# data = STRAPP_tests_all_bioregions_df,
+  data = STRAPP_tests_all_bioregions_df[!is.na(STRAPP_tests_all_bioregions_df$p_value), ],
+  mapping = aes(y = p_value, x = time)) +
+  
+  # Plot significance area above p-value < 0.05
+  geom_polygon(data = significance_area_poly_df,
+               mapping = aes(y = p_value, x = time, group = poly_ID),
+               fill = "limegreen", col = NA,
+               alpha = 1.00,
+               linewidth = 1.0) +
+  
+  # Plot significance gradient (0.05 < p-value < 0.10)
+  geom_polygon(data = significance_area_gradient_df,
+               mapping = aes(y = p_value, x = time,
+                             group = poly_ID, alpha = poly_ID),
+               fill = "limegreen", col = NA,
+               linewidth = 1.0, show.legend = F) +
+  
+  # Plot mean lines
+  geom_line(col = "red",
+            alpha = 1.0,
+            linewidth = 2.0) +
+  
+  # Add special times to investigate differences
+  geom_vline(xintercept = 23, linewidth = 1.0, linetype = "dashed") + # T = 23 My (Oligo-Miocene) => Biggest difference
+  geom_vline(xintercept = 10, linewidth = 1.0, linetype = "dashed") + # T = 10 My (Mid Miocene) => Limit for Trop/Temp tests
+  geom_vline(xintercept = 0, linewidth = 1.0, linetype = "dashed") + # T = 0 My (Present) => Classic BAMM test
+  
+  # Set plot title +
+  ggtitle(label = paste0("STRAPP test\nDifference in net div. rates through time\nAll bioregions")) +
+  
+  # Set axes labels
+  xlab("Time  [My]") +
+  ylab("P-value") +
+  
+  # Reverse time scale
+  scale_x_continuous(transform = "reverse",
+                     expand = c(0,0),
+                     limits = c(max_age, 0) # Set limits to max_age
+  ) + 
+  
+  # Reverse p-value scale
+  scale_y_continuous(transform = "reverse",
+                     limits = c(1, 0) # Set limits
+  ) +
+  
+  # Allow drawing outside plot inner margins
+  coord_cartesian(clip = "off") +
+  
+  # Adjust alpha scale
+  scale_alpha_continuous(range = c(1,0)) +
+  
+  # Adjust aesthetics
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"), # trbl
+        panel.grid.major = element_line(color = NA, linetype = "dashed", linewidth = 0.5),
+        panel.background = element_rect(fill = NA, color = NA),
+        plot.title = element_text(size = 20, hjust = 0.5, color = "black", margin = margin(b = 15, t = 5)),
+        axis.title = element_text(size = 20, color = "black"),
+        axis.title.x = element_text(margin = margin(t = 10)),
+        axis.title.y = element_text(margin = margin(r = 12)),
+        axis.line = element_line(linewidth = 1.5),
+        axis.ticks.length = unit(8, "pt"),
+        axis.text = element_text(size = 18, color = "black"),
+        axis.text.x = element_text(margin = margin(t = 5)),
+        axis.text.y = element_text(margin = margin(r = 5)))
+
+# Plot
+print(STRAPP_tests_all_bioregions_plot)
+
+dev.off()
+
+## Add symbols to the vertical line and STRAPP test legend
 
 
 ##### 13/ Map of current net dispersal rates based on tip rates ####
@@ -5639,9 +6006,15 @@ BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phyl
 lambda_tip_rates_across_BAMM_posterior_samples_df <- do.call(rbind.data.frame, BAMM_posterior_samples_data$tipLambda)
 names(lambda_tip_rates_across_BAMM_posterior_samples_df) <- BAMM_posterior_samples_data$tip.label
 
+mean_lambda_tip_rates <- apply(lambda_tip_rates_across_BAMM_posterior_samples_df, MARGIN = 2, FUN = mean)
+summary(mean_lambda_tip_rates)
+
 # Extinction rates
 mu_tip_rates_across_BAMM_posterior_samples_df <- do.call(rbind.data.frame, BAMM_posterior_samples_data$tipMu)
 names(mu_tip_rates_across_BAMM_posterior_samples_df) <- BAMM_posterior_samples_data$tip.label
+
+mean_mu_tip_rates <- apply(mu_tip_rates_across_BAMM_posterior_samples_df, MARGIN = 2, FUN = mean)
+summary(mean_mu_tip_rates)
 
 # Net diversification rates = Lambda - Mu
 net_div_tip_rates_across_BAMM_posterior_samples_df <- lambda_tip_rates_across_BAMM_posterior_samples_df - mu_tip_rates_across_BAMM_posterior_samples_df

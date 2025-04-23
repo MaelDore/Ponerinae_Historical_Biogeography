@@ -1796,6 +1796,15 @@ table(GeoSSE_pars_all_models_df$regime)
 # saveRDS(GeoSSE_pars_all_models_df, file = "./outputs/GeoSSE/Ponerinae_rough_phylogeny_1534t/GeoSSE_pars_all_models_df.rds")
 saveRDS(GeoSSE_pars_all_models_df, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_pars_all_models_df.rds")
 
+## Format for Excel export to compare parameter MLE across models
+
+GeoSSE_pars_all_models_comparison_df <- GeoSSE_pars_all_models_df %>% 
+  filter(stats == "MLE_i") %>%
+  filter(!parameter_type %in% c("Extinct fraction", "Turnover")) %>%
+  pivot_wider(names_from = pars, values_from = value)
+  
+saveRDS(GeoSSE_pars_all_models_comparison_df, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_pars_all_models_comparison_df.rds")
+write.xlsx(x = GeoSSE_pars_all_models_comparison_df, showNA = F, file = "./outputs/GeoSSE/Ponerinae_MCC_phylogeny_1534t/GeoSSE_pars_all_models_comparison_df.xlsx")
 
 ### 6.2/ Plot parameter estimates ####
 
