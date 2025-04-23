@@ -118,6 +118,7 @@ run_STRAPP_test <- function (BAMM_data, trait_data, reps, rate = "speciation", r
   }
   tipstates <- BAMM_data$tipStates
   trait_data <- trait_data[BAMM_data$tip.label]
+  
   stat.mu <- 0
   if (method == "mann-whitney") {
     trait.stat.count <- table(trait_data)
