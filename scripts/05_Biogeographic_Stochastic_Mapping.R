@@ -61,10 +61,15 @@ library(BayesTwin) # To compute HPD intervals
 # Load imputed phylogeny with short names
 # Ponerinae_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.rds")
 Ponerinae_MCC_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.rds")
+# Ponerinae_Youngest_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_Youngest_1534t_short_names.rds")
+# Ponerinae_Oldest_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_Oldest_1534t_short_names.rds")
 
 # Set path to Newick tree
 # path_to_tree <- "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.tree"
 path_to_tree <- "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.tree"
+# path_to_tree <- "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_short_names.tree"
+# path_to_tree <- "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_short_names.tree"
+
 path_to_tree <- BioGeoBEARS::np(path_to_tree)
 
 
@@ -84,6 +89,8 @@ Taxa_bioregions_tipranges_obj <- BioGeoBEARS::getranges_from_LagrangePHYLIP(lgda
 # Load time-stratified DEC+J model output
 # DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
 DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Youngest_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Oldest_phylogeny_1534t/DEC_J_fit.rds")
 
 
 ##### 2/ Run Biogeographic Stochastic Mapping ####
@@ -99,8 +106,13 @@ DEC_J_BSM_inputs <- get_inputs_for_stochastic_mapping(res = DEC_J_fit)
 # Save BSM inputs
 # saveRDS(object = DEC_J_BSM_inputs, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_inputs.rds")
 saveRDS(object = DEC_J_BSM_inputs, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_inputs.rds")
+# saveRDS(object = DEC_J_BSM_inputs, file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_BSM_inputs.rds")
+# saveRDS(object = DEC_J_BSM_inputs, file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_BSM_inputs.rds")
+
 # DEC_J_BSM_inputs <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_inputs.rds")
 DEC_J_BSM_inputs <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_inputs.rds")
+# DEC_J_BSM_inputs <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_BSM_inputs.rds")
+# DEC_J_BSM_inputs <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_BSM_inputs.rds")
 
 # BSM input object as one list per time-stratum
 str(DEC_J_BSM_inputs, max.level = 1)
@@ -137,6 +149,8 @@ DEC_J_BSM_output <- runBSM(res = DEC_J_fit,  # Model fit object
                              save_after_every_try = TRUE,
                              # savedir = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/",
                              savedir = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/",
+                             # savedir = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/",
+                             # savedir = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/",
                              seedval = 12345,
                              wait_before_save = 0.01,
                              master_nodenum_toPrint = 0)
@@ -144,12 +158,16 @@ DEC_J_BSM_output <- runBSM(res = DEC_J_fit,  # Model fit object
 ## Save BSM outputs
 # saveRDS(object = DEC_J_BSM_output, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_output.rds")
 saveRDS(object = DEC_J_BSM_output, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_output.rds")
+# saveRDS(object = DEC_J_BSM_output, file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_BSM_output.rds")
+# saveRDS(object = DEC_J_BSM_output, file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_BSM_output.rds")
 
 ## Inspect outputs = cladogenetic and anagenetic event tables
 
 # Load BSM outputs
 # DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_output.rds")
 DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_output.rds")
+# DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_BSM_output.rds")
+# DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_BSM_output.rds")
 
 # Extract records of events
 DEC_J_clado_events_tables <- DEC_J_BSM_output$RES_clado_events_tables
@@ -158,11 +176,16 @@ DEC_J_ana_events_tables <- DEC_J_BSM_output$RES_ana_events_tables
 length(DEC_J_clado_events_tables) # One summary table per stochastic history
 length(DEC_J_ana_events_tables) # One summary table per stochastic history
 
-# Save independently the cladogenetic and anagenetic tables
+## Save independently the cladogenetic and anagenetic tables
 # saveRDS(object = DEC_J_clado_events_tables, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_clado_events_tables.rds")
 saveRDS(object = DEC_J_clado_events_tables, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_clado_events_tables.rds")
+# saveRDS(object = DEC_J_clado_events_tables, file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_clado_events_tables.rds")
+# saveRDS(object = DEC_J_clado_events_tables, file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_clado_events_tables.rds")
+
 # saveRDS(object = DEC_J_ana_events_tables, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_ana_events_tables.rds")
 saveRDS(object = DEC_J_ana_events_tables, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_ana_events_tables.rds")
+# saveRDS(object = DEC_J_ana_events_tables, file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_ana_events_tables.rds")
+# saveRDS(object = DEC_J_ana_events_tables, file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_ana_events_tables.rds")
 
 
 ## Cladogenetic event tables (one table per simulated biogeographic history)
@@ -551,6 +574,10 @@ source("./functions/generate_list_ranges.R")
 # Ponerinae_phylogeny_1534t_cladewise <- reorder.phylo(x = Ponerinae_phylogeny_1534t_short_names, order = "cladewise")
 str(Ponerinae_MCC_phylogeny_1534t_short_names)
 Ponerinae_MCC_phylogeny_1534t_cladewise <- reorder.phylo(x = Ponerinae_MCC_phylogeny_1534t_short_names, order = "cladewise")
+# str(Ponerinae_Youngest_phylogeny_1534t_short_names)
+# Ponerinae_Youngest_phylogeny_1534t_cladewise <- reorder.phylo(x = Ponerinae_Youngest_phylogeny_1534t_short_names, order = "cladewise")
+# str(Ponerinae_Oldest_phylogeny_1534t_short_names)
+# Ponerinae_Oldest_phylogeny_1534t_cladewise <- reorder.phylo(x = Ponerinae_Oldest_phylogeny_1534t_short_names, order = "cladewise")
 
 # Initiate list for simmap
 DEC_J_simmaps <- list()
@@ -564,6 +591,8 @@ for (i in 1:length(DEC_J_clado_events_tables))
   DEC_J_simmap_times_i <- BSM_to_phytools_SM_custom(res = DEC_J_fit,
                                                     # tree = Ponerinae_phylogeny_1534t_cladewise,
                                                     tree = Ponerinae_MCC_phylogeny_1534t_cladewise,
+                                                    # tree = Ponerinae_Youngest_phylogeny_1534t_cladewise,
+                                                    # tree = Ponerinae_Oldest_phylogeny_1534t_cladewise,
                                                     clado_events_table = DEC_J_clado_events_tables[[i]],
                                                     ana_events_table = DEC_J_ana_events_tables[[i]])
   
@@ -576,6 +605,8 @@ for (i in 1:length(DEC_J_clado_events_tables))
     # Save simmaps
     # saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps.rds")
     saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps.rds")
+    # saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_simmaps.rds")
+    # saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_simmaps.rds")
     
     cat(paste0(Sys.time(), " - BSM map output converted to simmap Stochastic map - n°", i, "/", length(DEC_J_clado_events_tables),"\n"))
   }
@@ -585,6 +616,8 @@ class(DEC_J_simmaps) <- c("list", "multiSimmap")
 # Save simmaps
 # saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps.rds")
 saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps.rds")
+# saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_simmaps.rds")
+# saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_simmaps.rds")
 
 
 
@@ -598,6 +631,8 @@ saveRDS(object = DEC_J_simmaps, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_15
 # Load simmaps of BS maps
 # DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps.rds")
 DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps.rds")
+# DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_simmaps.rds")
+# DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_simmaps.rds")
 
 # Subset for testing
 # DEC_J_simmaps <- DEC_J_simmaps[1:10]
@@ -614,7 +649,9 @@ all_areas <- all_states[nchar(all_states) == 1]
 all_areas
 
 # all_areas_labels <- c("Neotropics", "Afrotropics", "Eastern Palearctic", "Indomalaya", "Western Palearctic", "Australasia", "Nearctic")
-all_areas_labels <- c("Afrotropics", "Neotropics", "Indomalaya", "Australasia", "Eastern Palearctic",  "Western Palearctic",  "Nearctic")
+# all_areas_labels <- c("Afrotropics", "Neotropics", "Indomalaya", "Australasia", "Eastern Palearctic", "Western Palearctic", "Nearctic") # For MCC phylogeny
+# all_areas_labels <- c("Indomalaya", "Neotropics", "Afrotropics", "Eastern Palearctic", "Australasia", "Western Palearctic", "Nearctic") # For Youngest phylogeny
+all_areas_labels <- c("Afrotropics", "Indomalaya", "Eastern Palearctic", "Australasia", "Western Palearctic", "Neotropics", "Nearctic") # For Oldest phylogeny
 
 ### 6.2/ Modify simmaps to attribute randomly a unique area to multi-states ####
 
@@ -692,6 +729,8 @@ all_states
 # Save simmaps with only unique areas
 # saveRDS(object = DEC_J_simmaps_unique_areas, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
 saveRDS(object = DEC_J_simmaps_unique_areas, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
+# saveRDS(object = DEC_J_simmaps_unique_areas, file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
+# saveRDS(object = DEC_J_simmaps_unique_areas, file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
 
 
 ### 6.3/ Compute and plot density maps of binary areas ####
@@ -699,6 +738,8 @@ saveRDS(object = DEC_J_simmaps_unique_areas, file = "./outputs/BSM/Ponerinae_MCC
 # Load simmaps with only unique areas
 # DEC_J_simmaps_unique_areas <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
 DEC_J_simmaps_unique_areas <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
+# DEC_J_simmaps_unique_areas <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
+# DEC_J_simmaps_unique_areas <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
 
 ## Loop per unique area
 DEC_J_density_map_all_areas <- list()
@@ -757,6 +798,8 @@ for (i in seq_along(all_areas))
   ## Save the resulting Density map with updated color gradient
   # saveRDS(object = DEC_J_density_map, file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_",focal_area_label,".rds"))
   saveRDS(object = DEC_J_density_map, file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_",focal_area_label,".rds"))
+  # saveRDS(object = DEC_J_density_map, file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_density_map_",focal_area_label,".rds"))
+  # saveRDS(object = DEC_J_density_map, file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_density_map_",focal_area_label,".rds"))
   
   ## Store in final object with all density maps
   DEC_J_density_map_all_areas <- append(x = DEC_J_density_map_all_areas, values = list(DEC_J_density_map))
@@ -772,6 +815,8 @@ names(DEC_J_density_map_all_areas) <- paste0("Density_map_", all_areas_labels)
 # Save density maps
 # saveRDS(object = DEC_J_density_map_all_areas, file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
 saveRDS(object = DEC_J_density_map_all_areas, file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
+# saveRDS(object = DEC_J_density_map_all_areas, file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
+# saveRDS(object = DEC_J_density_map_all_areas, file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
 
 
 ### 6.4/ Plot density maps of posterior probability to belong to focal area ####
@@ -779,6 +824,8 @@ saveRDS(object = DEC_J_density_map_all_areas, file = paste0("./outputs/Density_m
 # Load density maps
 # DEC_J_density_map_all_areas <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
 DEC_J_density_map_all_areas <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
+# DEC_J_density_map_all_areas <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
+# DEC_J_density_map_all_areas <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
 
 
 ## Loop per area
@@ -798,6 +845,8 @@ for (i in 1:length(DEC_J_density_map_all_areas))
   
   # pdf(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_",focal_area_label,".pdf"), width = 40, height = 150)
   pdf(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_",focal_area_label,".pdf"), width = 40, height = 150)
+  # pdf(file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_density_map_",focal_area_label,".pdf"), width = 40, height = 150)
+  # pdf(file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_density_map_",focal_area_label,".pdf"), width = 40, height = 150)
   
   plot(DEC_J_density_map_i, fsize = c(0.3,2.5), lwd = c(3,4))
   
@@ -827,6 +876,11 @@ for (i in 1:length(DEC_J_density_map_all_areas))
 
 ### 6.5/ Merge density map plots in a unique PDF ####
 
+# Load model fit
+DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Youngest_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Oldest_phylogeny_1534t/DEC_J_fit.rds")
+
 # Keep Bioregions in similar order than in the BioGeoBEARS model
 returned_mats <- get_Qmat_COOmat_from_BioGeoBEARS_run_object(BioGeoBEARS_run_object = DEC_J_fit$inputs, include_null_range = DEC_J_fit$inputs$include_null_range)
 returned_mats$areanames
@@ -836,9 +890,13 @@ bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Ne
 # Recreate paths to density maps in predefined order
 # all_density_maps_paths <- paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_",bioregion_names,".pdf")
 all_density_maps_paths <- paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_",bioregion_names,".pdf")
+# all_density_maps_paths <- paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_density_map_",bioregion_names,".pdf")
+# all_density_maps_paths <- paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_density_map_",bioregion_names,".pdf")
 
 # Combine PDFs in a unique PDF
 # qpdf::pdf_combine(input = all_density_maps_paths, output = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/All_DEC_J_density_maps.pdf"))
 qpdf::pdf_combine(input = all_density_maps_paths, output = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/All_DEC_J_density_maps.pdf"))
+# qpdf::pdf_combine(input = all_density_maps_paths, output = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/All_DEC_J_density_maps.pdf"))
+# qpdf::pdf_combine(input = all_density_maps_paths, output = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/All_DEC_J_density_maps.pdf"))
 
 

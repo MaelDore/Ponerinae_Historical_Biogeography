@@ -61,6 +61,8 @@ library(BayesTwin) # To compute HPD intervals
 # Load time-stratified DEC+J model output
 # DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
 DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Youngest_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Oldest_phylogeny_1534t/DEC_J_fit.rds")
 
 # Inspect marginal likelihoods of ancestral states
 dim(DEC_J_fit$ML_marginal_prob_each_state_at_branch_top_AT_node) # Likelihood df: Rows = tips + nodes, Columns = states/ranges
@@ -73,10 +75,14 @@ DEC_J_fit$ML_marginal_prob_each_state_at_branch_bottom_below_node # Same but for
 # Load imputed phylogeny with short names
 # Ponerinae_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.rds")
 Ponerinae_MCC_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.rds")
+# Ponerinae_Youngest_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_Youngest_1534t_short_names.rds")
+# Ponerinae_Oldest_phylogeny_1534t_short_names <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_Oldest_1534t_short_names.rds")
 
 # Reorder in "cladewise" order to match with the Simmap data
 # Ponerinae_phylogeny_1534t_short_names_cladewise <- reorder(Ponerinae_phylogeny_1534t_short_names, order = "cladewise")
 Ponerinae_MCC_phylogeny_1534t_short_names_cladewise <- reorder(Ponerinae_MCC_phylogeny_1534t_short_names, order = "cladewise")
+# Ponerinae_Youngest_phylogeny_1534t_short_names_cladewise <- reorder(Ponerinae_Youngest_phylogeny_1534t_short_names, order = "cladewise")
+# Ponerinae_Oldest_phylogeny_1534t_short_names_cladewise <- reorder(Ponerinae_Oldest_phylogeny_1534t_short_names, order = "cladewise")
 
 # Load list of Missing taxa that were imputed on the backbone phylogeny
 Missing_taxa_list <- readRDS(file = "./outputs/Grafting_missing_taxa/Missing_taxa_list.rds")
@@ -100,52 +106,81 @@ saveRDS(new_lighter_color_scheme, file = "./outputs/BSM/colors_list_for_areas_li
 
 # tips_metadata_df <- data.frame(label = Ponerinae_phylogeny_1534t_short_names_cladewise$tip.label)
 tips_metadata_df <- data.frame(label = Ponerinae_MCC_phylogeny_1534t_short_names_cladewise$tip.label)
+# tips_metadata_df <- data.frame(label = Ponerinae_Youngest_phylogeny_1534t_short_names_cladewise$tip.label)
+# tips_metadata_df <- data.frame(label = Ponerinae_Oldest_phylogeny_1534t_short_names_cladewise$tip.label)
+
 tips_metadata_df <- tips_metadata_df %>% 
   mutate(missing_taxa = label %in% Missing_taxa_list)
 
 ### 2.2/ Transform into a treedata object (treeio package)
 # Ponerinae_phylogeny_1534t_treedata_for_ARE <- Ponerinae_phylogeny_1534t_short_names_cladewise %>%
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE <- Ponerinae_MCC_phylogeny_1534t_short_names_cladewise %>%
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE <- Ponerinae_Youngest_phylogeny_1534t_short_names_cladewise %>%
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE <- Ponerinae_Oldest_phylogeny_1534t_short_names_cladewise %>%
   as.treedata() %>%
   full_join(x = ., y = tips_metadata_df, by = "label") # Associate the list_sp table data to each tip
 
 # Node metadata is stored in @extraInfo
 # View(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo)
 View(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo)
+# View(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo)
+# View(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo)
 
-# # Add status of each nodes based on its index
+# # Add status of each nodes based on its index - Rough initial tree
 # Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$status <- NA
 # Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$status[1:length(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)] <- "tip"
 # Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$status[(length(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$tip.label) + 2):(length(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$tip.label) + Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$Nnode)] <- "internal_node"
 # Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$status[(length(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$tip.label) + 1)] <- "root"
 # table(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$status)
 
-# Add status of each nodes based on its index
+# Add status of each nodes based on its index - MCC tree
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$status <- NA
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$status[1:length(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)] <- "tip"
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$status[(length(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$tip.label) + 2):(length(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$tip.label) + Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$Nnode)] <- "internal_node"
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$status[(length(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$tip.label) + 1)] <- "root"
 table(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$status)
 
+# # Add status of each nodes based on its index - Youngest tree
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$status <- NA
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$status[1:length(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)] <- "tip"
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$status[(length(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label) + 2):(length(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label) + Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$Nnode)] <- "internal_node"
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$status[(length(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label) + 1)] <- "root"
+# table(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$status)
+
+# # Add status of each nodes based on its index - Oldest tree
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$status <- NA
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$status[1:length(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)] <- "tip"
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$status[(length(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label) + 2):(length(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label) + Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$Nnode)] <- "internal_node"
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$status[(length(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label) + 1)] <- "root"
+# table(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$status)
+
 # Add parental edge ID
 # Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$parental_edge_ID <- match(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$node, table = Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2])
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$parental_edge_ID <- match(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$node, table = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2])
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$parental_edge_ID <- match(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$node, table = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2])
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$parental_edge_ID <- match(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$node, table = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2])
 
 # Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo[1530:1550,]
 
 # Save treedata for grafted phylogeny
 # saveRDS(Ponerinae_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata_for_ARE.rds")
 saveRDS(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE.rds")
+# saveRDS(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE.rds")
+# saveRDS(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE.rds")
 
 
 ### 2.3/ Prune tree from grafted taxa
 
 # Ponerinae_phylogeny_789t_treedata_for_ARE <- tidytree::drop.tip(object = Ponerinae_phylogeny_1534t_treedata_for_ARE, tip = Missing_taxa_list)
 Ponerinae_MCC_phylogeny_789t_treedata_for_ARE <- tidytree::drop.tip(object = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE, tip = Missing_taxa_list)
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE <- tidytree::drop.tip(object = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE, tip = Missing_taxa_list)
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE <- tidytree::drop.tip(object = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE, tip = Missing_taxa_list)
 
 # Save treedata for UCE only phylogeny
 # saveRDS(Ponerinae_phylogeny_789t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_789t_treedata_for_ARE.rds")
 saveRDS(Ponerinae_MCC_phylogeny_789t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_789t_treedata_for_ARE.rds")
+# saveRDS(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE.rds")
+# saveRDS(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE.rds")
 
 
 ### 2.4/ Detect origin of each node (and associated descending edge) ####
@@ -153,20 +188,27 @@ saveRDS(Ponerinae_MCC_phylogeny_789t_treedata_for_ARE, file = "./outputs/Graftin
 all_missing_taxa_ID <- which(tips_metadata_df$missing_taxa)
 # Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node <- NA
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node <- NA
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node <- NA
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node <- NA
 
 # for (i in 1:nrow(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo))
 for (i in 1:nrow(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo))
-    
+# for (i in 1:nrow(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo))
+#  for (i in 1:nrow(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo))
 {
   # i <- 1
   
   # Extract node ID
   # node_ID_i <- Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$node[i]
   node_ID_i <- Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$node[i]
+  # node_ID_i <- Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$node[i]
+  # node_ID_i <- Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$node[i]
     
   # Extract all current descendants
   # descendants_i <- phytools::getDescendants(tree = Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo, node = node_ID_i)
   descendants_i <- phytools::getDescendants(tree = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo, node = node_ID_i)
+  # descendants_i <- phytools::getDescendants(tree = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo, node = node_ID_i)
+  # descendants_i <- phytools::getDescendants(tree = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo, node = node_ID_i)
   
   # Check if all current descendants are missing taxa
   missing_i <- all(descendants_i %in% all_missing_taxa_ID)
@@ -174,14 +216,20 @@ for (i in 1:nrow(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo))
   # Record status
   # Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node[i] <- missing_i
   Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node[i] <- missing_i
+  # Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node[i] <- missing_i
+  # Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node[i] <- missing_i
 }
 # table(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node)
 table(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node)
+# table(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node)
+# table(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node)
 
 
 # Save treedata for complete phylogeny
 # saveRDS(Ponerinae_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata_for_ARE.rds")
 saveRDS(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE.rds")
+# saveRDS(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE.rds")
+# saveRDS(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE.rds")
 
 
 ##### 3/ Prepare metadata for Genera #####
@@ -191,6 +239,8 @@ saveRDS(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafti
 # Extract all genera from tip labels
 # all_genera_list <- str_split(string = Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$tip.label, pattern = "_", simplify = T)[,1]
 all_genera_list <- str_split(string = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$tip.label, pattern = "_", simplify = T)[,1]
+# all_genera_list <- str_split(string = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label, pattern = "_", simplify = T)[,1]
+# all_genera_list <- str_split(string = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label, pattern = "_", simplify = T)[,1]
 
 unique_genera_list <- unique(all_genera_list)
 unique_genera_list <- unique_genera_list[order(unique_genera_list)]
@@ -209,6 +259,8 @@ all_genera_metadata_df$missing_taxa_perc <- NA
 
 # all_edge_ages <- phytools::nodeHeights(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo)
 all_edge_ages <- phytools::nodeHeights(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo)
+# all_edge_ages <- phytools::nodeHeights(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo)
+# all_edge_ages <- phytools::nodeHeights(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo)
 
 root_age <- max(all_edge_ages[, 2])
 all_edge_ages <- round(-1 * all_edge_ages + root_age, 5)
@@ -224,10 +276,16 @@ for (i in 1:nrow(all_genera_metadata_df))
   
   # Get current species list
   genus_match_i <- which(all_genera_list == genus_i)
+  
   # sp_match_i <- Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$tip.label[genus_match_i]
   sp_match_i <- Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$tip.label[genus_match_i]
+  # sp_match_i <- Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label[genus_match_i]
+  # sp_match_i <- Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label[genus_match_i]
+  
   # missing_sp_match_i <- Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_taxa[genus_match_i]
   missing_sp_match_i <- Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_taxa[genus_match_i]
+  # missing_sp_match_i <- Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_taxa[genus_match_i]
+  # missing_sp_match_i <- Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_taxa[genus_match_i]
   
   # Record current richness data
   all_genera_metadata_df$current_richness[i] <- length(sp_match_i)
@@ -239,17 +297,28 @@ for (i in 1:nrow(all_genera_metadata_df))
   {
     # If genus has multiple current species, identify MRCA has the oldest MRCA of all pairs
     sp_pairs_i <- expand.grid(sp_match_i, sp_match_i)
+    
     # MRCA_all_pairs_i <- apply(X = sp_pairs_i, MARGIN = 1, FUN = ape::getMRCA, phy = Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo)
     MRCA_all_pairs_i <- apply(X = sp_pairs_i, MARGIN = 1, FUN = ape::getMRCA, phy = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo)
+    # MRCA_all_pairs_i <- apply(X = sp_pairs_i, MARGIN = 1, FUN = ape::getMRCA, phy = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo)
+    # MRCA_all_pairs_i <- apply(X = sp_pairs_i, MARGIN = 1, FUN = ape::getMRCA, phy = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo)
+    
     all_MRCA_nodes_pairs_i <- unique(MRCA_all_pairs_i)
+    
     # all_MRCA_edges_i <- match(x = all_MRCA_nodes_pairs_i, table = Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2])
     all_MRCA_edges_i <- match(x = all_MRCA_nodes_pairs_i, table = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2])
+    # all_MRCA_edges_i <- match(x = all_MRCA_nodes_pairs_i, table = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2])
+    # all_MRCA_edges_i <- match(x = all_MRCA_nodes_pairs_i, table = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2])
+    
     if (length(all_MRCA_edges_i) > 1)
     {
       MRCA_all_pairs_ages_i <- all_edge_ages[all_MRCA_edges_i, ]
       MRCA_edge_ID_i <- all_MRCA_edges_i[which.max(MRCA_all_pairs_ages_i[,2])]
+      
       # MRCA_node_ID_i <- Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$edge[MRCA_edge_ID_i, 2]
       MRCA_node_ID_i <- Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$edge[MRCA_edge_ID_i, 2]
+      # MRCA_node_ID_i <- Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$edge[MRCA_edge_ID_i, 2]
+      # MRCA_node_ID_i <- Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$edge[MRCA_edge_ID_i, 2]
     } else {
       MRCA_node_ID_i <- all_MRCA_nodes_pairs_i
     }
@@ -262,6 +331,9 @@ for (i in 1:nrow(all_genera_metadata_df))
   # Extract crown and stem ages
   # MRCA_edge_ID_i <- which(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2] == MRCA_node_ID_i)
   MRCA_edge_ID_i <- which(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2] == MRCA_node_ID_i)
+  # MRCA_edge_ID_i <- which(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2] == MRCA_node_ID_i)
+  # MRCA_edge_ID_i <- which(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2] == MRCA_node_ID_i)
+  
   crown_age_i <- all_edge_ages[MRCA_edge_ID_i, 2]
   stem_age_i <- all_edge_ages[MRCA_edge_ID_i, 1]
   
@@ -278,6 +350,8 @@ View(all_genera_metadata_df)
 # Save Genera metadata
 # saveRDS(all_genera_metadata_df, file = "./outputs/Grafting_missing_taxa/all_genera_metadata_df.rds")
 saveRDS(all_genera_metadata_df, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_all_genera_metadata_df.rds")
+# saveRDS(all_genera_metadata_df, file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_all_genera_metadata_df.rds")
+# saveRDS(all_genera_metadata_df, file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_all_genera_metadata_df.rds")
 
 
 ##### 4/ Prepare metadata for Genus-groups from Schmidt & Shattuck, 2014 #####
@@ -300,8 +374,9 @@ genus_groups_list <- c("Platythyrea", "Pachycondyla", "Ponera", "Harpegnathos", 
 genus_groups_MRCA_taxa_list_1534t <- list(Platythyrea = c("Platythyrea_arnoldi", "Platythyrea_schultzei"),
                                     Pachycondyla = c("Simopelta_minima", "Belonopelta_attenuata"),
                                     Ponera = c("Diacamma_magdalenae", "Austroponera_castanea"),
-                                    # Harpegnathos = c("Harpegnathos_saltator", "Harpegnathos_my01"), # For UCE tree
                                     Harpegnathos = c("Harpegnathos_saltator", "Harpegnathos_pallipes"), # For MCC grafted tree
+                                    # Harpegnathos = c("Harpegnathos_honestoi", "Harpegnathos_my01"), # For Youngest grafted tree
+                                    # Harpegnathos = c("Harpegnathos_venator", "Harpegnathos_my01"), # For Oldest grafted tree
                                     Hypoponera = c("Hypoponera_inexorata", "Hypoponera_comis"),
                                     Plectroctena =  c("Centromyrmex_fugator", "Boloponera_ikemkha"),
                                     Odontomachus = c("Neoponera_bucki", "Anochetus_talpa"))
@@ -311,7 +386,6 @@ genus_groups_MRCA_taxa_list_789t <- list(Platythyrea = c("Platythyrea_arnoldi", 
                                     Pachycondyla = c("Simopelta_minima", "Belonopelta_attenuata"),
                                     Ponera = c("Diacamma_magdalenae", "Austroponera_castanea"),
                                     Harpegnathos = c("Harpegnathos_saltator", "Harpegnathos_my01"), # For UCE tree
-                                    # Harpegnathos = c("Harpegnathos_saltator", "Harpegnathos_pallipes"), # For MCC grafted tree
                                     Hypoponera = c("Hypoponera_inexorata", "Hypoponera_comis"),
                                     Plectroctena =  c("Centromyrmex_fugator", "Boloponera_ikemkha"),
                                     Odontomachus = c("Neoponera_bucki", "Anochetus_talpa"))
@@ -332,6 +406,8 @@ all_genus_groups_metadata_df$missing_taxa_perc <- NA
 
 # all_edge_ages <- phytools::nodeHeights(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo)
 all_edge_ages <- phytools::nodeHeights(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo)
+# all_edge_ages <- phytools::nodeHeights(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo)
+# all_edge_ages <- phytools::nodeHeights(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo)
 
 root_age <- max(all_edge_ages[, 2])
 all_edge_ages <- round(-1 * all_edge_ages + root_age, 5)
@@ -350,18 +426,32 @@ for (i in 1:nrow(all_genus_groups_metadata_df))
   # Get MRCA node
   # MRCA_node_ID_i <- ape::getMRCA(phy = Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo, tip = MRCA_sp_i)
   MRCA_node_ID_i <- ape::getMRCA(phy = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo, tip = MRCA_sp_i)
+  # MRCA_node_ID_i <- ape::getMRCA(phy = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo, tip = MRCA_sp_i)
+  # MRCA_node_ID_i <- ape::getMRCA(phy = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo, tip = MRCA_sp_i)
   
-  # # Get all current descendant taxa
+  # # Get all current descendant taxa - For rough phylogeny
   # all_descendants_ID_i <- phytools::getDescendants(tree = Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo, node = MRCA_node_ID_i)
   # all_descendants_ID_i <- all_descendants_ID_i[all_descendants_ID_i <= length(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)]
   # all_descendants_names_i <- Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$tip.label[all_descendants_ID_i]
   # missing_sp_match_i <- Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_taxa[all_descendants_ID_i]
   
-  # Get all current descendant taxa
+  # Get all current descendant taxa - For MCC phylogeny
   all_descendants_ID_i <- phytools::getDescendants(tree = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo, node = MRCA_node_ID_i)
   all_descendants_ID_i <- all_descendants_ID_i[all_descendants_ID_i <= length(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)]
   all_descendants_names_i <- Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$tip.label[all_descendants_ID_i]
   missing_sp_match_i <- Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_taxa[all_descendants_ID_i]
+  
+  # # Get all current descendant taxa - For Youngest phylogeny
+  # all_descendants_ID_i <- phytools::getDescendants(tree = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo, node = MRCA_node_ID_i)
+  # all_descendants_ID_i <- all_descendants_ID_i[all_descendants_ID_i <= length(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)]
+  # all_descendants_names_i <- Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label[all_descendants_ID_i]
+  # missing_sp_match_i <- Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_taxa[all_descendants_ID_i]
+  
+  # # Get all current descendant taxa - For Oldest phylogeny
+  # all_descendants_ID_i <- phytools::getDescendants(tree = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo, node = MRCA_node_ID_i)
+  # all_descendants_ID_i <- all_descendants_ID_i[all_descendants_ID_i <= length(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)]
+  # all_descendants_names_i <- Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label[all_descendants_ID_i]
+  # missing_sp_match_i <- Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_taxa[all_descendants_ID_i]
   
   # Record current richness data
   all_genus_groups_metadata_df$current_richness[i] <- length(all_descendants_names_i)
@@ -371,6 +461,9 @@ for (i in 1:nrow(all_genus_groups_metadata_df))
   # Extract crown and stem ages
   # MRCA_edge_ID_i <- which(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2] == MRCA_node_ID_i)
   MRCA_edge_ID_i <- which(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2] == MRCA_node_ID_i)
+  # MRCA_edge_ID_i <- which(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2] == MRCA_node_ID_i)
+  # MRCA_edge_ID_i <- which(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$edge[, 2] == MRCA_node_ID_i)
+  
   crown_age_i <- all_edge_ages[MRCA_edge_ID_i, 2]
   stem_age_i <- all_edge_ages[MRCA_edge_ID_i, 1]
   
@@ -387,10 +480,14 @@ View(all_genus_groups_metadata_df)
 # Save Genus-groups metadata
 # saveRDS(all_genus_groups_metadata_df, file = "./outputs/Grafting_missing_taxa/all_genus_groups_metadata_df.rds")
 saveRDS(all_genus_groups_metadata_df, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_all_genus_groups_metadata_df.rds")
+# saveRDS(all_genus_groups_metadata_df, file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_all_genus_groups_metadata_df.rds")
+# saveRDS(all_genus_groups_metadata_df, file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_all_genus_groups_metadata_df.rds")
 
 # Load Genus-groups metadata
 # all_genus_groups_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/all_genus_groups_metadata_df.rds")
 all_genus_groups_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_all_genus_groups_metadata_df.rds")
+# all_genus_groups_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_all_genus_groups_metadata_df.rds")
+# all_genus_groups_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_all_genus_groups_metadata_df.rds")
 
 View(all_genus_groups_metadata_df)
 
@@ -399,6 +496,8 @@ View(all_genus_groups_metadata_df)
 all_genus_groups_metadata_postorder_df <- all_genus_groups_metadata_df
 
 all_edge_ages <- phytools::nodeHeights(Ponerinae_MCC_phylogeny_1534t_short_names)
+# all_edge_ages <- phytools::nodeHeights(Ponerinae_Youngest_phylogeny_1534t_short_names)
+# all_edge_ages <- phytools::nodeHeights(Ponerinae_Oldest_phylogeny_1534t_short_names)
 
 root_age <- max(all_edge_ages[, 2])
 all_edge_ages <- round(-1 * all_edge_ages + root_age, 5)
@@ -416,11 +515,25 @@ for (i in 1:nrow(all_genus_groups_metadata_postorder_df))
   
   # Get MRCA node
   MRCA_node_ID_i <- ape::getMRCA(phy = Ponerinae_MCC_phylogeny_1534t_short_names, tip = MRCA_sp_i)
+  # MRCA_node_ID_i <- ape::getMRCA(phy = Ponerinae_Youngest_phylogeny_1534t_short_names, tip = MRCA_sp_i)
+  # MRCA_node_ID_i <- ape::getMRCA(phy = Ponerinae_Oldest_phylogeny_1534t_short_names, tip = MRCA_sp_i)
   
-  # Get all current descendant taxa
+  # Get all current descendant taxa - For MCC phylogeny
   all_descendants_ID_i <- phytools::getDescendants(tree = Ponerinae_MCC_phylogeny_1534t_short_names, node = MRCA_node_ID_i)
   all_descendants_ID_i <- all_descendants_ID_i[all_descendants_ID_i <= length(Ponerinae_MCC_phylogeny_1534t_short_names$tip.label)]
   all_descendants_names_i <- Ponerinae_MCC_phylogeny_1534t_short_names$tip.label[all_descendants_ID_i]
+  
+  # # Get all current descendant taxa - For Youngest phylogeny
+  # all_descendants_ID_i <- phytools::getDescendants(tree = Ponerinae_Youngest_phylogeny_1534t_short_names, node = MRCA_node_ID_i)
+  # all_descendants_ID_i <- all_descendants_ID_i[all_descendants_ID_i <= length(Ponerinae_Youngest_phylogeny_1534t_short_names$tip.label)]
+  # all_descendants_names_i <- Ponerinae_Youngest_phylogeny_1534t_short_names$tip.label[all_descendants_ID_i]
+  
+  # # Get all current descendant taxa - For Oldest phylogeny
+  # all_descendants_ID_i <- phytools::getDescendants(tree = Ponerinae_Oldest_phylogeny_1534t_short_names, node = MRCA_node_ID_i)
+  # all_descendants_ID_i <- all_descendants_ID_i[all_descendants_ID_i <= length(Ponerinae_Oldest_phylogeny_1534t_short_names$tip.label)]
+  # all_descendants_names_i <- Ponerinae_Oldest_phylogeny_1534t_short_names$tip.label[all_descendants_ID_i]
+  
+  # Detect missing taxa among descendants
   missing_sp_match_i <- all_descendants_names_i %in% Missing_taxa_list
   
   # Record current richness data
@@ -430,6 +543,8 @@ for (i in 1:nrow(all_genus_groups_metadata_postorder_df))
   
   # Extract crown and stem ages
   MRCA_edge_ID_i <- which(Ponerinae_MCC_phylogeny_1534t_short_names$edge[, 2] == MRCA_node_ID_i)
+  # MRCA_edge_ID_i <- which(Ponerinae_Youngest_phylogeny_1534t_short_names$edge[, 2] == MRCA_node_ID_i)
+  # MRCA_edge_ID_i <- which(Ponerinae_Oldest_phylogeny_1534t_short_names$edge[, 2] == MRCA_node_ID_i)
   crown_age_i <- all_edge_ages[MRCA_edge_ID_i, 2]
   stem_age_i <- all_edge_ages[MRCA_edge_ID_i, 1]
   
@@ -445,6 +560,8 @@ View(all_genus_groups_metadata_postorder_df)
 
 # Save Genus-groups metadata from complete tree in postorder (used for BioGeoBEARS/BSM, but not simmaps)
 saveRDS(all_genus_groups_metadata_postorder_df, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_all_genus_groups_metadata_postorder_df.rds")
+# saveRDS(all_genus_groups_metadata_postorder_df, file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_all_genus_groups_metadata_postorder_df.rds")
+# saveRDS(all_genus_groups_metadata_postorder_df, file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_all_genus_groups_metadata_postorder_df.rds")
 
 
 ### 4.4/ Extract Genus-groups metadata from UCE only tree ####
@@ -457,8 +574,10 @@ all_genus_groups_UCE_only_metadata_df$crown_age <- NA
 all_genus_groups_UCE_only_metadata_df$stem_age <- NA
 all_genus_groups_UCE_only_metadata_df$sampled_richness <- NA
 
-# all_edge_ages <- phytools::nodeHeights(Ponerinae_phylogeny_789t_treedata_for_ARE@phylo)
-all_edge_ages <- phytools::nodeHeights(Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@phylo)
+all_edge_ages <- phytools::nodeHeights(Ponerinae_phylogeny_789t_treedata_for_ARE@phylo)
+# all_edge_ages <- phytools::nodeHeights(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@phylo)
+# all_edge_ages <- phytools::nodeHeights(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@phylo)
+
 root_age <- max(all_edge_ages[, 2])
 all_edge_ages <- round(-1 * all_edge_ages + root_age, 5)
 
@@ -476,16 +595,28 @@ for (i in 1:nrow(all_genus_groups_UCE_only_metadata_df))
   # Get MRCA node
   # MRCA_node_ID_i <- ape::getMRCA(phy = Ponerinae_phylogeny_789t_treedata_for_ARE@phylo, tip = MRCA_sp_i)
   MRCA_node_ID_i <- ape::getMRCA(phy = Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@phylo, tip = MRCA_sp_i)
+  # MRCA_node_ID_i <- ape::getMRCA(phy = Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@phylo, tip = MRCA_sp_i)
+  # MRCA_node_ID_i <- ape::getMRCA(phy = Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@phylo, tip = MRCA_sp_i)
   
   # # Get all current descendant taxa
   # all_descendants_ID_i <- phytools::getDescendants(tree = Ponerinae_phylogeny_789t_treedata_for_ARE@phylo, node = MRCA_node_ID_i)
   # all_descendants_ID_i <- all_descendants_ID_i[all_descendants_ID_i <= length(Ponerinae_phylogeny_789t_treedata_for_ARE@phylo$tip.label)]
   # all_descendants_names_i <- Ponerinae_phylogeny_789t_treedata_for_ARE@phylo$tip.label[all_descendants_ID_i]
   
-  # Get all current descendant taxa
+  # Get all current descendant taxa - For MCC phylogeny
   all_descendants_ID_i <- phytools::getDescendants(tree = Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@phylo, node = MRCA_node_ID_i)
   all_descendants_ID_i <- all_descendants_ID_i[all_descendants_ID_i <= length(Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@phylo$tip.label)]
   all_descendants_names_i <- Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@phylo$tip.label[all_descendants_ID_i]
+  
+  # # Get all current descendant taxa - For Youngest phylogeny
+  # all_descendants_ID_i <- phytools::getDescendants(tree = Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@phylo, node = MRCA_node_ID_i)
+  # all_descendants_ID_i <- all_descendants_ID_i[all_descendants_ID_i <= length(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@phylo$tip.label)]
+  # all_descendants_names_i <- Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@phylo$tip.label[all_descendants_ID_i]
+  
+  # # Get all current descendant taxa - For Oldest phylogeny
+  # all_descendants_ID_i <- phytools::getDescendants(tree = Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@phylo, node = MRCA_node_ID_i)
+  # all_descendants_ID_i <- all_descendants_ID_i[all_descendants_ID_i <= length(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@phylo$tip.label)]
+  # all_descendants_names_i <- Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@phylo$tip.label[all_descendants_ID_i]
   
   # Record current richness data
   all_genus_groups_UCE_only_metadata_df$sampled_richness[i] <- length(all_descendants_names_i)
@@ -493,6 +624,9 @@ for (i in 1:nrow(all_genus_groups_UCE_only_metadata_df))
   # Extract crown and stem ages
   # MRCA_edge_ID_i <- which(Ponerinae_phylogeny_789t_treedata_for_ARE@phylo$edge[, 2] == MRCA_node_ID_i)
   MRCA_edge_ID_i <- which(Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@phylo$edge[, 2] == MRCA_node_ID_i)
+  # MRCA_edge_ID_i <- which(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@phylo$edge[, 2] == MRCA_node_ID_i)
+  # MRCA_edge_ID_i <- which(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@phylo$edge[, 2] == MRCA_node_ID_i)
+  
   crown_age_i <- all_edge_ages[MRCA_edge_ID_i, 2]
   stem_age_i <- all_edge_ages[MRCA_edge_ID_i, 1]
   
@@ -509,6 +643,8 @@ View(all_genus_groups_UCE_only_metadata_df)
 # Save Genus-groups metadata
 # saveRDS(all_genus_groups_UCE_only_metadata_df, file = "./outputs/Grafting_missing_taxa/all_genus_groups_UCE_only_metadata_df.rds")
 saveRDS(all_genus_groups_UCE_only_metadata_df, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_789t_all_genus_groups_UCE_only_metadata_df.rds")
+# saveRDS(all_genus_groups_UCE_only_metadata_df, file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_789t_all_genus_groups_UCE_only_metadata_df.rds")
+# saveRDS(all_genus_groups_UCE_only_metadata_df, file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_789t_all_genus_groups_UCE_only_metadata_df.rds")
 
 
 ##### 5/ Prepare edge/node pie color scheme for bioregion membership ####
@@ -522,10 +658,14 @@ saveRDS(all_genus_groups_UCE_only_metadata_df, file = "./outputs/Grafting_missin
 # Load treedata for complete phylogeny
 # Ponerinae_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata_for_ARE.rds")
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE.rds")
+# Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE.rds")
+# Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE.rds")
 
 # Load density maps with bioregion membership probabilities
 # DEC_J_density_map_all_areas <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
 DEC_J_density_map_all_areas <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
+# DEC_J_density_map_all_areas <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
+# DEC_J_density_map_all_areas <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
 
 names(DEC_J_density_map_all_areas)
 str(DEC_J_density_map_all_areas[[i]])
@@ -599,6 +739,8 @@ egde_bioregion_membership_df <- egde_bioregion_membership_df %>%
 ## Save df of mean membership probability per edges
 # saveRDS(egde_bioregion_membership_df, file = "./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/egde_bioregion_membership_df.rds")
 saveRDS(egde_bioregion_membership_df, file = "./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/egde_bioregion_membership_df.rds")
+# saveRDS(egde_bioregion_membership_df, file = "./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/egde_bioregion_membership_df.rds")
+# saveRDS(egde_bioregion_membership_df, file = "./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/egde_bioregion_membership_df.rds")
 
 
 ### 5.2/ Deal with the special case of the root ####
@@ -606,13 +748,22 @@ saveRDS(egde_bioregion_membership_df, file = "./outputs/Density_maps/Ponerinae_M
 # Does not have a parental edge
 # Compute the mean of first states of descending edges
 
-# # Get ID of descending edges of the root
+# # Get ID of descending edges of the root - For rough phylogeny
 # root_node_ID <- Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$node[Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$status == "root"]
 # root_descendants_ID <- which(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$edge[,1] == root_node_ID)
 
-# Get ID of descending edges of the root
+# Get ID of descending edges of the root - For MCC phylogeny
 root_node_ID <- Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$node[Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$status == "root"]
 root_descendants_ID <- which(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$edge[,1] == root_node_ID)
+
+# # Get ID of descending edges of the root - For Youngest phylogeny
+# root_node_ID <- Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$node[Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$status == "root"]
+# root_descendants_ID <- which(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$edge[,1] == root_node_ID)
+
+# # Get ID of descending edges of the root - For Oldest phylogeny
+# root_node_ID <- Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$node[Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$status == "root"]
+# root_descendants_ID <- which(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$edge[,1] == root_node_ID)
+
 
 # Get first states of those descending edges
 root_descendants_first_states <- matrix(nrow = length(root_descendants_ID), ncol = length(DEC_J_density_map_all_areas))
@@ -653,34 +804,52 @@ root_states <- apply(X = root_descendants_first_states, MARGIN = 2, FUN = mean)
 # Check agreement in edge length
 # plot(egde_bioregion_membership_df$edge_length, Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$edge.length)
 plot(egde_bioregion_membership_df$edge_length, Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$edge.length)
+# plot(egde_bioregion_membership_df$edge_length, Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$edge.length)
+# plot(egde_bioregion_membership_df$edge_length, Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$edge.length)
 
 # Both order should be the same
 # attr(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo, "order") # Postorder/Cladewise
 attr(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo, "order") # Postorder/Cladewise
+# attr(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo, "order") # Postorder/Cladewise
+# attr(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo, "order") # Postorder/Cladewise
 attr(DEC_J_density_map_all_areas[[1]]$tree, "order") # Cladewise
 
 # Ponerinae_phylogeny_1534t_treedata_for_ARE <- Ponerinae_phylogeny_1534t_treedata_for_ARE %>%
 #   full_join(x = ., y = egde_bioregion_membership_df, by = join_by("parental_edge_ID" == "edge_ID"))
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE <- Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE %>%
   full_join(x = ., y = egde_bioregion_membership_df, by = join_by("parental_edge_ID" == "edge_ID"))
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE <- Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE %>%
+#   full_join(x = ., y = egde_bioregion_membership_df, by = join_by("parental_edge_ID" == "edge_ID"))
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE <- Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE %>%
+#   full_join(x = ., y = egde_bioregion_membership_df, by = join_by("parental_edge_ID" == "edge_ID"))
 
 # Add root states info
 var_names <- paste0("final_state_", names(root_states))
 # Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo[root_node_ID, var_names] <- as.data.frame(t(root_states))
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo[root_node_ID, var_names] <- as.data.frame(t(root_states))
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo[root_node_ID, var_names] <- as.data.frame(t(root_states))
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo[root_node_ID, var_names] <- as.data.frame(t(root_states))
 
 # View(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo)
 # View(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo[1530:1550,])
 View(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo)
 View(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo[1530:1550,])
+# View(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo)
+# View(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo[1530:1550,])
+# View(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo)
+# View(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo[1530:1550,])
 
 # Save treedata for complete phylogeny
 # saveRDS(Ponerinae_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata_for_ARE.rds")
 saveRDS(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE.rds")
+# saveRDS(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE.rds")
+# saveRDS(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE.rds")
 
 # Load treedata for complete phylogeny
 # Ponerinae_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata_for_ARE.rds")
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE.rds")
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE.rds")
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE.rds")
 
 ### 5.4/ Prepare node metadata df for likelihood pies (including multiarea ranges) #####
 
@@ -689,10 +858,14 @@ Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Graf
 # Load time-stratified DEC+J model output
 # DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
 DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Youngest_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Oldest_phylogeny_1534t/DEC_J_fit.rds")
 
 # Inspect marginal likelihoods of ancestral states
 # dim(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo)
 dim(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo)
+# dim(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo)
+# dim(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo)
 dim(DEC_J_fit$ML_marginal_prob_each_state_at_branch_top_AT_node) # Likelihood df: Rows = tips + nodes, Columns = states/ranges
 DEC_J_fit$ML_marginal_prob_each_state_at_branch_top_AT_node # Scaled marginal likelihood (probabilities) at each branch tipward end = each node/tip, given the phylogenetic tree and DEC model with the MLE parameters estimated globally
 DEC_J_fit$ML_marginal_prob_each_state_at_branch_bottom_below_node # Same but for at the 'corner' of internal node, meaning at the start/rootward end of each parental branch of each node/tip, just after cladogenesis/speciation (and eventually cladogenetic transition).
@@ -720,14 +893,19 @@ generate_list_ranges <- function (areas_list, max_range_size, include_null_range
 
 # Update paths with current working directory if needed
 DEC_J_fit$inputs$geogfn <- np(paste0(getwd(), "/input_data/BioGeoBEARS_setup/lagrange_area_data_file_7_regions_PaleA.data"))
+
 # DEC_J_fit$inputs$trfn <- np(paste0(getwd(), "/outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.tree"))
 DEC_J_fit$inputs$trfn <- np(paste0(getwd(), "/outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.tree"))
+# DEC_J_fit$inputs$trfn <- np(paste0(getwd(), "/outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_short_names.tree"))
+# DEC_J_fit$inputs$trfn <- np(paste0(getwd(), "/outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_short_names.tree"))
+
 DEC_J_fit$inputs$timesfn <- np(paste0(getwd(), "/input_data/BioGeoBEARS_setup/time_boundaries.txt"))
-  
+# DEC_J_fit$inputs$timesfn <- np(paste0(getwd(), "/input_data/BioGeoBEARS_setup/time_boundaries_for_Oldest.txt"))
+
 # Extract full range list
 returned_mats <- get_Qmat_COOmat_from_BioGeoBEARS_run_object(BioGeoBEARS_run_object = DEC_J_fit$inputs, include_null_range = DEC_J_fit$inputs$include_null_range)
 # ranges_list <- returned_mats$ranges_list
-reduced_ranges_list = returned_mats$ranges_list
+reduced_ranges_list <- returned_mats$ranges_list
 max_range_size <- max(nchar(reduced_ranges_list))
 ranges_list <- generate_list_ranges(areas_list = returned_mats$areanames, max_range_size = max_range_size, include_null_range = DEC_J_fit$inputs$include_null_range)
 
@@ -744,21 +922,32 @@ range_usages <- range_usages / sum(range_usages) * 100
 range_usages[order(range_usages, decreasing = T)]
 
 node_marginal_likelihoods_df_only_used_ranges <- node_marginal_likelihoods_df[, range_usages > 0]
-dim(node_marginal_likelihoods_df_only_used_ranges) # Only 58 states used
+dim(node_marginal_likelihoods_df_only_used_ranges) # Only 58 or 85 states used
 node_marginal_likelihoods_df_reduced_ranges <- node_marginal_likelihoods_df[, range_usages > 0.01]
-dim(node_marginal_likelihoods_df_reduced_ranges) # Only 17 states with 0.01% usage
+dim(node_marginal_likelihoods_df_reduced_ranges) # Only 16/17/18 states with 0.01% usage
 
 root_states_PP <- node_marginal_likelihoods_df_only_used_ranges[root_node_ID,]
 root_states_PP <- node_marginal_likelihoods_df_reduced_ranges[root_node_ID,]
 root_states_PP
 
 ## Save edge marginal likelihoods df
+
 # saveRDS(object = node_marginal_likelihoods_df, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df.rds")
 # saveRDS(object = node_marginal_likelihoods_df_only_used_ranges, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df_only_used_ranges.rds")
 # saveRDS(object = node_marginal_likelihoods_df_reduced_ranges, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df_reduced_ranges.rds")
+
 saveRDS(object = node_marginal_likelihoods_df, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df.rds")
 saveRDS(object = node_marginal_likelihoods_df_only_used_ranges, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df_only_used_ranges.rds")
 saveRDS(object = node_marginal_likelihoods_df_reduced_ranges, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df_reduced_ranges.rds")
+
+# saveRDS(object = node_marginal_likelihoods_df, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df.rds")
+# saveRDS(object = node_marginal_likelihoods_df_only_used_ranges, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df_only_used_ranges.rds")
+# saveRDS(object = node_marginal_likelihoods_df_reduced_ranges, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df_reduced_ranges.rds")
+
+# saveRDS(object = node_marginal_likelihoods_df, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df.rds")
+# saveRDS(object = node_marginal_likelihoods_df_only_used_ranges, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df_only_used_ranges.rds")
+# saveRDS(object = node_marginal_likelihoods_df_reduced_ranges, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df_reduced_ranges.rds")
+
 
 ## 5.4.2/ Create ggplot pies ####
 
@@ -767,6 +956,10 @@ saveRDS(object = node_marginal_likelihoods_df_reduced_ranges, file = "./outputs/
 # node_marginal_likelihoods_df_reduced_ranges <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df_reduced_ranges.rds")
 node_marginal_likelihoods_df <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df.rds")
 node_marginal_likelihoods_df_reduced_ranges <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df_reduced_ranges.rds")
+# node_marginal_likelihoods_df <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df.rds")
+# node_marginal_likelihoods_df_reduced_ranges <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df_reduced_ranges.rds")
+# node_marginal_likelihoods_df <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df.rds")
+# node_marginal_likelihoods_df_reduced_ranges <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_node_marginal_likelihoods_df_reduced_ranges.rds")
 
 # Load color scheme
 ranges_list <- colnames(node_marginal_likelihoods_df)
@@ -781,7 +974,7 @@ node_marginal_likelihoods_df_melted <- reshape2::melt(node_marginal_likelihoods_
 names(node_marginal_likelihoods_df_melted) <- c("node_ID", "range", "PP")
 
 # # Melt edge marginal likelihood df for reduced ranges
-# node_marginal_likelihoods_df <- as.data.frame(node_marginal_likelihoods_df_reduced_ranges)
+# node_marginal_likelihoods_df_reduced_ranges <- as.data.frame(node_marginal_likelihoods_df_reduced_ranges)
 # node_marginal_likelihoods_df_reduced_ranges$node_ID <- 1:nrow(node_marginal_likelihoods_df_reduced_ranges)
 # node_marginal_likelihoods_df_reduced_ranges_melted <- reshape2::melt(node_marginal_likelihoods_df_reduced_ranges, id.var = "node_ID")
 # names(node_marginal_likelihoods_df_reduced_ranges_melted) <- c("node_ID", "range", "PP")
@@ -831,10 +1024,14 @@ names(ARE_pies_list) <- 1:nrow(node_marginal_likelihoods_df)
 ## Save ARE pie lists
 # saveRDS(ARE_pies_list, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_ARE_pies_list.rds")
 saveRDS(ARE_pies_list, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_ARE_pies_list.rds")
+# saveRDS(ARE_pies_list, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_ARE_pies_list.rds")
+# saveRDS(ARE_pies_list, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_ARE_pies_list.rds")
 
 # Load ARE pie lists
 # ARE_pies_list <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_ARE_pies_list.rds")
 ARE_pies_list <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_ARE_pies_list.rds")
+# ARE_pies_list <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_ARE_pies_list.rds")
+# ARE_pies_list <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_ARE_pies_list.rds")
 
 # Examples
 print(ARE_pies_list[[root_node_ID]])
@@ -880,6 +1077,8 @@ ARE_data_i <- node_marginal_likelihoods_df_melted %>%
 # Get ID of the root node
 # root_node_ID <- Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$node[Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$status == "root"]
 root_node_ID <- Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$node[Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$status == "root"]
+# root_node_ID <- Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$node[Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$status == "root"]
+# root_node_ID <- Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$node[Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$status == "root"]
 root_node_ID
 
 # Extract data for a root node
@@ -891,7 +1090,10 @@ ARE_data_root_node <- node_marginal_likelihoods_df_melted %>%
 
 # Adjust color scheme for root states
 root_states_reduced <- ARE_data_root_node$range
-root_states_reduced <- c("I", "AI", "A", "AN", "N", "AIN") # Manual rearrangement
+root_states_reduced <- c("I", "AI", "A", "AN", "N", "AIN") # Manual rearrangement for MCC
+# root_states_reduced <- c("I", "AI", "A", "AN", "N") # Manual rearrangement for Youngest
+# root_states_reduced <- c("A", "AI", "AN", "AIN") # Manual rearrangement for Oldest
+
 colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
 colors_list_for_root_reduced_ranges <- colors_list_for_states[root_states_reduced]
 
@@ -919,6 +1121,8 @@ ARE_pie_root <- ggplot(data = ARE_data_root_node,
 
 # pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/ARE_pie_root.pdf", width = 5, height = 5)
 pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/ARE_pie_root.pdf", width = 5, height = 5)
+# pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/ARE_pie_root.pdf", width = 5, height = 5)
+# pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/ARE_pie_root.pdf", width = 5, height = 5)
 
 print(ARE_pie_root)
 
@@ -937,6 +1141,8 @@ for (i in 1:nrow(all_genus_groups_metadata_df))
   MRCA_node_ID_i <- all_genus_groups_metadata_df$MRCA_node_ID[i]
   all_descendant_nodes_i <- getDescendants(# tree = Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo,
                                            tree = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo,
+                                           # tree = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo,
+                                           # tree = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo,
                                            node = MRCA_node_ID_i)
   # Store descendants
   all_descendant_nodes <- c(all_descendant_nodes, all_descendant_nodes_i)
@@ -944,6 +1150,16 @@ for (i in 1:nrow(all_genus_groups_metadata_df))
 
 # Extract backbone nodes by difference
 backbone_nodes_ID <- setdiff(1:length(ARE_pies_list), all_descendant_nodes)
+
+# Check what ranges are present in backbone nodes ARE
+backbone_nodes_marginal_likelihoods_df <- node_marginal_likelihoods_df[backbone_nodes_ID, ]
+backbone_nodes_marginal_likelihoods_df[ , colSums(backbone_nodes_marginal_likelihoods_df) > 0.05]
+
+# Adjust color scheme for root states
+root_states_reduced <- c("I", "AI", "A", "AN", "N", "AIN") # Manual rearrangement
+
+colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
+colors_list_for_root_reduced_ranges <- colors_list_for_states[root_states_reduced]
 
 
 ## Create list of pie charts
@@ -988,6 +1204,8 @@ names(backbone_ARE_pies_list) <- backbone_nodes_ID
 ## Save backbone ARE pie lists
 # saveRDS(backbone_ARE_pies_list, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_backbone_ARE_pies_list.rds")
 saveRDS(backbone_ARE_pies_list, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_backbone_ARE_pies_list.rds")
+# saveRDS(backbone_ARE_pies_list, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_backbone_ARE_pies_list.rds")
+# saveRDS(backbone_ARE_pies_list, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_backbone_ARE_pies_list.rds")
 
 
 
@@ -996,10 +1214,14 @@ saveRDS(backbone_ARE_pies_list, file = "./outputs/Ancestral_range_estimates_maps
 # Load treedata for complete phylogeny
 # Ponerinae_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata_for_ARE.rds")
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE.rds")
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE.rds")
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE.rds")
 
 # Load Genus-groups metadata
 # all_genus_groups_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/all_genus_groups_metadata_df.rds")
 all_genus_groups_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_all_genus_groups_metadata_df.rds")
+# all_genus_groups_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_all_genus_groups_metadata_df.rds")
+# all_genus_groups_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_all_genus_groups_metadata_df.rds")
 
 # Set color scheme for Genus groups
 genus_groups_colors <- tmaptools::get_brewer_pal("Spectral", n = nrow(all_genus_groups_metadata_df) + 2, plot = F)[-c(4:5)]
@@ -1007,22 +1229,33 @@ genus_groups_colors <- tmaptools::get_brewer_pal("Spectral", n = nrow(all_genus_
 # Set color scheme for edges (Not used because use aes mapping to get a legend)
 # branches_color <- c("black", "red")[Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node + 1]
 branches_color <- c("black", "red")[Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node + 1]
+# branches_color <- c("black", "red")[Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node + 1]
+# branches_color <- c("black", "red")[Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node + 1]
 
 # Set color scheme for tips
 # nb_tips <- length(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)
 nb_tips <- length(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)
+# nb_tips <- length(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)
+# nb_tips <- length(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)
+
 # tips_color <- c("black", "red")[Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node + 1]
 tips_color <- c("black", "red")[Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node + 1]
+# tips_color <- c("black", "red")[Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node + 1]
+# tips_color <- c("black", "red")[Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$missing_node + 1]
 tips_color <- tips_color[1:nb_tips]
 
 ## 6.1/ Rectangular with all nod/branch labels ####
 
 # pdf(file = "./outputs/Grafting_missing_taxa/Full_phylo_rectangular_all_labels.pdf", height = 100, width = 30)
 pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_rectangular_all_genus_groups_all_labels.pdf", height = 100, width = 30)
+# pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_rectangular_all_genus_groups_all_labels.pdf", height = 100, width = 30)
+# pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_rectangular_all_genus_groups_all_labels.pdf", height = 100, width = 30)
 
 
 Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_1534t_treedata_for_ARE,
                                    Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE,
                                    layout = "rectangular") +
   
   geom_tree(mapping = aes(colour = missing_node),
@@ -1100,9 +1333,13 @@ names(genus_groups_offsets) <- all_genus_groups_metadata_df$group_name
 
 # pdf(file = "./outputs/Grafting_missing_taxa/Full_phylo_circular_all_genus_groups_no_tiplabels.pdf", height = 16, width = 17)
 pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_circular_all_genus_groups_no_tiplabels.pdf", height = 16, width = 17)
+# pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_circular_all_genus_groups_no_tiplabels.pdf", height = 16, width = 17)
+# pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_circular_all_genus_groups_no_tiplabels.pdf", height = 16, width = 17)
 
 Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_1534t_treedata_for_ARE,
                                    Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE,
                                    layout = "circular") +
 
   geom_tree(mapping = aes(colour = missing_node),
@@ -1184,9 +1421,13 @@ names(genus_groups_offsets) <- all_genus_groups_metadata_df$group_name
 
 # pdf(file = "./outputs/Grafting_missing_taxa/Full_phylo_circular_all_genus_groups_with_tiplabels.pdf", height = 16, width = 17)
 pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_circular_all_genus_groups_with_tiplabels.pdf", height = 16, width = 17)
+# pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_circular_all_genus_groups_with_tiplabels.pdf", height = 16, width = 17)
+# pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_circular_all_genus_groups_with_tiplabels.pdf", height = 16, width = 17)
 
 Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_1534t_treedata_for_ARE,
                                    Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE,
                                    layout = "circular") +
   
   geom_tree(mapping = aes(colour = missing_node),
@@ -1295,13 +1536,19 @@ for (i in seq_along(bioregion_names))
   # Find index in metadata df
   # bioregion_ID_i <- which(names(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo) == bioregion_i)
   bioregion_ID_i <- which(names(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo) == paste0("mean_state_",bioregion_i))
+  # bioregion_ID_i <- which(names(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo) == paste0("mean_state_",bioregion_i))
+  # bioregion_ID_i <- which(names(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo) == paste0("mean_state_",bioregion_i))
   
   # Plot PDF for bioregion i
   # pdf(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/Full_phylo_circular_bioregion_membership_",bioregion_i,".pdf"), height = 16, width = 17)
   pdf(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/Ponerinae_MCC_phylogeny_1534t_circular_bioregion_membership_",bioregion_i,".pdf"), height = 16, width = 17)
+  # pdf(file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_Youngest_phylogeny_1534t_circular_bioregion_membership_",bioregion_i,".pdf"), height = 16, width = 17)
+  # pdf(file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_Oldest_phylogeny_1534t_circular_bioregion_membership_",bioregion_i,".pdf"), height = 16, width = 17)
   
   Ponerinae_phylogeny_plot_i <- ggtree(# Ponerinae_phylogeny_1534t_treedata_for_ARE,
                                        Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE,
+                                       # Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE,
+                                       # Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE,
                                        # color = NA,
                                        color = "grey90",
                                        layout = "circular") +
@@ -1309,6 +1556,8 @@ for (i in seq_along(bioregion_names))
     geom_tree(color = colors_list_for_areas[i],
               # alpha = Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
               alpha = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
+              # alpha = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
+              # alpha = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
               linewidth = 0.5) +
   
   # Add title
@@ -1367,10 +1616,14 @@ for (i in seq_along(bioregion_names))
 # Recreate paths to density maps in predefined order
 # all_density_maps_paths <- paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/Full_phylo_circular_bioregion_membership_",bioregion_names,".pdf")
 all_density_maps_paths <- paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/Ponerinae_MCC_phylogeny_1534t_circular_bioregion_membership_",bioregion_names,".pdf")
+# all_density_maps_paths <- paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_Youngest_phylogeny_1534t_circular_bioregion_membership_",bioregion_names,".pdf")
+# all_density_maps_paths <- paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_Oldest_phylogeny_1534t_circular_bioregion_membership_",bioregion_names,".pdf")
 
 # Combine PDFs in a unique PDF
 # qpdf::pdf_combine(input = all_density_maps_paths, output = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/Full_phylo_circular_bioregion_membership_all_bioregions_ordered.pdf"))
 qpdf::pdf_combine(input = all_density_maps_paths, output = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/Ponerinae_MCC_phylogeny_1534t_circular_bioregion_membership_all_bioregions_ordered.pdf"))
+# qpdf::pdf_combine(input = all_density_maps_paths, output = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_Youngest_phylogeny_1534t_circular_bioregion_membership_all_bioregions_ordered.pdf"))
+# qpdf::pdf_combine(input = all_density_maps_paths, output = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_Oldest_phylogeny_1534t_circular_bioregion_membership_all_bioregions_ordered.pdf"))
 
 
 ## 6.4.3/ Make a GIF ####
@@ -1381,12 +1634,18 @@ source("./functions/image_resize_and_write_gif.R")
 #                                       pages = NULL, density = 100)
 pdf_pointer <- magick::image_read_pdf(path = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/Ponerinae_MCC_phylogeny_1534t_circular_bioregion_membership_all_bioregions_ordered.pdf"),
                                       pages = NULL, density = 100)
+# pdf_pointer <- magick::image_read_pdf(path = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_Youngest_phylogeny_1534t_circular_bioregion_membership_all_bioregions_ordered.pdf"),
+#                                       pages = NULL, density = 100)
+# pdf_pointer <- magick::image_read_pdf(path = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_Oldest_phylogeny_1534t_circular_bioregion_membership_all_bioregions_ordered.pdf"),
+#                                       pages = NULL, density = 100)
 
 magick::image_info(pdf_pointer)
 
 image_resize_and_write_gif(image = pdf_pointer,
                            # path =  paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/Full_phylo_circular_bioregion_membership_all_bioregions_ordered.gif"),
                            path =  paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/Full_phylo_circular_bioregion_membership_all_bioregions_ordered.gif"),
+                           # path =  paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/Full_phylo_circular_bioregion_membership_all_bioregions_ordered.gif"),
+                           # path =  paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/Full_phylo_circular_bioregion_membership_all_bioregions_ordered.gif"),
                            delay = 1.5, # Time between frames in seconds
                            width = 1700, height = 1600,
                            loop = TRUE,
@@ -1424,10 +1683,14 @@ names(genus_groups_offsets) <- all_genus_groups_metadata_df$group_name
 # Plot PDF to aggregate all bioregions
 # pdf(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/Full_phylo_circular_bioregion_membership_all_bioregions_aggregated.pdf"), height = 16, width = 17)
 pdf(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/Ponerinae_MCC_phylogeny_1534t_circular_bioregion_membership_all_bioregions_aggregated_no_tiplabels.pdf"), height = 16, width = 17)
+# pdf(file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_Youngest_phylogeny_1534t_circular_bioregion_membership_all_bioregions_aggregated_no_tiplabels.pdf"), height = 16, width = 17)
+# pdf(file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_Oldest_phylogeny_1534t_circular_bioregion_membership_all_bioregions_aggregated_no_tiplabels.pdf"), height = 16, width = 17)
 
 # Initiate plot
 Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_1534t_treedata_for_ARE,
                                    Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE,
                                    color = NA,
                                    # color = "grey90",
                                    layout = "circular") +
@@ -1446,12 +1709,16 @@ for (i in seq_along(bioregion_names))
   # bioregion_ID_i <- which(names(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo) == bioregion_i)
   # bioregion_ID_i <- which(names(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo) == bioregion_i)
   bioregion_ID_i <- which(names(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo) == paste0("mean_state_",bioregion_i))
+  # bioregion_ID_i <- which(names(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo) == paste0("mean_state_",bioregion_i))
+  # bioregion_ID_i <- which(names(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo) == paste0("mean_state_",bioregion_i))
   
   Ponerinae_phylogeny_plot <- Ponerinae_phylogeny_plot +
   
     geom_tree(color = colors_list_for_areas[i],
               # alpha = Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
               alpha = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
+              # alpha = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
+              # alpha = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
               linewidth = 0.5)
 }
 
@@ -1505,10 +1772,14 @@ dev.off()
 # Plot PDF to aggregate all bioregions
 # pdf(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/Full_phylo_circular_bioregion_membership_all_bioregions_aggregated.pdf"), height = 16, width = 17)
 pdf(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/Ponerinae_MCC_phylogeny_1534t_circular_bioregion_membership_all_bioregions_aggregated.pdf"), height = 16, width = 17)
+# pdf(file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_Youngest_phylogeny_1534t_circular_bioregion_membership_all_bioregions_aggregated.pdf"), height = 16, width = 17)
+# pdf(file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_Oldest_phylogeny_1534t_circular_bioregion_membership_all_bioregions_aggregated.pdf"), height = 16, width = 17)
 
 # Initiate plot
 Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_1534t_treedata_for_ARE,
   Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE,
+  # Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE,
+  # Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE,
   color = NA,
   # color = "grey90",
   layout = "circular") +
@@ -1527,12 +1798,16 @@ for (i in seq_along(bioregion_names))
   # bioregion_ID_i <- which(names(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo) == bioregion_i)
   # bioregion_ID_i <- which(names(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo) == bioregion_i)
   bioregion_ID_i <- which(names(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo) == paste0("mean_state_",bioregion_i))
+  # bioregion_ID_i <- which(names(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo) == paste0("mean_state_",bioregion_i))
+  # bioregion_ID_i <- which(names(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo) == paste0("mean_state_",bioregion_i))
   
   Ponerinae_phylogeny_plot <- Ponerinae_phylogeny_plot +
     
     geom_tree(color = colors_list_for_areas[i],
               # alpha = Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
               alpha = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
+              # alpha = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
+              # alpha = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
               linewidth = 0.5)
 }
 
@@ -1786,9 +2061,15 @@ dev.off()
 
 # Ponerinae_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata_for_ARE.rds")
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE.rds")
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE.rds")
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE.rds")
 
 # Ponerinae_phylogeny_789t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_789t_treedata_for_ARE.rds")
 Ponerinae_MCC_phylogeny_789t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_789t_treedata_for_ARE.rds")
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE.rds")
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE.rds")
+
+## Update 789t_treedata with ARE info - For MCC phylogeny
 
 nb_tips <- length(Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@phylo$tip.label)
 Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@extraInfo$tip_taxa <- NA
@@ -1811,9 +2092,68 @@ Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@extraInfo$`final_state_Eastern Pal
 Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@extraInfo$`final_state_Western Palearctic`[is.na(Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@extraInfo$`final_state_Western Palearctic`)] <- 0
 Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Nearctic[is.na(Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Nearctic)] <- 0
 
+# ## Update 789t_treedata with ARE info - For Youngest phylogeny
+# 
+# nb_tips <- length(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@phylo$tip.label)
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$tip_taxa <- NA
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$tip_taxa[1:nb_tips] <- Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@phylo$tip.label
+# 
+# nb_tips <- length(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$tip_taxa <- NA
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$tip_taxa[1:nb_tips] <- Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label
+# 
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo <- left_join(x = Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo,
+#                                                                      y = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo[, c("tip_taxa","final_state_Afrotropics", "final_state_Neotropics", "final_state_Indomalaya",
+#                                                                                                                                       "final_state_Australasia", "final_state_Eastern Palearctic",
+#                                                                                                                                       "final_state_Western Palearctic", "final_state_Nearctic")],
+#                                                                      na_matches = "never")
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Afrotropics[is.na(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Afrotropics)] <- 0
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Neotropics[is.na(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Neotropics)] <- 0
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Indomalaya[is.na(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Indomalaya)] <- 0
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Australasia[is.na(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Australasia)] <- 0
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$`final_state_Eastern Palearctic`[is.na(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$`final_state_Eastern Palearctic`)] <- 0
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$`final_state_Western Palearctic`[is.na(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$`final_state_Western Palearctic`)] <- 0
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Nearctic[is.na(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Nearctic)] <- 0
+
+# ## Update 789t_treedata with ARE info - For Oldest phylogeny
+# 
+# nb_tips <- length(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@phylo$tip.label)
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$tip_taxa <- NA
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$tip_taxa[1:nb_tips] <- Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@phylo$tip.label
+# 
+# nb_tips <- length(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label)
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$tip_taxa <- NA
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$tip_taxa[1:nb_tips] <- Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo$tip.label
+# 
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo <- left_join(x = Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo,
+#                                                                      y = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo[, c("tip_taxa","final_state_Afrotropics", "final_state_Neotropics", "final_state_Indomalaya",
+#                                                                                                                                       "final_state_Australasia", "final_state_Eastern Palearctic",
+#                                                                                                                                       "final_state_Western Palearctic", "final_state_Nearctic")],
+#                                                                      na_matches = "never")
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Afrotropics[is.na(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Afrotropics)] <- 0
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Neotropics[is.na(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Neotropics)] <- 0
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Indomalaya[is.na(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Indomalaya)] <- 0
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Australasia[is.na(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Australasia)] <- 0
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$`final_state_Eastern Palearctic`[is.na(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$`final_state_Eastern Palearctic`)] <- 0
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$`final_state_Western Palearctic`[is.na(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$`final_state_Western Palearctic`)] <- 0
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Nearctic[is.na(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo$final_state_Nearctic)] <- 0
+
+## Save updated 789t_treedata with ARE info
+saveRDS(object = Ponerinae_MCC_phylogeny_789t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_789t_treedata_for_ARE.rds")
+# saveRDS(object = Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE.rds")
+# saveRDS(object = Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE.rds")
+
+## Load updated 789t_treedata with ARE info
+Ponerinae_MCC_phylogeny_789t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_789t_treedata_for_ARE.rds")
+# Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE.rds")
+# Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE.rds")
+
+
 # Load genus-groups metadata df
 # all_genus_groups_UCE_only_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/all_genus_groups_UCE_only_metadata_df.rds")
 all_genus_groups_UCE_only_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_789t_all_genus_groups_UCE_only_metadata_df.rds")
+# all_genus_groups_UCE_only_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_789t_all_genus_groups_UCE_only_metadata_df.rds")
+# all_genus_groups_UCE_only_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_789t_all_genus_groups_UCE_only_metadata_df.rds")
 
 # To flip position of Ponera and Pachycondyla
 Ponera_MRCA_node_ID <- all_genus_groups_UCE_only_metadata_df$MRCA_node_ID[all_genus_groups_UCE_only_metadata_df$group_name == "Ponera"]
@@ -1830,9 +2170,13 @@ names(genus_groups_offsets) <- all_genus_groups_UCE_only_metadata_df$group_name
 
 # pdf(file = "./outputs/Grafting_missing_taxa/UCE_only_phylo_rectangular_all_labels.pdf", height = 50, width = 30)
 pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_789t_UCE_only_phylo_rectangular_all_genus_groups_all_labels.pdf", height = 50, width = 30)
+# pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_789t_UCE_only_phylo_rectangular_all_genus_groups_all_labels.pdf", height = 50, width = 30)
+# pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_789t_UCE_only_phylo_rectangular_all_genus_groups_all_labels.pdf", height = 50, width = 30)
 
 Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_789t_treedata_for_ARE,
                                    Ponerinae_MCC_phylogeny_789t_treedata_for_ARE,
+                                   # Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE,
+                                   # Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE,
                                    layout = "rectangular") +
   
   geom_tree(linewidth = 0.5) +
@@ -1900,9 +2244,13 @@ names(genus_groups_offsets) <- all_genus_groups_UCE_only_metadata_df$group_name
 
 # pdf(file = "./outputs/Grafting_missing_taxa/UCE_only_phylo_circular_all_genus_groups_no_tiplabels.pdf", height = 16, width = 17)
 pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_789t_UCE_only_phylo_circular_all_genus_groups_no_tiplabels.pdf", height = 16, width = 17)
+# pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_789t_UCE_only_phylo_circular_all_genus_groups_no_tiplabels.pdf", height = 16, width = 17)
+# pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_789t_UCE_only_phylo_circular_all_genus_groups_no_tiplabels.pdf", height = 16, width = 17)
 
 Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_789t_treedata_for_ARE,
                                    Ponerinae_MCC_phylogeny_789t_treedata_for_ARE,
+                                   # Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE,
+                                   # Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE,
                                    layout = "circular") +
   
   geom_tree(linewidth = 0.5)
@@ -1973,9 +2321,13 @@ names(genus_groups_offsets) <- all_genus_groups_UCE_only_metadata_df$group_name
 
 # pdf(file = "./outputs/Grafting_missing_taxa/UCE_only_circular_all_genus_groups_with_tiplabels.pdf", height = 16, width = 17)
 pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_789t_UCE_only_circular_all_genus_groups_with_tiplabels.pdf", height = 16, width = 17)
+# pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_789t_UCE_only_circular_all_genus_groups_with_tiplabels.pdf", height = 16, width = 17)
+# pdf(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_789t_UCE_only_circular_all_genus_groups_with_tiplabels.pdf", height = 16, width = 17)
 
 Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_789t_treedata_for_ARE,
                                    Ponerinae_MCC_phylogeny_789t_treedata_for_ARE,
+                                   # Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE,
+                                   # Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE,
                                    layout = "circular") +
   
   geom_tree(linewidth = 0.5)
@@ -2047,9 +2399,13 @@ names(genus_groups_offsets) <- all_genus_groups_UCE_only_metadata_df$group_name
 # Plot PDF to aggregate all bioregions
 # pdf(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/Full_phylo_circular_bioregion_membership_all_bioregions_aggregated.pdf"), height = 16, width = 17)
 pdf(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/Ponerinae_MCC_phylogeny_789t_circular_bioregion_membership_all_bioregions_aggregated.pdf"), height = 16, width = 17)
+# pdf(file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_Youngest_phylogeny_789t_circular_bioregion_membership_all_bioregions_aggregated.pdf"), height = 16, width = 17)
+# pdf(file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_Oldest_phylogeny_789t_circular_bioregion_membership_all_bioregions_aggregated.pdf"), height = 16, width = 17)
 
 Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_789t_treedata_for_ARE,
   Ponerinae_MCC_phylogeny_789t_treedata_for_ARE,
+  # Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE,
+  # Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE,
   layout = "circular") +
   
   geom_tree(linewidth = 0.5)
@@ -2069,11 +2425,15 @@ for (i in seq_along(bioregion_names))
   # bioregion_ID_i <- which(names(Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@extraInfo) == bioregion_i)
   # bioregion_ID_i <- which(names(Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@extraInfo) == paste0("mean_state_",bioregion_i))
   bioregion_ID_i <- which(names(Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@extraInfo) == paste0("final_state_",bioregion_i))
+  # bioregion_ID_i <- which(names(Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo) == paste0("final_state_",bioregion_i))
+  # bioregion_ID_i <- which(names(Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo) == paste0("final_state_",bioregion_i))
   
   Ponerinae_phylogeny_plot <- Ponerinae_phylogeny_plot +
     
     geom_tree(color = colors_list_for_areas[i],
               alpha = Ponerinae_MCC_phylogeny_789t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
+              # alpha = Ponerinae_Youngest_phylogeny_789t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
+              # alpha = Ponerinae_Oldest_phylogeny_789t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
               linewidth = 0.5)
 }
 
@@ -2130,96 +2490,6 @@ print(Ponerinae_phylogeny_plot)
 dev.off()
 
 
-# Initiate plot
-Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_1534t_treedata_for_ARE,
-  Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE,
-  color = NA,
-  # color = "grey90",
-  layout = "circular") +
-  # Add title
-  ggtitle(label = paste0("Posterior probability of lineage ranges"))
-
-## Loop per bioregions
-for (i in seq_along(bioregion_names))
-{
-  # i <- 1
-  
-  # Extract bioregion
-  bioregion_i <- bioregion_names[i]
-  
-  # Find index in metadata df
-  # bioregion_ID_i <- which(names(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo) == bioregion_i)
-  # bioregion_ID_i <- which(names(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo) == bioregion_i)
-  bioregion_ID_i <- which(names(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo) == paste0("mean_state_",bioregion_i))
-  
-  Ponerinae_phylogeny_plot <- Ponerinae_phylogeny_plot +
-    
-    geom_tree(color = colors_list_for_areas[i],
-              # alpha = Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
-              alpha = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo[, bioregion_ID_i, drop = T],
-              linewidth = 0.5)
-}
-
-## Add Genus-group cladelabels
-for (j in 1:nrow(all_genus_groups_metadata_df))
-{
-  Ponerinae_phylogeny_plot <- Ponerinae_phylogeny_plot +
-    
-    # Add a bar alongside all the clade tips. Add a label to the median tip.
-    geom_cladelabel(node = all_genus_groups_metadata_df$MRCA_node_ID[j],
-                    # label = all_genus_groups_metadata_df$group_name[j], 
-                    label = paste0('bold(',all_genus_groups_metadata_df$group_name[j],')'), parse = T,
-                    align = T,         # For non-ultrametric tree, to align vertically all label, whever the tip finish
-                    geom = 'text',     # Tip of label, with or without rectangle
-                    fontsize = 10,      # Size of the text
-                    fill = NA,         # Color of the label background
-                    color = c(genus_groups_colors[j], genus_groups_colors[j]),   # Color of the bar and the text
-                    angle = genus_groups_angles[j],
-                    hjust = 'center',
-                    offset = 6.8,
-                    offset.text = genus_groups_offsets[j],
-                    barsize = 25)    # Width of the bar
-}
-
-# Add age lines
-age_step <- 20
-age <- max(Ponerinae_phylogeny_plot$data$x) - age_step
-while (age > 0)
-{ 
-  Ponerinae_phylogeny_plot <- Ponerinae_phylogeny_plot +
-    geom_vline(xintercept = age, linetype = 92, linewidth = 1, color = 'grey80')
-  age  <- age - age_step
-}
-
-# Add tip labels
-Ponerinae_phylogeny_plot <- Ponerinae_phylogeny_plot +
-  geom_tiplab(# mapping = aes(colour = missing_node),
-    # color = tips_color,
-    align = T,     # To align all tip label rather than move them aside each tips (useful for non-ultrametric tree where tips can be all over the x-axis)
-    linetype = 0,
-    size = 0.8,
-    offset = 0.2,   # To move to the exterior. Useful if you wish to put mulitple layer of labels with different offsets.
-    hjust = 0)      # To center, left-align, right-aligned text
-
-# Adapt margins
-Ponerinae_phylogeny_plot <- Ponerinae_phylogeny_plot +
-  theme(# plot.margin = unit(c(-80, -20, -100, -20), "mm"),
-    plot.title = element_text(face = "bold", colour = "black", size = 30, hjust = 0.5,
-                              angle = 0, vjust = -10),
-    plot.margin = unit(c(-0.05,-0.2,-0.1,-0.25), "npc"), # trbl
-    plot.background = element_rect(fill = "transparent",colour = NA),
-    panel.border = element_rect(color = "transparent", fill = NA),
-    panel.background = element_rect(color = NA, fill = "transparent"))
-
-print(Ponerinae_phylogeny_plot)
-
-dev.off()
-
-
-
-
-
-
 ##### 8/ Plot phylogenies collapsed to Genus-groups #####
 
 ?ggtree:collapse
@@ -2234,9 +2504,13 @@ names(genus_groups_offsets) <- all_genus_groups_metadata_df$group_name
 
 # pdf(file = "./outputs/Grafting_missing_taxa/Genus_group_phylo_circular_no_tiplabels.pdf", height = 16, width = 17)
 pdf(file = "./outputs/Grafting_missing_taxa/Genus_group_MCC_phylo_circular_no_tiplabels.pdf", height = 16, width = 17)
+# pdf(file = "./outputs/Grafting_missing_taxa/Genus_group_Youngest_phylo_circular_no_tiplabels.pdf", height = 16, width = 17)
+# pdf(file = "./outputs/Grafting_missing_taxa/Genus_group_Oldest_phylo_circular_no_tiplabels.pdf", height = 16, width = 17)
 
 Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_1534t_treedata_for_ARE,
                                    Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE,
                                    layout = "circular") +
   
   geom_tree(mapping = aes(colour = missing_node),
@@ -2280,6 +2554,9 @@ for (i in 1:nrow(all_genus_groups_metadata_df))
 age_step <- 20
 # root_age <- max(phytools::nodeHeights(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo))
 root_age <- max(phytools::nodeHeights(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo))
+# root_age <- max(phytools::nodeHeights(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo))
+# root_age <- max(phytools::nodeHeights(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo))
+
 age <- root_age - age_step
 while (age > 0)
 { 
@@ -2311,9 +2588,13 @@ dev.off()
 
 # pdf(file = "./outputs/Grafting_missing_taxa/Genus_group_phylo_rectangular_no_tiplabels.pdf", height = 100, width = 30)
 pdf(file = "./outputs/Grafting_missing_taxa/Genus_group_MCC_phylo_rectangular_no_tiplabels.pdf", height = 100, width = 30)
+# pdf(file = "./outputs/Grafting_missing_taxa/Genus_group_Youngest_phylo_rectangular_no_tiplabels.pdf", height = 100, width = 30)
+# pdf(file = "./outputs/Grafting_missing_taxa/Genus_group_Oldest_phylo_rectangular_no_tiplabels.pdf", height = 100, width = 30)
 
 Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_1534t_treedata_for_ARE,
                                    Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE,
                                    layout = "rectangular") +
   
   geom_tree(mapping = aes(colour = missing_node),
@@ -2381,6 +2662,8 @@ for (i in 1:nrow(all_genus_groups_metadata_df))
 age_step <- 20
 # root_age <- max(phytools::nodeHeights(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo))
 root_age <- max(phytools::nodeHeights(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo))
+# root_age <- max(phytools::nodeHeights(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo))
+# root_age <- max(phytools::nodeHeights(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo))
 age <- root_age - age_step
 while (age > 0)
 { 
@@ -2407,10 +2690,14 @@ dev.off()
 ## Load ARE pie lists
 # ARE_pies_list <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_ARE_pies_list.rds")
 ARE_pies_list <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_ARE_pies_list.rds")
+# ARE_pies_list <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_ARE_pies_list.rds")
+# ARE_pies_list <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_ARE_pies_list.rds")
 
 ## Load backbone ARE pie lists
 # backbone_ARE_pies_list <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_backbone_ARE_pies_list.rds")
 backbone_ARE_pies_list <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_backbone_ARE_pies_list.rds")
+# backbone_ARE_pies_list <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_backbone_ARE_pies_list.rds")
+# backbone_ARE_pies_list <- readRDS(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_backbone_ARE_pies_list.rds")
 
 
 ## 8.4.1/ Subset the nodes occurring before the genus-groups MRCA = backbone ####
@@ -2423,6 +2710,8 @@ for (i in 1:nrow(all_genus_groups_metadata_df))
   MRCA_node_ID_i <- all_genus_groups_metadata_df$MRCA_node_ID[i]
   all_descendant_nodes_i <- getDescendants(# tree = Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo,
                                            tree = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo,
+                                           # tree = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo,
+                                           # tree = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo,
                                            node = MRCA_node_ID_i)
   # Store descendants
   all_descendant_nodes <- c(all_descendant_nodes, all_descendant_nodes_i)
@@ -2435,9 +2724,13 @@ backbone_nodes_ID <- setdiff(1:length(ARE_pies_list), all_descendant_nodes)
 
 # pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_rough_phylogeny_1534t/Genus_group_phylo_rectangular_ARE_pie_charts.pdf", height = 100, width = 30)
 pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/Genus_group_MCC_phylo_rectangular_ARE_pie_charts.pdf", height = 100, width = 30)
+# pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/Genus_group_Youngest_phylo_rectangular_ARE_pie_charts.pdf", height = 100, width = 30)
+# pdf(file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/Genus_group_Oldest_phylo_rectangular_ARE_pie_charts.pdf", height = 100, width = 30)
 
 Ponerinae_phylogeny_plot <- ggtree(# Ponerinae_phylogeny_1534t_treedata_for_ARE,
                                    Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE,
+                                   # Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE,
                                    layout = "rectangular") +
   
   geom_tree(mapping = aes(colour = missing_node),
@@ -2503,6 +2796,8 @@ for (i in 1:nrow(all_genus_groups_metadata_df))
 age_step <- 20
 # root_age <- max(phytools::nodeHeights(Ponerinae_phylogeny_1534t_treedata_for_ARE@phylo))
 root_age <- max(phytools::nodeHeights(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@phylo))
+# root_age <- max(phytools::nodeHeights(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@phylo))
+# root_age <- max(phytools::nodeHeights(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@phylo))
 age <- root_age - age_step
 while (age > 0)
 { 
@@ -2551,11 +2846,18 @@ dev.off()
 # Load time-stratified DEC+J model output
 # DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
 DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Youngest_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Oldest_phylogeny_1534t/DEC_J_fit.rds")
 
 # Load S&S Genus-group metadata
 all_genus_groups_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_all_genus_groups_metadata_df.rds")
+# all_genus_groups_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_all_genus_groups_metadata_df.rds")
+# all_genus_groups_metadata_df <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_all_genus_groups_metadata_df.rds")
+
 # Get root node ID
 root_node_ID <- Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$node[Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$status == "root"]
+# root_node_ID <- Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$node[Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$status == "root"]
+# root_node_ID <- Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$node[Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$status == "root"]
 
 # Inspect marginal likelihoods of ancestral states
 dim(DEC_J_fit$ML_marginal_prob_each_state_at_branch_top_AT_node) # Likelihood df: Rows = tips + nodes, Columns = states/ranges
@@ -2595,6 +2897,10 @@ ML_marginal_prob_ranges_per_important_nodes_df <- ML_marginal_prob_ranges_per_im
 # Save/export ML marginal prob of ARE for S&S clades
 saveRDS(object = ML_marginal_prob_ranges_per_important_nodes_df, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/ML_marginal_prob_ranges_per_important_nodes_df.rds")
 write.xlsx(x = ML_marginal_prob_ranges_per_important_nodes_df, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_MCC_phylogeny_1534t/ML_marginal_prob_ranges_per_important_nodes_df.xlsx")
+# saveRDS(object = ML_marginal_prob_ranges_per_important_nodes_df, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/ML_marginal_prob_ranges_per_important_nodes_df.rds")
+# write.xlsx(x = ML_marginal_prob_ranges_per_important_nodes_df, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Youngest_phylogeny_1534t/ML_marginal_prob_ranges_per_important_nodes_df.xlsx")
+# saveRDS(object = ML_marginal_prob_ranges_per_important_nodes_df, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/ML_marginal_prob_ranges_per_important_nodes_df.rds")
+# write.xlsx(x = ML_marginal_prob_ranges_per_important_nodes_df, file = "./outputs/Ancestral_range_estimates_maps/Ponerinae_Oldest_phylogeny_1534t/ML_marginal_prob_ranges_per_important_nodes_df.xlsx")
 
 
 ##### 10/ Compare ARE of main clades across posterior trees ####

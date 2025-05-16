@@ -60,6 +60,8 @@ library(raster)
 # Load time-stratified DEC+J model output
 # DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
 DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Youngest_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Oldest_phylogeny_1534t/DEC_J_fit.rds")
 
 # Extract areas list
 returned_mats <- BioGeoBEARS::get_Qmat_COOmat_from_BioGeoBEARS_run_object(BioGeoBEARS_run_object = DEC_J_fit$inputs, include_null_range = DEC_J_fit$inputs$include_null_range)
@@ -68,6 +70,8 @@ areas_list <- returned_mats$areanames
 # Load simmaps of BS maps
 # DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps.rds")
 DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps.rds")
+# DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_simmaps.rds")
+# DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_simmaps.rds")
 
 ### 1.3/ Set time steps ####
 
@@ -121,6 +125,8 @@ areas_endemicity_all_time_all_maps_array <- find_egde_origins_on_time_steps_on_M
 # Save final array
 # saveRDS(areas_endemicity_all_time_all_maps_array, file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/areas_endemicity_all_time_all_maps_array.rds")
 saveRDS(areas_endemicity_all_time_all_maps_array, file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/areas_endemicity_all_time_all_maps_array.rds")
+# saveRDS(areas_endemicity_all_time_all_maps_array, file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/areas_endemicity_all_time_all_maps_array.rds")
+# saveRDS(areas_endemicity_all_time_all_maps_array, file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/areas_endemicity_all_time_all_maps_array.rds")
 
 ### 2.2/ Melt results for ggplot ####
 
@@ -133,6 +139,8 @@ names(areas_endemicity_all_time_all_maps_df) <- c("area", "time", "map", "endemi
 # Save melted df of endemicity per bioregions x time x maps
 # saveRDS(areas_endemicity_all_time_all_maps_df, file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/areas_endemicity_all_time_all_maps_df.rds")
 saveRDS(areas_endemicity_all_time_all_maps_df, file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/areas_endemicity_all_time_all_maps_df.rds")
+# saveRDS(areas_endemicity_all_time_all_maps_df, file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/areas_endemicity_all_time_all_maps_df.rds")
+# saveRDS(areas_endemicity_all_time_all_maps_df, file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/areas_endemicity_all_time_all_maps_df.rds")
 
 ### 2.3/ Aggregate along maps ####
 
@@ -147,6 +155,8 @@ mean_areas_endemicity_all_time_df$mean_endemicity[is.nan(mean_areas_endemicity_a
 # Save melted df of mean endemicity per bioregions x time
 # saveRDS(mean_areas_endemicity_all_time_df, file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/mean_areas_endemicity_all_time_df.rds")
 saveRDS(mean_areas_endemicity_all_time_df, file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/mean_areas_endemicity_all_time_df.rds")
+# saveRDS(mean_areas_endemicity_all_time_df, file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/mean_areas_endemicity_all_time_df.rds")
+# saveRDS(mean_areas_endemicity_all_time_df, file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/mean_areas_endemicity_all_time_df.rds")
 
 
 ### 2.4/ Compute total counts and percentages in current time ####
@@ -154,6 +164,8 @@ saveRDS(mean_areas_endemicity_all_time_df, file = "./outputs/Lineage_origins/Pon
 # Load LTT data per bioregions along time
 # DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 
 names(DEC_J_LTT_all_areas_mean_ggplot)
 
@@ -174,6 +186,8 @@ mean_areas_endemicity_current_time_df <- mean_areas_endemicity_all_time_df %>%
 # Save melted df of mean counts and percentages of endemicity per bioregions in current time
 # saveRDS(mean_areas_endemicity_current_time_df, file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/mean_areas_endemicity_current_time_df.rds")
 saveRDS(mean_areas_endemicity_current_time_df, file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/mean_areas_endemicity_current_time_df.rds")
+# saveRDS(mean_areas_endemicity_current_time_df, file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/mean_areas_endemicity_current_time_df.rds")
+# saveRDS(mean_areas_endemicity_current_time_df, file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/mean_areas_endemicity_current_time_df.rds")
 
 
 ##### 3/ Plot counts of lineages per origin in current time ####
@@ -181,6 +195,8 @@ saveRDS(mean_areas_endemicity_current_time_df, file = "./outputs/Lineage_origins
 # Load melted df of mean counts and percentages of endemicity per bioregions in current time
 # mean_areas_endemicity_current_time_df <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/mean_areas_endemicity_current_time_df.rds")
 mean_areas_endemicity_current_time_df <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/mean_areas_endemicity_current_time_df.rds")
+# mean_areas_endemicity_current_time_df <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/mean_areas_endemicity_current_time_df.rds")
+# mean_areas_endemicity_current_time_df <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/mean_areas_endemicity_current_time_df.rds")
 
 mean_areas_endemicity_current_time_df_no_total <- mean_areas_endemicity_current_time_df %>% 
   filter(area != "total")
@@ -219,6 +235,8 @@ mean_areas_endemicity_current_time_df_no_total$origin <- factor(mean_areas_endem
 # GGplot
 # pdf(file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/Barplot_lineage_origin_counts_per_bioregions_current_time.pdf", width = 10, height = 6)
 pdf(file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/Barplot_lineage_origin_counts_per_bioregions_current_time.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/Barplot_lineage_origin_counts_per_bioregions_current_time.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/Barplot_lineage_origin_counts_per_bioregions_current_time.pdf", width = 10, height = 6)
 
 barplot_lineage_origin_counts_per_bioregions_current_time_ggplot <- ggplot(data = mean_areas_endemicity_current_time_df_no_total,
                                                                            mapping = aes(y = counts, x = area, fill = area)) +
@@ -278,6 +296,8 @@ dev.off()
 # GGplot
 # pdf(file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/Barplot_lineage_origin_percs_per_bioregions_current_time.pdf", width = 10, height = 6)
 pdf(file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/Barplot_lineage_origin_percs_per_bioregions_current_time.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/Barplot_lineage_origin_percs_per_bioregions_current_time.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/Barplot_lineage_origin_percs_per_bioregions_current_time.pdf", width = 10, height = 6)
 
 barplot_lineage_origin_percs_per_bioregions_current_time_ggplot <- ggplot(data = mean_areas_endemicity_current_time_df_no_total,
                                                                            mapping = aes(y = perc, x = area, fill = area)) +
@@ -336,14 +356,20 @@ bioregion_names_with_total <- c(bioregion_names, "Total")
 # Load LTT data per bioregions along time
 # DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 
 # Load melted df of endemicity per bioregions x time x maps
 # areas_endemicity_all_time_all_maps_df <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/areas_endemicity_all_time_all_maps_df.rds")
 areas_endemicity_all_time_all_maps_df <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/areas_endemicity_all_time_all_maps_df.rds")
+# areas_endemicity_all_time_all_maps_df <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/areas_endemicity_all_time_all_maps_df.rds")
+# areas_endemicity_all_time_all_maps_df <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/areas_endemicity_all_time_all_maps_df.rds")
 
 # Load melted df of mean endemicity per bioregions x time
 # mean_areas_endemicity_all_time_df <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/mean_areas_endemicity_all_time_df.rds")
 mean_areas_endemicity_all_time_df <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/mean_areas_endemicity_all_time_df.rds")
+# mean_areas_endemicity_all_time_df <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/mean_areas_endemicity_all_time_df.rds")
+# mean_areas_endemicity_all_time_df <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/mean_areas_endemicity_all_time_df.rds")
 
 # Remove values when there are less than 1 lineage in average in the bioregions (to avoid artifactual high percentage from anecdotal events)
 min_richness_threshold <- 1
@@ -360,7 +386,9 @@ mean_areas_endemicity_all_time_df <- mean_areas_endemicity_all_time_df %>%
   dplyr::select(area, time, mean_endemicity, area_richness)
 
 # Adjust min/max values to the plot limits to avoid artifact in polygon drawings
-max_time <- 85
+max_time <- 85 # For MCC
+# max_time <- 65 # For Youngest
+# max_time <- 125 # For Oldest
 min_time <- 0
 
 # Compute quantiles
@@ -377,11 +405,10 @@ areas_endemicity_all_time_all_maps_df_quantiles <- areas_endemicity_all_time_all
   # Assign points ID (order for drawing the polygon)
   group_by(area, quantile_ID) %>%
   arrange(area, quantile_ID, quantile, time) %>%
-  mutate(n_points = n()) %>%
+  mutate(n_points = dplyr::n()) %>%
   mutate(points_ID = c(1:(first(n_points)/2), first(n_points):((first(n_points)/2) + 1))) %>%
-  # mutate(points_ID = c(1:361, 722:362)) %>%
-  # Reorder by quantile_ID, poly_ID, points_ID to check conformity of polygons
-  arrange(area, quantile_ID, poly_ID, points_ID) %>%
+  # Reorder by quantile_ID, points_ID to check conformity of polygons
+  arrange(area, quantile_ID, points_ID) %>%
   ungroup()
 
 # Remove most extreme quantiles to keep 95% CI (strictly a 94% CI)
@@ -397,6 +424,8 @@ areas_endemicity_all_time_all_maps_df_quantiles$area <- factor(x = areas_endemic
 
 # pdf(file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/Lineage_origin_percs_per_bioregions_all_time_steps.pdf", width = 10, height = 6)
 pdf(file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/Lineage_origin_percs_per_bioregions_all_time_steps.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/Lineage_origin_percs_per_bioregions_all_time_steps.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/Lineage_origin_percs_per_bioregions_all_time_steps.pdf", width = 10, height = 6)
 
 lines_endemicity_per_bioregions_all_time_steps_ggplot <- ggplot(data = areas_endemicity_all_time_all_maps_df) +
   
@@ -430,7 +459,7 @@ lines_endemicity_per_bioregions_all_time_steps_ggplot <- ggplot(data = areas_end
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
-                     limits = c(85, 0) # Set limits
+                     limits = c(max_time, min_time) # Set limits
   ) + 
   
   # Adjust color scheme and legend
@@ -458,6 +487,8 @@ dev.off()
 
 # pdf(file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/Lineage_origin_percs_per_bioregions_all_time_steps.pdf", width = 10, height = 6)
 pdf(file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/Lineage_origin_percs_per_bioregions_all_time_steps_fuzzy_lines.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/Lineage_origin_percs_per_bioregions_all_time_steps_fuzzy_lines.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/Lineage_origin_percs_per_bioregions_all_time_steps_fuzzy_lines.pdf", width = 10, height = 6)
 
 lines_endemicity_per_bioregions_all_time_steps_ggplot <- ggplot(data = areas_endemicity_all_time_all_maps_df) +
   
@@ -491,7 +522,7 @@ lines_endemicity_per_bioregions_all_time_steps_ggplot <- ggplot(data = areas_end
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
-                     limits = c(85, 0) # Set limits
+                     limits = c(max_time, min_time) # Set limits
   ) + 
   
   # Adjust color scheme and legend
@@ -519,6 +550,8 @@ dev.off()
 
 # pdf(file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/Lineage_origin_percs_per_bioregions_all_time_steps.pdf", width = 10, height = 6)
 pdf(file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/Lineage_origin_percs_per_bioregions_all_time_steps_fuzzy_quantiles.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/Lineage_origin_percs_per_bioregions_all_time_steps_fuzzy_quantiles.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/Lineage_origin_percs_per_bioregions_all_time_steps_fuzzy_quantiles.pdf", width = 10, height = 6)
 
 lines_endemicity_per_bioregions_all_time_steps_ggplot <- ggplot(data = areas_endemicity_all_time_all_maps_df) +
   
@@ -548,7 +581,7 @@ lines_endemicity_per_bioregions_all_time_steps_ggplot <- ggplot(data = areas_end
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
-                     limits = c(85, 0) # Set limits
+                     limits = c(max_time, min_time) # Set limits
   ) + 
   
   # Adjust color scheme and legend
@@ -746,6 +779,8 @@ taxa_immigration_ages_per_BSM_simulations_df <- get_immigration_ages_from_MultiS
 # Save immigration ages per BSM simulations
 # saveRDS(object = taxa_immigration_ages_per_BSM_simulations_df, "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/taxa_immigration_ages_per_BSM_simulations_df.rds")
 saveRDS(object = taxa_immigration_ages_per_BSM_simulations_df, "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/taxa_immigration_ages_per_BSM_simulations_df.rds")
+# saveRDS(object = taxa_immigration_ages_per_BSM_simulations_df, "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/taxa_immigration_ages_per_BSM_simulations_df.rds")
+# saveRDS(object = taxa_immigration_ages_per_BSM_simulations_df, "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/taxa_immigration_ages_per_BSM_simulations_df.rds")
 
 ## Compute summary statistics across all BSM simulations
 
@@ -771,6 +806,8 @@ plot(taxa_immigration_ages_summary_stats_df$CI_97.5 ~ taxa_immigration_ages_summ
 # Save immigration ages per taxa df
 # saveRDS(object = taxa_immigration_ages_summary_stats_df, "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/taxa_immigration_ages_summary_stats_df.rds")
 saveRDS(object = taxa_immigration_ages_summary_stats_df, "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/taxa_immigration_ages_summary_stats_df.rds")
+# saveRDS(object = taxa_immigration_ages_summary_stats_df, "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/taxa_immigration_ages_summary_stats_df.rds")
+# saveRDS(object = taxa_immigration_ages_summary_stats_df, "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/taxa_immigration_ages_summary_stats_df.rds")
 
 
 ### 6.3/ Compute mean immigration ages in space ####
@@ -786,6 +823,8 @@ terrestrial_bg_WGS84 <- readRDS(file = "./outputs/Species_richness_maps/terrestr
 # Load immigration ages per taxa df
 # taxa_immigration_ages_summary_stats_df <- readRDS("./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/taxa_immigration_ages_summary_stats_df.rds")
 taxa_immigration_ages_summary_stats_df <- readRDS("./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/taxa_immigration_ages_summary_stats_df.rds")
+# taxa_immigration_ages_summary_stats_df <- readRDS("./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/taxa_immigration_ages_summary_stats_df.rds")
+# taxa_immigration_ages_summary_stats_df <- readRDS("./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/taxa_immigration_ages_summary_stats_df.rds")
 
 # Reorder as in raster stack
 taxa_immigration_ages_summary_stats_df_reordered <- taxa_immigration_ages_summary_stats_df[match(names(Ponerinae_alpha_hull_stack_WGS84), table = taxa_immigration_ages_summary_stats_df$taxa), ]
@@ -804,6 +843,8 @@ Ponerinae_immigration_ages_stack_WGS84 <- readAll(Ponerinae_immigration_ages_sta
 ## Save stack of median immigration ages
 # saveRDS(Ponerinae_immigration_ages_stack_WGS84, file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/Ponerinae_immigration_ages_stack_WGS84.rds")
 saveRDS(Ponerinae_immigration_ages_stack_WGS84, file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/Ponerinae_immigration_ages_stack_WGS84.rds")
+# saveRDS(Ponerinae_immigration_ages_stack_WGS84, file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_immigration_ages_stack_WGS84.rds")
+# saveRDS(Ponerinae_immigration_ages_stack_WGS84, file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_immigration_ages_stack_WGS84.rds")
 
 ## Compute mean immigration ages raster (do not account for zeros as they are absences)
 Ponerinae_mean_immigration_ages_WGS84 <- raster::calc(x = Ponerinae_immigration_ages_stack_WGS84,
@@ -821,6 +862,8 @@ rm(Ponerinae_immigration_ages_stack_WGS84) ; gc() # Remove stack of median immig
 ## Save raster of mean immigration ages
 # saveRDS(Ponerinae_mean_immigration_ages_WGS84, file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/Ponerinae_mean_immigration_ages_WGS84.rds")
 saveRDS(Ponerinae_mean_immigration_ages_WGS84, file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/Ponerinae_mean_immigration_ages_WGS84.rds")
+# saveRDS(Ponerinae_mean_immigration_ages_WGS84, file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_mean_immigration_ages_WGS84.rds")
+# saveRDS(Ponerinae_mean_immigration_ages_WGS84, file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_mean_immigration_ages_WGS84.rds")
 
 
 ### 6.4/ Filter out pixels with low richness ####
@@ -828,10 +871,28 @@ saveRDS(Ponerinae_mean_immigration_ages_WGS84, file = "./outputs/Lineage_origins
 ## Load raster of mean current net div rates
 # Ponerinae_mean_net_div_rates_WGS84 <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_rough_phylogeny_1534t/Ponerinae_mean_immigration_ages_WGS84.rds")
 Ponerinae_mean_immigration_ages_WGS84 <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/Ponerinae_mean_immigration_ages_WGS84.rds")
+# Ponerinae_mean_immigration_ages_WGS84 <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_mean_immigration_ages_WGS84.rds")
+# Ponerinae_mean_immigration_ages_WGS84 <- readRDS(file = "./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_mean_immigration_ages_WGS84.rds")
 
 ## Load raw richness raster
 Ponerinae_species_richness_WGS84 <- readRDS(file = "./outputs/Species_richness_maps/Ponerinae_species_richness_WGS84.rds")
 
+# Load color palette
+pal_bl_red_brewer <- rev(RColorBrewer::brewer.pal(n = 11, "PRGn"))
+pal_bl_red_brewer_fn <- colorRampPalette(colors = pal_bl_red_brewer)
+pal_bl_red_brewer <- pal_bl_red_brewer_fn(n = 400)
+blues <- round(seq(from = 1, to = 260, length.out = 99), 0)
+reds <- round(seq(from = 261, to = 400, length.out = 100), 0)
+pal_bl_red_brewer <- pal_bl_red_brewer[c(blues, reds)]
+pal_bl_red_brewer <- c("grey90", pal_bl_red_brewer)
+
+# Load color palette
+pal_purple_green_brewer <- rev(RColorBrewer::brewer.pal(n = 11, "PRGn"))
+pal_purple_green_brewer_fn <- colorRampPalette(colors = pal_purple_green_brewer)
+pal_purple_green_brewer <- pal_purple_green_brewer_fn(n = 400)
+pal_purple_green_brewer <- c("grey90", pal_purple_green_brewer)
+
+# Quick plots
 plot(Ponerinae_species_richness_WGS84, col = pal_bl_red_brewer)
 plot(Ponerinae_mean_immigration_ages_WGS84, col = pal_purple_green_brewer)
 
@@ -858,10 +919,27 @@ source("./functions/contrasting_raster.R")
 Ponerinae_mean_immigration_ages_WGS84_thresholded <- Ponerinae_mean_immigration_ages_WGS84
 Ponerinae_mean_immigration_ages_WGS84_thresholded@data@values[Ponerinae_species_richness_WGS84@data@values < min_richness_threshold] <- 0
 
+# Load color palette
+pal_bl_red_brewer <- rev(RColorBrewer::brewer.pal(n = 11, "PRGn"))
+pal_bl_red_brewer_fn <- colorRampPalette(colors = pal_bl_red_brewer)
+pal_bl_red_brewer <- pal_bl_red_brewer_fn(n = 400)
+blues <- round(seq(from = 1, to = 260, length.out = 99), 0)
+reds <- round(seq(from = 261, to = 400, length.out = 100), 0)
+pal_bl_red_brewer <- pal_bl_red_brewer[c(blues, reds)]
+pal_bl_red_brewer <- c("grey90", pal_bl_red_brewer)
+
+# Load color palette
+pal_purple_green_brewer <- rev(RColorBrewer::brewer.pal(n = 11, "PRGn"))
+pal_purple_green_brewer_fn <- colorRampPalette(colors = pal_purple_green_brewer)
+pal_purple_green_brewer <- pal_purple_green_brewer_fn(n = 400)
+pal_purple_green_brewer <- c("grey90", pal_purple_green_brewer)
+
 plot(Ponerinae_mean_immigration_ages_WGS84, col = pal_purple_green_brewer)
 plot(Ponerinae_mean_immigration_ages_WGS84_thresholded, col = pal_purple_green_brewer)
 
 pdf(file = paste0("./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/Ponerinae_mean_immigration_ages_maps_multiple_thresholds.pdf"),
+# pdf(file = paste0("./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_mean_immigration_ages_maps_multiple_thresholds.pdf"),
+# pdf(file = paste0("./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_mean_immigration_ages_maps_multiple_thresholds.pdf"),
     width = 20, height = 10)
 
 par(mfrow = c(2,2))
@@ -906,9 +984,15 @@ hist(Ponerinae_mean_immigration_ages_WGS84[])
 table(Ponerinae_mean_immigration_ages_WGS84[])
 hist(Ponerinae_mean_immigration_ages_WGS84_thresholded[])
 table(Ponerinae_mean_immigration_ages_WGS84_thresholded[])
+
+# Select age_max for contrast
+age_max <- 105 # For MCC
+age_max <- max(Ponerinae_mean_immigration_ages_WGS84_thresholded[], na.rm = T) # For Youngest (no contrast)
+age_max <- max(Ponerinae_mean_immigration_ages_WGS84_thresholded[], na.rm = T) # For Oldest (no contrast)
+
 Ponerinae_mean_immigration_ages_WGS84_contrasted <- contrasting_raster(# x = Ponerinae_mean_immigration_ages_WGS84, # Use the non-thresholded full version
                                                                        x = Ponerinae_mean_immigration_ages_WGS84_thresholded, # Use the thresholded version 
-                                                                       zmin = 0, zmax = 105)
+                                                                       zmin = 0, zmax = age_max)
 
 # Convert raster of mean current net div rates to Mollweide
 Ponerinae_mean_immigration_ages_Mollweide_contrasted <- raster::projectRaster(from = Ponerinae_mean_immigration_ages_WGS84_contrasted,
@@ -983,6 +1067,8 @@ Ponerinae_mean_immigration_ages_ggplot <- ggplot() +
 
 ## With threshold
 pdf(file = paste0("./outputs/Lineage_origins/Ponerinae_MCC_phylogeny_1534t/Ponerinae_mean_immigration_ages_map_threshold_",min_richness_threshold,".pdf"),
+# pdf(file = paste0("./outputs/Lineage_origins/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_mean_immigration_ages_map_threshold_",min_richness_threshold,".pdf"),
+# pdf(file = paste0("./outputs/Lineage_origins/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_mean_immigration_ages_map_threshold_",min_richness_threshold,".pdf"),
     width = 10, height = 5)
 
 print(Ponerinae_mean_immigration_ages_ggplot)

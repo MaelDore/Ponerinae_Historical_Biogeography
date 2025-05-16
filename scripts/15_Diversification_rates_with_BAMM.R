@@ -67,6 +67,7 @@ library(parallel)
 library(raster)
 library(sf)
 library(vcd)  # For association plots
+library(xlsx)
 
 
 ##### 1/ Load input files ####
@@ -79,6 +80,8 @@ BAMM_path <- "./software/bamm-2.5.0/"
 
 # Ponerinae_phylogeny_1534t <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_short_names.rds")
 Ponerinae_MCC_phylogeny_1534t <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_short_names.rds")
+# Ponerinae_Youngest_phylogeny_1534t <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_Youngest_1534t_short_names.rds")
+# Ponerinae_Oldest_phylogeny_1534t <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_Oldest_1534t_short_names.rds")
 
 # Check if ultrametric
 # is.ultrametric(Ponerinae_phylogeny_1534t)
@@ -93,9 +96,13 @@ min(Ponerinae_MCC_phylogeny_1534t$edge.length) > 0 ; min(Ponerinae_MCC_phylogeny
 ### 1.3/ Export phylogeny as .tree file for the analyses
 # write.tree(phy = Ponerinae_phylogeny_1534t, file = paste0(BAMM_path, "Ponerinae_phylogeny.tree"))
 write.tree(phy = Ponerinae_MCC_phylogeny_1534t, file = paste0(BAMM_path, "Ponerinae_MCC_phylogeny.tree"))
+# write.tree(phy = Ponerinae_Youngest_phylogeny_1534t, file = paste0(BAMM_path, "Ponerinae_Youngest_phylogeny.tree"))
+# write.tree(phy = Ponerinae_Oldest_phylogeny_1534t, file = paste0(BAMM_path, "Ponerinae_Oldest_phylogeny.tree"))
 
 # phy_path <- paste0(BAMM_path, "Ponerinae_phylogeny.tree")
 phy_path <- paste0(BAMM_path, "Ponerinae_MCC_phylogeny.tree")
+# phy_path <- paste0(BAMM_path, "Ponerinae_Youngest_phylogeny.tree")
+# phy_path <- paste0(BAMM_path, "Ponerinae_Oldest_phylogeny.tree")
 
 ##### 2/ Configure the control file for the run #####
 
@@ -215,6 +222,7 @@ expectedNumberOfShifts <- 1.0
 expectedNumberOfShifts_default_line <- which(str_detect(string = default_tuned_priors, pattern = "expectedNumberOfShifts = "))[1]
 expectedNumberOfShifts <- as.numeric(str_remove(string = default_tuned_priors[expectedNumberOfShifts_default_line], pattern = "expectedNumberOfShifts = "))
 expectedNumberOfShifts_line <- which(str_detect(string = my_div_control_file, pattern = "expectedNumberOfShifts = "))[1]
+# expectedNumberOfShifts <- 10 # Use the best fit evaluated for MCC to run Youngest and Oldest
 my_div_control_file[expectedNumberOfShifts_line] <- paste0("expectedNumberOfShifts = ", expectedNumberOfShifts)
 
 # Set the rate parameter of the exponential prior(s) of initial lambda parameters (lambda0) of speciation rate regimes
@@ -329,6 +337,8 @@ my_div_control_file[acceptanceResetFreq_line] <- paste0("acceptanceResetFreq = "
 # run_prefix_for_output_files <- "BAMM_Ponerinae_test_run"
 # run_prefix_for_output_files <- "BAMM_Ponerinae"
 run_prefix_for_output_files <- "BAMM_Ponerinae_MCC"
+# run_prefix_for_output_files <- "BAMM_Ponerinae_Youngest"
+# run_prefix_for_output_files <- "BAMM_Ponerinae_Oldest"
 outName_line <- which(str_detect(string = my_div_control_file, pattern = "outName = "))[1]
 my_div_control_file[outName_line] <- paste0("outName = ", run_prefix_for_output_files)
 # my_div_control_file[outName_line] <- paste0("# outName = ", run_prefix_for_output_files) # Commented version to add any prefix
@@ -428,6 +438,8 @@ my_div_control_file[localGlobalMoveRatio_line] <- paste0("localGlobalMoveRatio =
 # Run a BD model to obtain credible starting value for the root process
 # BD_fit <- phytools::fit.bd(tree = Ponerinae_phylogeny_1534t)
 BD_fit <- phytools::fit.bd(tree = Ponerinae_MCC_phylogeny_1534t)
+# BD_fit <- phytools::fit.bd(tree = Ponerinae_Youngest_phylogeny_1534t)
+# BD_fit <- phytools::fit.bd(tree = Ponerinae_Oldest_phylogeny_1534t)
 
 # Set the initial speciation rate (lambda0) for the first regime starting at the root of the tree (regime 0)
   # lambda0 in lambda(t) = lamba0 x exp(alpha*t)
@@ -517,6 +529,8 @@ my_div_control_file[segLength_line] <- paste0("segLength = ", segLength)
 # writeLines(text = my_div_control_file, con = paste0(BAMM_path, "BAMM_Ponerinae_test_run_my_div_control_file.txt"))
 # writeLines(text = my_div_control_file, con = paste0(BAMM_path, "BAMM_Ponerinae_my_div_control_file.txt"))
 writeLines(text = my_div_control_file, con = paste0(BAMM_path, "BAMM_Ponerinae_MCC_my_div_control_file.txt"))
+# writeLines(text = my_div_control_file, con = paste0(BAMM_path, "BAMM_Ponerinae_Youngest_my_div_control_file.txt"))
+# writeLines(text = my_div_control_file, con = paste0(BAMM_path, "BAMM_Ponerinae_Oldest_my_div_control_file.txt"))
 
 
 ##### 3/ Run BAMM with calls to command lines from within r using system() #####
@@ -534,6 +548,8 @@ system(paste0(BAMM_path, "bamm -c ",BAMM_path, "BAMM_Ponerinae_test_run_my_div_c
 # Full run
 # system(paste0(BAMM_path, "bamm -c ",BAMM_path, "BAMM_Ponerinae_my_div_control_file.txt"))
 system(paste0(BAMM_path, "bamm -c ",BAMM_path, "BAMM_Ponerinae_MCC_my_div_control_file.txt"))
+# system(paste0(BAMM_path, "bamm -c ",BAMM_path, "BAMM_Ponerinae_Youngest_my_div_control_file.txt"))
+# system(paste0(BAMM_path, "bamm -c ",BAMM_path, "BAMM_Ponerinae_Oldest_my_div_control_file.txt"))
 
 ### Outputs
 # The run_info.txt file, containing a summary of your parameters/settings
@@ -546,14 +562,19 @@ system(paste0(BAMM_path, "bamm -c ",BAMM_path, "BAMM_Ponerinae_MCC_my_div_contro
 # BAMM_output_folder_path <- "./outputs/BAMM/BAMM_Ponerinae_test_run/"
 # BAMM_output_folder_path <- "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/"
 BAMM_output_folder_path <- "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/"
+# BAMM_output_folder_path <- "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/"
+# BAMM_output_folder_path <- "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/"
 
 # Detect output files
 output_files_path <- list.files(path = "./", pattern = "BAMM_")
 # Move output files to dedicated folder
 file.rename(from = paste0("./",output_files_path), to = paste0(BAMM_output_folder_path, output_files_path)) # BAMM output files
 file.copy(from = phy_path, to = paste0(BAMM_output_folder_path, "my_phy.tree")) # Phylo file
+
 # file.rename(from = paste0(BAMM_path, "my_div_control_file.txt"), to = paste0(BAMM_output_folder_path, "my_div_control_file.txt")) # Control file
 file.rename(from = paste0(BAMM_path, "BAMM_Ponerinae_MCC_my_div_control_file.txt"), to = paste0(BAMM_output_folder_path, "BAMM_Ponerinae_MCC_my_div_control_file.txt")) # Control file
+# file.rename(from = paste0(BAMM_path, "BAMM_Ponerinae_Youngest_my_div_control_file.txt"), to = paste0(BAMM_output_folder_path, "BAMM_Ponerinae_Youngest_my_div_control_file.txt")) # Control file
+# file.rename(from = paste0(BAMM_path, "BAMM_Ponerinae_Oldest_my_div_control_file.txt"), to = paste0(BAMM_output_folder_path, "BAMM_Ponerinae_Oldest_my_div_control_file.txt")) # Control file
 
 
 ### 3.3/ Run multiple runs with different prior for the LAMBDA controlling the expected number of shifts ####
@@ -846,15 +867,20 @@ selected_expectedNumberofShifts <- 10
 # BAMM_output_folder_path <- paste0("./outputs/BAMM/BAMM_Ponerinae_test_runs/BAMM_Ponerinae_test_run_nbshifts",selected_expectedNumberofShifts, "/") # Test run
 # BAMM_output_folder_path <- paste0("./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_Ponerinae_full_runs/BAMM_Ponerinae_nbshifts",selected_expectedNumberofShifts, "/") # Full run
 BAMM_output_folder_path <- paste0("./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_Ponerinae_MCC_full_runs/BAMM_Ponerinae_MCC_nbshifts",selected_expectedNumberofShifts, "/") # Full MCC run
+# BAMM_output_folder_path <- paste0("./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/") # Youngest run
+# BAMM_output_folder_path <- paste0("./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/") # Oldest run
 
 # Extract prefix of output files
 # run_prefix_for_output_files <- paste0("BAMM_Ponerinae_test_run_nbshifts",selected_expectedNumberofShifts) # Test run
 # run_prefix_for_output_files <- paste0("BAMM_Ponerinae_nbshifts",selected_expectedNumberofShifts) # Full run
 run_prefix_for_output_files <- paste0("BAMM_Ponerinae_MCC_nbshifts",selected_expectedNumberofShifts) # Full MCC run
+# run_prefix_for_output_files <- paste0("BAMM_Ponerinae_Youngest") # Youngest run
+# run_prefix_for_output_files <- paste0("BAMM_Ponerinae_Oldest") # Oldest run
 
 # Load the phylogeny
 # phy <- read.tree(paste0(BAMM_output_folder_path, "Ponerinae_phylogeny.tree")) # Full run
 phy <- read.tree(paste0(BAMM_output_folder_path, "Ponerinae_MCC_phylogeny.tree")) # Full MCC run
+# phy <- read.tree(paste0(BAMM_output_folder_path, "my_phy.tree")) # Youngest/Oldest run
 
 # Create the bammdata summarizing BAMM outputs
 BAMM_data_output <- getEventData(phy = phy, 
@@ -875,6 +901,8 @@ BAMM_posterior_samples_data <- subsetEventData(BAMM_data_output, index = sample_
 # Save the BAMM posterior samples object
 # saveRDS(BAMM_posterior_samples_data, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_posterior_samples_data.rds")
 saveRDS(BAMM_posterior_samples_data, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+# saveRDS(BAMM_posterior_samples_data, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+# saveRDS(BAMM_posterior_samples_data, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_posterior_samples_data.rds")
 
 ### 5.3/ Explore the subset of posterior samples ####
 
@@ -916,6 +944,7 @@ summary(BAMM_posterior_samples_data$numberEvents)
 BayesTwin::HPD(sample = BAMM_posterior_samples_data$numberEvents, cred_int = 0.95)
 sd(BAMM_posterior_samples_data$numberEvents)
 
+
 ##### 6/ Plot regime shifts #####
 
 # Marginal probabilities. If high for a sequence of branches, good practice could be to look for in the posterior samples for the joint probability of a shift happening on 0/1/2/… of these branches in a single sample.
@@ -928,6 +957,8 @@ sd(BAMM_posterior_samples_data$numberEvents)
 # Load the BAMM posterior samples object
 # BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_posterior_samples_data.rds")
 BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+# BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+# BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_posterior_samples_data.rds")
 
 ### 6.1/ Plot the set of credible shift configurations ####
 
@@ -967,6 +998,8 @@ plot.phylo(branch_marg_posterior_probs)
 
 ## Save phylogeny scaled according to the marginal posterior probability of shift 
 saveRDS(object = branch_marg_posterior_probs, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/branch_marg_posterior_probs.rds")
+# saveRDS(object = branch_marg_posterior_probs, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/branch_marg_posterior_probs.rds")
+# saveRDS(object = branch_marg_posterior_probs, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/branch_marg_posterior_probs.rds")
 
 ### 6.3/ Compute marginal posterior odd-ratios ####
 
@@ -1005,6 +1038,8 @@ table(branch_marginal_odd_ratios$edge.length > 50) # Threshold needed to obtain 
 
 ## Save phylogeny scaled according to the Odd-Ratio of marginal posterior probability / prior probability of shift (proportional to branch length)
 saveRDS(object = branch_marginal_odd_ratios, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/branch_marginal_odd_ratios.rds")
+# saveRDS(object = branch_marginal_odd_ratios, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/branch_marginal_odd_ratios.rds")
+# saveRDS(object = branch_marginal_odd_ratios, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/branch_marginal_odd_ratios.rds")
 
 ## Compare prior, posterior, and Odd-ratios
 plot(branch_marg_posterior_probs) # Posterior probabilities
@@ -1019,30 +1054,45 @@ edge_rate_shift_probs_df <- data.frame(edge_ID = 1:nrow(branch_marg_posterior_pr
                                        marginal_odd_ratios = branch_marginal_odd_ratios$edge.length)
 # saveRDS(edge_rate_shift_probs_df, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/edge_rate_shift_probs_df.rds")
 saveRDS(edge_rate_shift_probs_df, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/edge_rate_shift_probs_df.rds")
+# saveRDS(edge_rate_shift_probs_df, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/edge_rate_shift_probs_df.rds")
+# saveRDS(edge_rate_shift_probs_df, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/edge_rate_shift_probs_df.rds")
 
 ### 6.4/ Map bioregion membership on phylogeny scaled by shift probability ####
 
 # Load treedata with bioregion membership information
 # Ponerinae_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata_for_ARE.rds")
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE.rds")
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE.rds")
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE.rds")
 
 # Assign a unique bioregion per edge
 bioregion_names <- c("Afrotropics", "Australasia", "Eastern Palearctic", "Indomalaya", "Nearctic", "Neotropics",  "Western Palearctic")
+
 # Bioregion_binary_df <- Ponerinae_phylogeny_1534t_treedata@extraInfo[, c("mean_state_Afrotropics", "mean_state_Australasia", "mean_state_Eastern Palearctic", "mean_state_Indomalaya", "mean_state_Nearctic", "mean_state_Neotropics", "mean_state_Western Palearctic")]
 Bioregion_binary_df <- Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo[, c("mean_state_Afrotropics", "mean_state_Australasia", "mean_state_Eastern Palearctic", "mean_state_Indomalaya", "mean_state_Nearctic", "mean_state_Neotropics", "mean_state_Western Palearctic")]
+# Bioregion_binary_df <- Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo[, c("mean_state_Afrotropics", "mean_state_Australasia", "mean_state_Eastern Palearctic", "mean_state_Indomalaya", "mean_state_Nearctic", "mean_state_Neotropics", "mean_state_Western Palearctic")]
+# Bioregion_binary_df <- Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo[, c("mean_state_Afrotropics", "mean_state_Australasia", "mean_state_Eastern Palearctic", "mean_state_Indomalaya", "mean_state_Nearctic", "mean_state_Neotropics", "mean_state_Western Palearctic")]
+
 Bioregion_binary_df <- bioregion_names[unlist(apply(X = Bioregion_binary_df, MARGIN = 1, FUN = which.max))]
 # Bioregion_binary_df <- as.data.frame(cbind(Ponerinae_phylogeny_1534t_treedata@extraInfo$node, Bioregion_binary_df))
 Bioregion_binary_df <- as.data.frame(cbind(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo$node, Bioregion_binary_df))
+# Bioregion_binary_df <- as.data.frame(cbind(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo$node, Bioregion_binary_df))
+# Bioregion_binary_df <- as.data.frame(cbind(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo$node, Bioregion_binary_df))
+
 names(Bioregion_binary_df) <- c("node", "Bioregion")
 Bioregion_binary_df$node <- as.numeric(Bioregion_binary_df$node)
 Bioregion_binary_df$Bioregion <- factor(x = Bioregion_binary_df$Bioregion, levels = bioregion_names, labels = bioregion_names)
 
 # Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo <- left_join(Ponerinae_phylogeny_1534t_treedata_for_ARE@extraInfo, y = Bioregion_binary_df)
 Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo <- left_join(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE@extraInfo, y = Bioregion_binary_df)
+# Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo <- left_join(Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE@extraInfo, y = Bioregion_binary_df)
+# Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo <- left_join(Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE@extraInfo, y = Bioregion_binary_df)
 
 # Save updated treedata with unique Bioregion membership (the most likely one)
 # saveRDS(object = Ponerinae_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata_for_ARE.rds")
 saveRDS(object = Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE.rds")
+# saveRDS(object = Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE.rds")
+# saveRDS(object = Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE, file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE.rds")
 
 
 # Load Genus-groups metadata
@@ -1223,6 +1273,8 @@ addBAMMshifts(MSC_tree, par.reset = FALSE, cex = 2)
 # Save the MSC tree
 # saveRDS(object = MSC_tree, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/MSC_tree.rds")
 saveRDS(object = MSC_tree, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/MSC_tree.rds")
+# saveRDS(object = MSC_tree, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/MSC_tree.rds")
+# saveRDS(object = MSC_tree, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/MSC_tree.rds")
 
 ### 7.3/ Extract metadata on rate shifts in the MSC ####
 
@@ -1330,9 +1382,12 @@ MSC_shifts_df
 # Plot phylogeny with rate shift location
 # pdf("./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/MSC_tree_with_labels_rect.pdf", width = 20, height = 200)
 pdf("./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/MSC_tree_with_labels_rect.pdf", width = 20, height = 200)
+# pdf("./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/MSC_tree_with_labels_rect.pdf", width = 20, height = 200)
+# pdf("./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/MSC_tree_with_labels_rect.pdf", width = 20, height = 200)
 
 plot.phylo(phy)
-#nodelabels(node = MSC_shift_nodes, pch = 21, col = "black", bg = "red", cex = 1.5)
+# nodelabels(node = MSC_shift_nodes, pch = 21, col = "black", bg = "red", cex = 1.5)
+# nodelabels()
 edgelabels(edge = MSC_shifts_df$edge_ID, pch = 21, col = "black", bg = MSC_shifts_df$rate_shift_type_col[-1], cex = MSC_shifts_df$branch_marg_posterior_prob * 3)
 
 dev.off()
@@ -1361,15 +1416,62 @@ MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2393] <- "Hypopone
 MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2819] <- "Diacamma"
 MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2126] <- "Myopias"
 
+# Provide name to the regimes for Youngest tree (Only for a few of them)
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 1535] <- "Ponerini_background"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 3025] <- "Platythyrea"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2666] <- "Ponera_minus_Diacamma"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 1757] <- "Mesoponera_Myopias_Leptogenys"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2311] <- "Brachyponera" # 2 regime shifts on the same long branch
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 1540] <- "Trap_jaw_ants"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2883] <- "Rasopone_Neoponera_Pachycondyla_Dinoponera"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2296] <- "Euponera_subgroup"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 3000] <- "Simopelta"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2393] <- "Hypoponera_Afrotropics"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2491] <- "Hypoponera_other"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2261] <- "Bothroponera_clade_1"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2754] <- "Ponera"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2081] <- "Leptogenys_Australasian"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2231] <- "Pseudoneoponera"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2328] <- "Mesoponera"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2972] <- "Rasopone"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2373] <- "Psalidomyrmex"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2349] <- "Plectroctena"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2719] <- "Ectomomyrmex_subgroup"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2654] <- "Harpegnathos"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2383] <- "Centromyrmex_Afrotropics"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2197] <- "Bothroponera_clade_2"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2869] <- "Thaumatomyrmex"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2819] <- "Diacamma"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2226] <- "Phrynoponera"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2278] <- "Euponera_clade2"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2583] <- "Hypopnera_opacior_complex"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2365] <- "Loboponera"
+
+# Provide name to the regimes for Oldest tree
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 1535] <- "Ponerini_background"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 3025] <- "Platythyrea" # 2 regime shifts on the same long branch
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 1749] <- "Relict_group"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 1541] <- "Anochetus"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2126] <- "Myopias"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 1762] <- "Leptogenys_subgroup"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2819] <- "Diacamma"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 2393] <- "Hypoponera_Afrotropics"
+MSC_shifts_df$regime_group_name[MSC_shifts_df$tipward_node == 1672] <- "Odontomachus_subgroup"
+
+View(MSC_shifts_df)
 
 # Save metadata on rate shifts in the MSC tree
 # saveRDS(object = MSC_shifts_df, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/MSC_shifts_df.rds")
 saveRDS(object = MSC_shifts_df, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/MSC_shifts_df.rds")
+# saveRDS(object = MSC_shifts_df, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/MSC_shifts_df.rds")
+# saveRDS(object = MSC_shifts_df, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/MSC_shifts_df.rds")
 
 # Export MSC shift table
 MSC_shifts_df_extract <- MSC_shifts_df %>% 
   dplyr::select(regime_ID, regime_group_name, start_age, lambda0, alpha, mu, branch_prior_prob, branch_marg_posterior_prob, branch_odd_ratio)
 write.xlsx(x = MSC_shifts_df_extract, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/MSC_shifts_df.xlsx")
+# write.xlsx(x = MSC_shifts_df_extract, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/MSC_shifts_df.xlsx")
+# write.xlsx(x = MSC_shifts_df_extract, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/MSC_shifts_df.xlsx")
 
 ##### 8/ Plot branch diversification rates on the phylogeny ####
 
@@ -1407,6 +1509,9 @@ plot(div_rates_tree$phy)
 # Save phylogeny scaled with mean diversification rates
 # saveRDS(div_rates_tree, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/div_rates_tree.rds")
 saveRDS(div_rates_tree, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/div_rates_tree.rds")
+# saveRDS(div_rates_tree, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/div_rates_tree.rds")
+# saveRDS(div_rates_tree, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/div_rates_tree.rds")
+
 
 ### 8.3/ Plot mean sliding rates + credible shift locations ####
 
@@ -1417,11 +1522,15 @@ saveRDS(div_rates_tree, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/div
 # Load metadata on rate shifts in the MSC tree
 # MSC_shifts_df <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/MSC_shifts_df.rds")
 MSC_shifts_df <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/MSC_shifts_df.rds")
+# MSC_shifts_df <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/MSC_shifts_df.rds")
+# MSC_shifts_df <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/MSC_shifts_df.rds")
 
 ## Plot histogram of different color palette settings for selection
 
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/Histograms_branch_rates.pdf", height = 12, width = 6)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/Histograms_branch_rates.pdf", height = 12, width = 6)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/Histograms_branch_rates.pdf", height = 12, width = 6)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/Histograms_branch_rates.pdf", height = 12, width = 6)
 
 par(mfrow = c(4,1), mar = c(3.0, 1.5, 1.0, 0.5), xpd = FALSE) # bltr
 
@@ -1460,7 +1569,9 @@ dev.off()
 ## Plot branch rates on the phylogeny: phylogram
 
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/Ponerinae_diversity_dynamics_rect.pdf", height = 10, width = 6)
-pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/Ponerinae_diversity_dynamics_rect.pdf", height = 10, width = 6)
+# pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/Ponerinae_diversity_dynamics_rect.pdf", height = 10, width = 6)
+pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_diversity_dynamics_rect.pdf", height = 10, width = 6)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_diversity_dynamics_rect.pdf", height = 10, width = 6)
 
 par(mfrow = c(1,1), xpd = TRUE)
 
@@ -1494,7 +1605,9 @@ dev.off()
 ## Plot branch rates on the phylogeny: polar
 
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/Ponerinae_diversity_dynamics_polar.pdf", height = 7, width = 6)
-pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/Ponerinae_diversity_dynamics_polar.pdf", height = 7, width = 6)
+# pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/Ponerinae_diversity_dynamics_polar.pdf", height = 7, width = 6)
+pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_diversity_dynamics_polar.pdf", height = 7, width = 6)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_diversity_dynamics_polar.pdf", height = 7, width = 6)
 
 par(mfrow = c(1,1), xpd = TRUE)
 
@@ -2332,7 +2445,7 @@ root_age_background_Ponerini <- max(phytools::nodeHeights(phy_background_Ponerin
 LTT_background_Ponerini <- phytools::ltt(tree = phy_background_Ponerini) # Get LTT data
 # Convert to df
 LTT_background_Ponerini_df <- data.frame(richness = LTT_background_Ponerini$ltt, time = LTT_background_Ponerini$times, age = root_age_background_Ponerini - LTT_background_Ponerini$times)
-# Assign updated richness accroding to standard time scale by matching times
+# Assign updated richness according to standard time scale by matching times
 LTT_background_Ponerini_df_updated <- data.frame(richness = NA, time = all_Ponerinae_times)
 matching_ID <- sapply(X = all_Ponerinae_times, FUN = find_next_higher_value_ID, y = LTT_background_Ponerini_df$age)
 matching_ID <- unlist(lapply(X = matching_ID, FUN = function (x) { if (purrr::is_empty(x)) { y <- NA } else { y <- x } } ))
@@ -2679,6 +2792,8 @@ for (i in seq_along(BAMM_posterior_samples_data$eventData))
 # Save BAMM trees scaled by div rates
 # saveRDS(BAMM_div_rates_trees, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_div_rates_trees.rds")
 saveRDS(BAMM_div_rates_trees, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_div_rates_trees.rds")
+# saveRDS(BAMM_div_rates_trees, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_div_rates_trees.rds")
+# saveRDS(BAMM_div_rates_trees, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_div_rates_trees.rds")
 
 ### 10.2/ Compute weighted mean rates along phylogenies ####
 
@@ -2688,10 +2803,14 @@ saveRDS(BAMM_div_rates_trees, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_153
 ## Load BAMM trees scaled by div rates
 # BAMM_div_rates_trees <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_div_rates_trees.rds")
 BAMM_div_rates_trees <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_div_rates_trees.rds")
+# BAMM_div_rates_trees <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_div_rates_trees.rds")
+# BAMM_div_rates_trees <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_div_rates_trees.rds")
 
 ## Load treedata with bioregion membership information
 # Ponerinae_phylogeny_1534t_treedata <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_phylogeny_1534t_treedata_for_ARE.rds")
 Ponerinae_phylogeny_1534t_treedata <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE.rds")
+# Ponerinae_phylogeny_1534t_treedata <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Youngest_phylogeny_1534t_treedata_for_ARE.rds")
+# Ponerinae_phylogeny_1534t_treedata <- readRDS(file = "./outputs/Grafting_missing_taxa/Ponerinae_Oldest_phylogeny_1534t_treedata_for_ARE.rds")
 
 # Mean state = PP of bioregion membership
 Ponerinae_phylogeny_1534t_treedata@extraInfo 
@@ -2793,11 +2912,24 @@ compute_weighted_mean_values_along_phylo <- function(treedata_obj, values, weigh
 }
 
 
-# Extract time scale from LTT data
-time_scale <- unique(LTT_per_clades_melted_df$time)
-time_scale <- time_scale[order(time_scale, decreasing = T)]
+# ## Extract time scale from LTT data
+# time_scale <- unique(LTT_per_clades_melted_df$time)
+# time_scale <- time_scale[order(time_scale, decreasing = T)]
 
-# Inform bioregion variable names
+## Extract time scale from getRateThroughTimeMatrix()
+all_Ponerinae_rates_through_time_matrix <- getRateThroughTimeMatrix(BAMM_posterior_samples_data, nslices = 100)
+all_Ponerinae_rates_through_time_matrix$net_div <- all_Ponerinae_rates_through_time_matrix$lambda - all_Ponerinae_rates_through_time_matrix$mu
+
+str(all_Ponerinae_rates_through_time_matrix, max.level = 1)
+
+dim(all_Ponerinae_rates_through_time_matrix$lambda) # Speciation rates per posterior sample (raw) x time window (columns)
+dim(all_Ponerinae_rates_through_time_matrix$mu) # Extinction rates per posterior sample (raw) x time window (columns)
+all_Ponerinae_rates_through_time_matrix$times # Mean time of the time windows. Names = age. Values = time since root.
+
+all_Ponerinae_times <- round(as.numeric(names(all_Ponerinae_rates_through_time_matrix$times)), 1)
+time_scale <- all_Ponerinae_times
+
+## Inform bioregion variable names
 Bioregions_group_var <- c("mean_state_Neotropics", "mean_state_Afrotropics", "mean_state_Eastern Palearctic",
                           "mean_state_Indomalaya", "mean_state_Western Palearctic", "mean_state_Australasia", 
                           "mean_state_Nearctic")
@@ -2813,7 +2945,6 @@ weighted_mean_per_bioregions_all_BAMM_phylo_array <- array(data = NA,
                                                     dimnames = list(sample = paste0("Sample_",1:length(BAMM_div_rates_trees)), time = time_scale, bioregion = c(Bioregions_group_var, OW_NW_group_var, Trop_Temp_group_var), value_type = value_types))
 
 ## Loop per Posterior sample 
-
 for (i in seq_along(BAMM_div_rates_trees))
 {
   # i <- 1
@@ -2879,6 +3010,8 @@ weighted_mean_per_bioregions_all_BAMM_phylo_array[,"0",,"weight_sum"]
 # Save array of weighted mean rates along phylogenies
 # saveRDS(weighted_mean_per_bioregions_all_BAMM_phylo_array, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/weighted_mean_per_bioregions_all_BAMM_phylo_array.rds")
 saveRDS(weighted_mean_per_bioregions_all_BAMM_phylo_array, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/weighted_mean_per_bioregions_all_BAMM_phylo_array.rds")
+# saveRDS(weighted_mean_per_bioregions_all_BAMM_phylo_array, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/weighted_mean_per_bioregions_all_BAMM_phylo_array.rds")
+# saveRDS(weighted_mean_per_bioregions_all_BAMM_phylo_array, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/weighted_mean_per_bioregions_all_BAMM_phylo_array.rds")
 
 
 ### 10.3/ Melt and filter rates for minimum branch counts ####
@@ -2898,6 +3031,8 @@ weighted_mean_per_bioregions_all_BAMM_phylo_melted$bioregion <- factor(weighted_
 # Save melted dataframe
 # saveRDS(object = weighted_mean_per_bioregions_all_BAMM_phylo_melted, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/weighted_mean_per_bioregions_all_BAMM_phylo_melted.rds")
 saveRDS(object = weighted_mean_per_bioregions_all_BAMM_phylo_melted, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/weighted_mean_per_bioregions_all_BAMM_phylo_melted.rds")
+# saveRDS(object = weighted_mean_per_bioregions_all_BAMM_phylo_melted, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/weighted_mean_per_bioregions_all_BAMM_phylo_melted.rds")
+# saveRDS(object = weighted_mean_per_bioregions_all_BAMM_phylo_melted, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/weighted_mean_per_bioregions_all_BAMM_phylo_melted.rds")
 
 
 ### 10.4/ Compute median and quantiles rates across posterior samples ####
@@ -2910,11 +3045,12 @@ weighted_mean_per_bioregions_median <- weighted_mean_per_bioregions_all_BAMM_phy
 
 ## Compute quantiles
 
-# Filter time to avoid failed polygons when plotting
-weighted_mean_per_bioregions_quantiles <- weighted_mean_per_bioregions_all_BAMM_phylo_melted %>% 
-  filter(time <= 85)
+# # Filter time to avoid failed polygons when plotting
+# weighted_mean_per_bioregions_quantiles <- weighted_mean_per_bioregions_all_BAMM_phylo_melted %>% 
+#   filter(time <= 85)
 
-weighted_mean_per_bioregions_quantiles <- weighted_mean_per_bioregions_quantiles %>% 
+# weighted_mean_per_bioregions_quantiles <- weighted_mean_per_bioregions_quantiles %>% 
+weighted_mean_per_bioregions_quantiles <- weighted_mean_per_bioregions_all_BAMM_phylo_melted %>% 
   group_by(time, bioregion) %>% 
   # Compute quantiles
   reframe(quant_rates = quantile(weighted_mean, probs = seq(from = 0, to = 1, by = 0.01), na.rm = T)) %>%
@@ -2942,9 +3078,24 @@ View(weighted_mean_per_bioregions_quantiles)
 # saveRDS(object = weighted_mean_per_bioregions_quantiles, "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/weighted_mean_per_bioregions_quantiles.rds")
 saveRDS(object = weighted_mean_per_bioregions_median, "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/weighted_mean_per_bioregions_median.rds")
 saveRDS(object = weighted_mean_per_bioregions_quantiles, "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/weighted_mean_per_bioregions_quantiles.rds")
+# saveRDS(object = weighted_mean_per_bioregions_median, "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/weighted_mean_per_bioregions_median.rds")
+# saveRDS(object = weighted_mean_per_bioregions_quantiles, "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/weighted_mean_per_bioregions_quantiles.rds")
+# saveRDS(object = weighted_mean_per_bioregions_median, "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/weighted_mean_per_bioregions_median.rds")
+# saveRDS(object = weighted_mean_per_bioregions_quantiles, "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/weighted_mean_per_bioregions_quantiles.rds")
 
   
 ### 10.5/ Plot rates through time per bioregions ####
+
+## Load rates data per bioregions
+weighted_mean_per_bioregions_all_BAMM_phylo_melted <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/weighted_mean_per_bioregions_all_BAMM_phylo_melted.rds")
+weighted_mean_per_bioregions_median <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/weighted_mean_per_bioregions_median.rds")
+weighted_mean_per_bioregions_quantiles <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/weighted_mean_per_bioregions_quantiles.rds")
+# weighted_mean_per_bioregions_all_BAMM_phylo_melted <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/weighted_mean_per_bioregions_all_BAMM_phylo_melted.rds")
+# weighted_mean_per_bioregions_median <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/weighted_mean_per_bioregions_median.rds")
+# weighted_mean_per_bioregions_quantiles <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/weighted_mean_per_bioregions_quantiles.rds")
+# weighted_mean_per_bioregions_all_BAMM_phylo_melted <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/weighted_mean_per_bioregions_all_BAMM_phylo_melted.rds")
+# weighted_mean_per_bioregions_median <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/weighted_mean_per_bioregions_median.rds")
+# weighted_mean_per_bioregions_quantiles <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/weighted_mean_per_bioregions_quantiles.rds")
 
 ## Set bioregion color scheme
 # colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
@@ -2962,9 +3113,19 @@ weighted_mean_per_bioregions_median_all_bioregions <- weighted_mean_per_bioregio
 weighted_mean_per_bioregions_quantiles_all_bioregions <- weighted_mean_per_bioregions_quantiles %>% 
   filter(bioregion %in% bioregion_names)
 
+# Set max_age and remove data to avoid issue with quantile polygons
+max_age <- 85 # For MCC
+# max_age <- 60 # For Youngest
+# max_age <- 120 # For Oldest
+
+weighted_mean_per_bioregions_quantiles_all_bioregions <- weighted_mean_per_bioregions_quantiles_all_bioregions %>% 
+  filter(time <= max_age)
+
 ## Generate plot using lines
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_ratesTT_per_bioregions_ggplot_fuzzy_lines.pdf", height = 8, width = 12)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_ratesTT_per_bioregions_ggplot_fuzzy_lines.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_ratesTT_per_bioregions_ggplot_fuzzy_lines.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_ratesTT_per_bioregions_ggplot_fuzzy_lines.pdf", height = 8, width = 12)
 
 ratesT_per_bioregions_ggplot_lines <- ggplot(data = weighted_mean_per_bioregions_all_BAMM_phylo_melted_all_bioregions) +
   
@@ -2997,7 +3158,8 @@ ratesT_per_bioregions_ggplot_lines <- ggplot(data = weighted_mean_per_bioregions
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
                      # limits = c(root_age, 0) # Set limits
-                     limits = c(85, 0) # Set limits
+                     # limits = c(85, 0) # Set limits
+                     limits = c(max_age, 0) # Set limits
   ) + 
   
   # Adjust color scheme and legend
@@ -3034,6 +3196,8 @@ dev.off()
 ## Generate plot using quantiles
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_ratesTT_per_bioregions_fuzzy_quantiles.pdf", height = 8, width = 12)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_ratesTT_per_bioregions_fuzzy_quantiles.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_ratesTT_per_bioregions_fuzzy_quantiles.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_ratesTT_per_bioregions_fuzzy_quantiles.pdf", height = 8, width = 12)
 
 ratesT_per_bioregions_ggplot_quantiles <- ggplot(data = weighted_mean_per_bioregions_quantiles_all_bioregions) +
   
@@ -3066,7 +3230,8 @@ ratesT_per_bioregions_ggplot_quantiles <- ggplot(data = weighted_mean_per_bioreg
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
                      # limits = c(root_age, 0) # Set limits
-                     limits = c(85, 0) # Set limits
+                     # limits = c(85, 0) # Set limits
+                     limits = c(max_age, 0) # Set limits
   ) + 
   
   # Adjust fill scheme and legend
@@ -3119,9 +3284,20 @@ weighted_mean_per_bioregions_median_OW_vs_NW <- weighted_mean_per_bioregions_med
 weighted_mean_per_bioregions_quantiles_OW_vs_NW <- weighted_mean_per_bioregions_quantiles %>% 
   filter(bioregion %in% OW_NW_factors)
 
+# Set max_age and remove data to avoid issue with polygons
+max_age <- 85 # For MCC
+# max_age <- 60 # For Youngest
+# max_age <- 120 # For Oldest
+
+weighted_mean_per_bioregions_quantiles_OW_vs_NW <- weighted_mean_per_bioregions_quantiles_OW_vs_NW %>% 
+  filter(time <= max_age)
+
+
 ## Generate plot using lines
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_ratesTT_OW_vs_NW_ggplot_fuzzy_lines.pdf", height = 8, width = 12)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_ratesTT_OW_vs_NW_ggplot_fuzzy_lines.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_ratesTT_OW_vs_NW_ggplot_fuzzy_lines.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_ratesTT_OW_vs_NW_ggplot_fuzzy_lines.pdf", height = 8, width = 12)
 
 ratesT_OW_vs_NW_ggplot_lines <- ggplot(data = weighted_mean_per_bioregions_all_BAMM_phylo_melted_OW_vs_NW) +
   
@@ -3154,7 +3330,8 @@ ratesT_OW_vs_NW_ggplot_lines <- ggplot(data = weighted_mean_per_bioregions_all_B
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
                      # limits = c(root_age, 0) # Set limits
-                     limits = c(85, 0) # Set limits
+                     # limits = c(85, 0) # Set limits
+                     limits = c(max_age, 0) # Set limits
   ) + 
   
   # Adjust color scheme and legend
@@ -3191,6 +3368,8 @@ dev.off()
 ## Generate plot using quantiles
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_ratesTT_OW_vs_NW_fuzzy_quantiles.pdf", height = 8, width = 12)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_ratesTT_OW_vs_NW_fuzzy_quantiles.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_ratesTT_OW_vs_NW_fuzzy_quantiles.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_ratesTT_OW_vs_NW_fuzzy_quantiles.pdf", height = 8, width = 12)
 
 ratesT_OW_vs_NW_ggplot_quantiles <- ggplot(data = weighted_mean_per_bioregions_quantiles_OW_vs_NW) +
   
@@ -3223,7 +3402,8 @@ ratesT_OW_vs_NW_ggplot_quantiles <- ggplot(data = weighted_mean_per_bioregions_q
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
                      # limits = c(root_age, 0) # Set limits
-                     limits = c(85, 0) # Set limits
+                     # limits = c(85, 0) # Set limits
+                     limits = c(max_age, 0) # Set limits
   ) + 
   
   # Adjust fill scheme and legend
@@ -3275,9 +3455,19 @@ weighted_mean_per_bioregions_median_Trop_vs_Temp <- weighted_mean_per_bioregions
 weighted_mean_per_bioregions_quantiles_Trop_vs_Temp <- weighted_mean_per_bioregions_quantiles %>% 
   filter(bioregion %in% Trop_Temp_names)
 
+# Set max_age and remove data to avoid issue with polygons
+max_age <- 85 # For MCC
+# max_age <- 60 # For Youngest
+# max_age <- 120 # For Oldest
+
+weighted_mean_per_bioregions_quantiles_Trop_vs_Temp <- weighted_mean_per_bioregions_quantiles_Trop_vs_Temp %>% 
+  filter(time <= max_age)
+
 ## Generate plot using lines
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_ratesTT_Trop_vs_Temp_ggplot_fuzzy_lines.pdf", height = 8, width = 12)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_ratesTT_Trop_vs_Temp_ggplot_fuzzy_lines.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_ratesTT_Trop_vs_Temp_ggplot_fuzzy_lines.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_ratesTT_Trop_vs_Temp_ggplot_fuzzy_lines.pdf", height = 8, width = 12)
 
 ratesT_Trop_vs_Temp_ggplot_lines <- ggplot(data = weighted_mean_per_bioregions_all_BAMM_phylo_melted_Trop_vs_Temp) +
   
@@ -3310,7 +3500,8 @@ ratesT_Trop_vs_Temp_ggplot_lines <- ggplot(data = weighted_mean_per_bioregions_a
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
                      # limits = c(root_age, 0) # Set limits
-                     limits = c(85, 0) # Set limits
+                     # limits = c(85, 0) # Set limits
+                     limits = c(max_age, 0) # Set limits
   ) + 
   
   # Adjust color scheme and legend
@@ -3347,6 +3538,8 @@ dev.off()
 ## Generate plot using quantiles
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_ratesTT_Trop_vs_Temp_fuzzy_quantiles.pdf", height = 8, width = 12)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_ratesTT_Trop_vs_Temp_fuzzy_quantiles.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_ratesTT_Trop_vs_Temp_fuzzy_quantiles.pdf", height = 8, width = 12)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_ratesTT_Trop_vs_Temp_fuzzy_quantiles.pdf", height = 8, width = 12)
 
 ratesT_Trop_vs_Temp_ggplot_quantiles <- ggplot(data = weighted_mean_per_bioregions_quantiles_Trop_vs_Temp) +
   
@@ -3379,7 +3572,8 @@ ratesT_Trop_vs_Temp_ggplot_quantiles <- ggplot(data = weighted_mean_per_bioregio
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
                      # limits = c(root_age, 0) # Set limits
-                     limits = c(85, 0) # Set limits
+                     # limits = c(85, 0) # Set limits
+                     limits = c(max_age, 0) # Set limits
   ) + 
   
   # Adjust fill scheme and legend
@@ -3590,6 +3784,8 @@ STRAPP_test_all_bioregions$null # Null statistic for each posterior sample
 # Save STRAPP test output
 # saveRDS(STRAPP_test_all_bioregions, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_test_all_bioregions.rds")
 saveRDS(STRAPP_test_all_bioregions, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_test_all_bioregions.rds")
+# saveRDS(STRAPP_test_all_bioregions, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_test_all_bioregions.rds")
+# saveRDS(STRAPP_test_all_bioregions, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_test_all_bioregions.rds")
 
 ## Plot histogram of the test
 
@@ -3602,6 +3798,8 @@ STRAPP_test_all_bioregions$stat_Q5 <- quantile(STRAPP_test_all_bioregions$test_s
 
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_test_all_bioregions_hist.pdf", height = 6, width = 8)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_test_all_bioregions_hist.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_test_all_bioregions_hist.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_test_all_bioregions_hist.pdf", height = 6, width = 8)
 
 par(mar = c(5.1, 5.1, 4.1, 2.1)) # bltr
 
@@ -3647,6 +3845,7 @@ legend(legend = c(paste0("CI 5% = ", round(as.numeric(STRAPP_test_all_bioregions
 
 dev.off()
 
+
 ### 11.3/ Test Old World vs. New World ####
 
 # Assign tip names to tip data
@@ -3676,6 +3875,8 @@ STRAPP_test_OW_vs_NW$null # Null statistic for each posterior sample
 # Save STRAPP test output
 # saveRDS(STRAPP_test_OW_vs_NW, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_test_OW_vs_NW.rds")
 saveRDS(STRAPP_test_OW_vs_NW, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_test_OW_vs_NW.rds")
+# saveRDS(STRAPP_test_OW_vs_NW, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_test_OW_vs_NW.rds")
+# saveRDS(STRAPP_test_OW_vs_NW, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_test_OW_vs_NW.rds")
 
 ## Plot histogram of the test
 
@@ -3688,6 +3889,8 @@ STRAPP_test_OW_vs_NW$stat_Q5 <- quantile(STRAPP_test_OW_vs_NW$test_stats, p = 0.
 
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_test_OW_vs_NW_hist.pdf", height = 6, width = 8)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_test_OW_vs_NW_hist.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_test_OW_vs_NW_hist.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_test_OW_vs_NW_hist.pdf", height = 6, width = 8)
 
 par(mar = c(5.1, 5.1, 4.1, 2.1)) # bltr
 
@@ -3728,6 +3931,7 @@ legend(legend = c(paste0("CI 5% = ", round(as.numeric(STRAPP_test_OW_vs_NW$stat_
 
 dev.off()
 
+
 ### 11.4/ Test Tropics vs. Temperate bioregions ####
 
 # Assign tip names to tip data
@@ -3756,7 +3960,9 @@ STRAPP_test_Trop_vs_Temp$null # Null statistic for each posterior sample
 
 # Save STRAPP test output
 # saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_test_Trop_vs_Temps.rds")
-saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_test_Trop_vs_Temps.rds")
+saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_test_Trop_vs_Temps.rds")
+# saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_test_Trop_vs_Temps.rds")
+# saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_test_Trop_vs_Temps.rds")
 
 
 ## Plot histogram of the test
@@ -3770,6 +3976,8 @@ STRAPP_test_Trop_vs_Temp$stat_Q5 <- quantile(STRAPP_test_Trop_vs_Temp$test_stats
 
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_test_Trop_vs_Temp_hist.pdf", height = 6, width = 8)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_test_Trop_vs_Temp_hist.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_test_Trop_vs_Temp_hist.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_test_Trop_vs_Temp_hist.pdf", height = 6, width = 8)
 
 par(mar = c(5.1, 5.1, 4.1, 2.1)) # bltr
 
@@ -3826,6 +4034,8 @@ dev.off()
 # Load simmaps with only unique areas
 # DEC_J_simmaps_unique_areas <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
 DEC_J_simmaps_unique_areas <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
+# DEC_J_simmaps_unique_areas <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
+# DEC_J_simmaps_unique_areas <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_simmaps_unique_areas.rds")
 
 # Load a custom function to produce densityMap
 source(file = "./functions/densityMap_custom.R")
@@ -3893,10 +4103,14 @@ plot(DEC_J_density_map_OW_vs_NW)
 ## Save the resulting Density map with updated color gradient
 # saveRDS(object = DEC_J_density_map_OW_vs_NW, file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_OW_vs_NW.rds"))
 saveRDS(object = DEC_J_density_map_OW_vs_NW, file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_OW_vs_NW.rds"))
+# saveRDS(object = DEC_J_density_map_OW_vs_NW, file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_density_map_OW_vs_NW.rds"))
+# saveRDS(object = DEC_J_density_map_OW_vs_NW, file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_density_map_OW_vs_NW.rds"))
 
 ## Load the resulting Density map with updated color gradient
 # DEC_J_density_map_OW_vs_NW <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_OW_vs_NW.rds"))
 DEC_J_density_map_OW_vs_NW <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_OW_vs_NW.rds"))
+# DEC_J_density_map_OW_vs_NW <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_density_map_OW_vs_NW.rds"))
+# DEC_J_density_map_OW_vs_NW <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_density_map_OW_vs_NW.rds"))
 
 
 ## 12.1.2/ Compute density maps for Tropics vs. Temperate ####
@@ -3956,6 +4170,8 @@ plot(DEC_J_density_map_Trop_vs_Temp)
 ## Save the resulting Density map with updated color gradient
 # saveRDS(object = DEC_J_density_map_Trop_vs_Temp, file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_Trop_vs_Temp.rds"))
 saveRDS(object = DEC_J_density_map_Trop_vs_Temp, file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_Trop_vs_Temp.rds"))
+# saveRDS(object = DEC_J_density_map_Trop_vs_Temp, file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_density_map_Trop_vs_Temp.rds"))
+# saveRDS(object = DEC_J_density_map_Trop_vs_Temp, file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_density_map_Trop_vs_Temp.rds"))
 
 
 ### 12.2/ Functions to run STRAPP test along evolutionary time ####
@@ -4293,20 +4509,38 @@ get_most_likely_states_for_focal_time <- function (densityMaps, time)
 # Load the BAMM posterior samples object
 # BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_posterior_samples_data.rds")
 BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+# BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+# BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_posterior_samples_data.rds")
 
 ## Load the binary density map for OW vs. NW
 # DEC_J_density_map_OW_vs_NW <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_OW_vs_NW.rds"))
 DEC_J_density_map_OW_vs_NW <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_OW_vs_NW.rds"))
+# DEC_J_density_map_OW_vs_NW <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_density_map_OW_vs_NW.rds"))
+# DEC_J_density_map_OW_vs_NW <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_density_map_OW_vs_NW.rds"))
 
 
 # Load the custom STRAPP test function
 source("./functions/run_STRAPP_test.R")
 
-# Extract time scale from LTT data
-# LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/LTT_per_clades_melted_df.rds")
-LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/LTT_per_clades_melted_df.rds")
-time_scale <- unique(LTT_per_clades_melted_df$time)
-time_scale <- time_scale[order(time_scale, decreasing = T)]
+# ## Extract time scale from LTT data
+# # LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/LTT_per_clades_melted_df.rds")
+# LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/LTT_per_clades_melted_df.rds")
+# time_scale <- unique(LTT_per_clades_melted_df$time)
+# time_scale <- time_scale[order(time_scale, decreasing = T)]
+
+## Extract time scale from getRateThroughTimeMatrix()
+all_Ponerinae_rates_through_time_matrix <- getRateThroughTimeMatrix(BAMM_posterior_samples_data, nslices = 100)
+all_Ponerinae_rates_through_time_matrix$net_div <- all_Ponerinae_rates_through_time_matrix$lambda - all_Ponerinae_rates_through_time_matrix$mu
+
+str(all_Ponerinae_rates_through_time_matrix, max.level = 1)
+
+dim(all_Ponerinae_rates_through_time_matrix$lambda) # Speciation rates per posterior sample (raw) x time window (columns)
+dim(all_Ponerinae_rates_through_time_matrix$mu) # Extinction rates per posterior sample (raw) x time window (columns)
+all_Ponerinae_rates_through_time_matrix$times # Mean time of the time windows. Names = age. Values = time since root.
+
+all_Ponerinae_times <- round(as.numeric(names(all_Ponerinae_rates_through_time_matrix$times)), 1)
+time_scale <- all_Ponerinae_times
+
 
 ## May need to unload 'raster' package to avoid conflict
 detach("package:raster", unload = TRUE)
@@ -4343,6 +4577,8 @@ for (i in seq_along(time_scale))
   # Save input data for STRAPP test
   # saveRDS(STRAPP_data_OW_vs_NW_all_time, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_data_OW_vs_NW_all_time.rds")
   saveRDS(STRAPP_data_OW_vs_NW_all_time, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_data_OW_vs_NW_all_time.rds")
+  # saveRDS(STRAPP_data_OW_vs_NW_all_time, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_data_OW_vs_NW_all_time.rds")
+  # saveRDS(STRAPP_data_OW_vs_NW_all_time, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_data_OW_vs_NW_all_time.rds")
 
   ## 12.3.2/ Run STRAPP test ####
   
@@ -4396,6 +4632,8 @@ for (i in seq_along(time_scale))
   # Save STRAPP test outputs
   # saveRDS(STRAPP_tests_OW_vs_NW_all_time, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_OW_vs_NW_all_time.rds")
   saveRDS(STRAPP_tests_OW_vs_NW_all_time, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_OW_vs_NW_all_time.rds")
+  # saveRDS(STRAPP_tests_OW_vs_NW_all_time, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_tests_OW_vs_NW_all_time.rds")
+  # saveRDS(STRAPP_tests_OW_vs_NW_all_time, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_tests_OW_vs_NW_all_time.rds")
   
   ## Print progress
   if (i %% 1 == 0)
@@ -4410,6 +4648,25 @@ for (i in seq_along(time_scale))
 # Load STRAPP test outputs
 # STRAPP_tests_OW_vs_NW_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_OW_vs_NW_all_time.rds")
 STRAPP_tests_OW_vs_NW_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_OW_vs_NW_all_time.rds")
+# STRAPP_tests_OW_vs_NW_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_tests_OW_vs_NW_all_time.rds")
+# STRAPP_tests_OW_vs_NW_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_tests_OW_vs_NW_all_time.rds")
+
+STRAPP_tests_OW_vs_NW_all_time[[100]] 
+# For Youngest: Focal time = 0 My, Q5 = -50510, p = 0.523, OW = 0.1792, NW = 0.1774
+# For Oldest: Focal time = 0 My, Q5 = -43164, p = 0.603, OW = 0.0707, NW = 0.0698
+
+STRAPP_tests_OW_vs_NW_all_time[[90]] 
+# For Youngest: Focal time = 10.4 My, Q5 = -5098, p = 0.584, OW = 0.1263, NW = 0.1282
+
+STRAPP_tests_OW_vs_NW_all_time[[94]]
+# For Oldest: Focal time = 10.5 My, Q5 = -2420, p = 0.578, OW = 0.0627, NW = 0.0627
+
+STRAPP_tests_OW_vs_NW_all_time[[85]] 
+# For Youngest: Focal time = 15.6 My, Q5 = -410, p = 0.245, OW = 0.0966, NW = 0.0978
+
+STRAPP_tests_OW_vs_NW_all_time[[81]] 
+# For Youngest: Focal time = 33.4 My, Q5 = -630.5, p = 0.172, OW = 0.0437 (?), NW = 0.0415 (?)
+STRAPP_tests_OW_vs_NW_all_time[[30]] 
 
 # Extract p-value and time
 STRAPP_tests_OW_vs_NW_df <- data.frame(time = unlist(lapply(STRAPP_tests_OW_vs_NW_all_time, FUN = function (x) { x$focal_time }) ),
@@ -4419,11 +4676,16 @@ STRAPP_tests_OW_vs_NW_df
 # Save STRAPP tests through evolutionary time df for OW vs NW
 # saveRDS(STRAPP_tests_OW_vs_NW_df, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_OW_vs_NW_df.rds")
 saveRDS(STRAPP_tests_OW_vs_NW_df, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_OW_vs_NW_df.rds")
+# saveRDS(STRAPP_tests_OW_vs_NW_df, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_tests_OW_vs_NW_df.rds")
+# saveRDS(STRAPP_tests_OW_vs_NW_df, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_tests_OW_vs_NW_df.rds")
 
 # Extract root age
 root_age <- time_scale[1]
+
 # Set X-axis limit
-max_age <- 85
+max_age <- 85 # For MCC
+max_age <- 60 # For Youngest
+max_age <- 120 # For Oldest
 
 # Prepare data for significance area
 significance_area_poly_df <- data.frame(p_value = c(0.00, 0.00, 0.05, 0.05),
@@ -4461,10 +4723,13 @@ start_signif <- starts[replace_na(data = RLE_output$values, replace = F)]
 end_signif <- ends[replace_na(data = RLE_output$values, replace = F)]
 time_signif <- STRAPP_tests_OW_vs_NW_df$time[unique(c(start_signif, end_signif))]
 
+STRAPP_tests_OW_vs_NW_df[which.min(STRAPP_tests_OW_vs_NW_df$p_value), ]
 
 ## GGplot
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_OW_vs_NW_pvalTT.pdf", height = 6, width = 8)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_OW_vs_NW_pvalTT.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_tests_OW_vs_NW_pvalTT.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_tests_OW_vs_NW_pvalTT.pdf", height = 6, width = 8)
 
 STRAPP_tests_OW_vs_NW_plot <- ggplot(data = STRAPP_tests_OW_vs_NW_df,
                                      mapping = aes(y = p_value, x = time)) +
@@ -4501,7 +4766,9 @@ STRAPP_tests_OW_vs_NW_plot <- ggplot(data = STRAPP_tests_OW_vs_NW_df,
             linewidth = 2.0) +
   
   # Add special times to investigate differences
-  geom_vline(xintercept = 23, linewidth = 1.0, linetype = "dashed") + # T = 23 My (Oligocene-Miocene) => Peak of differences
+  # geom_vline(xintercept = 33.4, linewidth = 1.0, linetype = "dashed") + # T = 33 My (Mid Oligocene) => Peak of differences for Oldest 
+  geom_vline(xintercept = 23, linewidth = 1.0, linetype = "dashed") + # T = 23 My (Oligocene-Miocene) => Peak of differences for MCC
+  # geom_vline(xintercept = 15.6, linewidth = 1.0, linetype = "dashed") + # T = 16 My (Late Miocene) => Peak of differences for Youngest
   geom_vline(xintercept = 10, linewidth = 1.0, linetype = "dashed") + # T = 10 My (Mid Miocene) => Inflexion/Crossing point
   geom_vline(xintercept = 0, linewidth = 1.0, linetype = "dashed") + # T = 0 My (Present) => Classic BAMM test
   
@@ -4516,7 +4783,8 @@ STRAPP_tests_OW_vs_NW_plot <- ggplot(data = STRAPP_tests_OW_vs_NW_df,
   scale_x_continuous(transform = "reverse",
                      expand = c(0,0),
                      # limits = c(root_age, 0) # Set limits
-                     limits = c(85, 0) # Set limits
+                     # limits = c(85, 0) # Set limits
+                     limits = c(max_age, 0) # Set limits
   ) + 
   
   # Reverse p-value scale
@@ -4945,22 +5213,41 @@ dev.off()
 # Load the BAMM posterior samples object
 # BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_posterior_samples_data.rds")
 BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+# BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+# BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_posterior_samples_data.rds")
 
 ## Load the binary density map for Tropics vs Temperate
 # DEC_J_density_map_Trop_vs_Temp <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_Trop_vs_Temp.rds"))
 DEC_J_density_map_Trop_vs_Temp <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_Trop_vs_Temp.rds"))
+# DEC_J_density_map_Trop_vs_Temp <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_density_map_Trop_vs_Temp.rds"))
+# DEC_J_density_map_Trop_vs_Temp <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_density_map_Trop_vs_Temp.rds"))
 
 # Load the custom STRAPP test function
 source("./functions/run_STRAPP_test.R")
 
-# Extract time scale from LTT data
-# LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/LTT_per_clades_melted_df.rds")
-LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/LTT_per_clades_melted_df.rds")
-time_scale <- unique(LTT_per_clades_melted_df$time)
-time_scale <- time_scale[order(time_scale, decreasing = T)]
+# ## Extract time scale from LTT data
+# # LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/LTT_per_clades_melted_df.rds")
+# LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/LTT_per_clades_melted_df.rds")
+# time_scale <- unique(LTT_per_clades_melted_df$time)
+# time_scale <- time_scale[order(time_scale, decreasing = T)]
+
+## Extract time scale from getRateThroughTimeMatrix()
+all_Ponerinae_rates_through_time_matrix <- getRateThroughTimeMatrix(BAMM_posterior_samples_data, nslices = 100)
+all_Ponerinae_rates_through_time_matrix$net_div <- all_Ponerinae_rates_through_time_matrix$lambda - all_Ponerinae_rates_through_time_matrix$mu
+
+str(all_Ponerinae_rates_through_time_matrix, max.level = 1)
+
+dim(all_Ponerinae_rates_through_time_matrix$lambda) # Speciation rates per posterior sample (raw) x time window (columns)
+dim(all_Ponerinae_rates_through_time_matrix$mu) # Extinction rates per posterior sample (raw) x time window (columns)
+all_Ponerinae_rates_through_time_matrix$times # Mean time of the time windows. Names = age. Values = time since root.
+
+all_Ponerinae_times <- round(as.numeric(names(all_Ponerinae_rates_through_time_matrix$times)), 1)
+time_scale <- all_Ponerinae_times
+time_scale
 
 ## May need to unload 'raster' package to avoid conflict
 detach("package:raster", unload = TRUE)
+
 
 ## Set seed for reproducibility of permutation tests
 set.seed(seed = 12345)
@@ -4994,6 +5281,8 @@ for (i in seq_along(time_scale))
   # Save input data for STRAPP test
   # saveRDS(STRAPP_data_Trop_vs_Temp_all_time, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_data_Trop_vs_Temp_all_time.rds")
   saveRDS(STRAPP_data_Trop_vs_Temp_all_time, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_data_Trop_vs_Temp_all_time.rds")
+  # saveRDS(STRAPP_data_Trop_vs_Temp_all_time, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_data_Trop_vs_Temp_all_time.rds")
+  # saveRDS(STRAPP_data_Trop_vs_Temp_all_time, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_data_Trop_vs_Temp_all_time.rds")
   
   ## 12.4.2/ Run STRAPP test ####
   
@@ -5047,6 +5336,8 @@ for (i in seq_along(time_scale))
   # Save STRAPP test outputs
   # saveRDS(STRAPP_tests_Trop_vs_Temp_all_time, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_all_time.rds")
   saveRDS(STRAPP_tests_Trop_vs_Temp_all_time, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_all_time.rds")
+  # saveRDS(STRAPP_tests_Trop_vs_Temp_all_time, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_all_time.rds")
+  # saveRDS(STRAPP_tests_Trop_vs_Temp_all_time, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_all_time.rds")
   
   ## Print progress
   if (i %% 1 == 0)
@@ -5058,13 +5349,22 @@ for (i in seq_along(time_scale))
 
 ## 12.4.3/ Plot evolution of p-value in time ####
 
-# # Load input data for STRAPP test
-# STRAPP_data_Trop_vs_Temp_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_data_Trop_vs_Temp_all_time.rds")
-# STRAPP_data_Trop_vs_Temp_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_data_Trop_vs_Temp_all_time.rds")
-
 # Load STRAPP test outputs
 # STRAPP_tests_Trop_vs_Temp_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_all_time.rds")
 STRAPP_tests_Trop_vs_Temp_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_all_time.rds")
+# STRAPP_tests_Trop_vs_Temp_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_all_time.rds")
+# STRAPP_tests_Trop_vs_Temp_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_all_time.rds")
+
+STRAPP_tests_Trop_vs_Temp_all_time[[100]] 
+# For Youngest: Focal time = 0 My, Q5 = -8208, p = 0.613, Trop = 0.1775, Temp = 0.1765
+# For Oldest: Focal time = 0 My, Q5 = -10456, p = 0.345, Trop = 0.0699, Temp = 0.0718
+
+STRAPP_tests_Trop_vs_Temp_all_time[[90]] 
+# For Youngest: Focal time = 10.4 My, Q5 = -35.1, p = 0.373, Trop = 0.1278, Temp = 0.1190
+
+STRAPP_tests_Trop_vs_Temp_all_time[[94]] 
+# For Oldest: Focal time = 10.5 My, Q5 = -414.15, p = 0.658, Trop = 0.0626 (?), Temp = 0.0673 (?)
+
 
 # Extract p-value and time
 STRAPP_tests_Trop_vs_Temp_df <- data.frame(time = unlist(lapply(STRAPP_tests_Trop_vs_Temp_all_time, FUN = function (x) { x$focal_time }) ),
@@ -5074,6 +5374,8 @@ STRAPP_tests_Trop_vs_Temp_df
 # Save STRAPP tests through evolutionary time df for OW vs NW
 # saveRDS(STRAPP_tests_Trop_vs_Temp_df, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_df.rds")
 saveRDS(STRAPP_tests_Trop_vs_Temp_df, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_df.rds")
+# saveRDS(STRAPP_tests_Trop_vs_Temp_df, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_df.rds")
+# saveRDS(STRAPP_tests_Trop_vs_Temp_df, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_df.rds")
 
 # Extract root age
 root_age <- time_scale[1]
@@ -5114,6 +5416,8 @@ STRAPP_tests_Trop_vs_Temp_df[which.min(STRAPP_tests_Trop_vs_Temp_df$p_value), ]
 ## GGplot
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_pvalTT.pdf", height = 6, width = 8)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_pvalTT.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_pvalTT.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_tests_Trop_vs_Temp_pvalTT.pdf", height = 6, width = 8)
 
 STRAPP_tests_Trop_vs_Temp_plot <- ggplot(# data = STRAPP_tests_Trop_vs_Temp_df,
                                          data = STRAPP_tests_Trop_vs_Temp_df[!is.na(STRAPP_tests_Trop_vs_Temp_df$p_value), ],
@@ -5469,26 +5773,47 @@ dev.off()
 # Load the BAMM posterior samples object
 # BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_posterior_samples_data.rds")
 BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+# BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+# BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_posterior_samples_data.rds")
 
 ## Load the binary density map for All_bioregions
 # DEC_J_density_map_all_bioregions <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_rough_phylogeny_1534t/DEC_J_density_map_all_areas"))
 DEC_J_density_map_all_bioregions <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_MCC_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
+# DEC_J_density_map_all_bioregions <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_Youngest_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
+# DEC_J_density_map_all_bioregions <- readRDS(file = paste0("./outputs/Density_maps/Ponerinae_Oldest_phylogeny_1534t/DEC_J_density_map_all_areas.rds"))
 
-# Rename density maps accroding to bioregion codes
-names(DEC_J_density_map_all_bioregions) <- c("A", "N", "I", "U", "E", "W", "R")
+# Rename density maps according to bioregion codes
+names(DEC_J_density_map_all_bioregions) <- c("A", "N", "I", "U", "E", "W", "R") # For MCC
+# names(DEC_J_density_map_all_bioregions) <- c("I", "N", "A", "E", "U", "W", "R") # For Youngest
+# names(DEC_J_density_map_all_bioregions) <- c("A", "I", "E", "U", "W", "N", "R") # For Oldest
 
-# Load results from Trop_vs_Temp to use the updated BAMM objects
-STRAPP_data_Trop_vs_Temp_all_time <- readRDS(, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_data_Trop_vs_Temp_all_time.rds")
+# Load results from Trop_vs_Temp to use the updated BAMM objects (no need to rerun the BAMM update process)
+STRAPP_data_Trop_vs_Temp_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_data_Trop_vs_Temp_all_time.rds")
+# STRAPP_data_Trop_vs_Temp_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_data_Trop_vs_Temp_all_time.rds")
+# STRAPP_data_Trop_vs_Temp_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_data_Trop_vs_Temp_all_time.rds")
 
 
 # Load the custom STRAPP test function
 source("./functions/run_STRAPP_test.R")
 
-# Extract time scale from LTT data
-# LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/LTT_per_clades_melted_df.rds")
-LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/LTT_per_clades_melted_df.rds")
-time_scale <- unique(LTT_per_clades_melted_df$time)
-time_scale <- time_scale[order(time_scale, decreasing = T)]
+# ## Extract time scale from LTT data
+# # LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/LTT_per_clades_melted_df.rds")
+# LTT_per_clades_melted_df <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/LTT_per_clades_melted_df.rds")
+# time_scale <- unique(LTT_per_clades_melted_df$time)
+# time_scale <- time_scale[order(time_scale, decreasing = T)]
+
+## Extract time scale from getRateThroughTimeMatrix()
+all_Ponerinae_rates_through_time_matrix <- getRateThroughTimeMatrix(BAMM_posterior_samples_data, nslices = 100)
+all_Ponerinae_rates_through_time_matrix$net_div <- all_Ponerinae_rates_through_time_matrix$lambda - all_Ponerinae_rates_through_time_matrix$mu
+
+str(all_Ponerinae_rates_through_time_matrix, max.level = 1)
+
+dim(all_Ponerinae_rates_through_time_matrix$lambda) # Speciation rates per posterior sample (raw) x time window (columns)
+dim(all_Ponerinae_rates_through_time_matrix$mu) # Extinction rates per posterior sample (raw) x time window (columns)
+all_Ponerinae_rates_through_time_matrix$times # Mean time of the time windows. Names = age. Values = time since root.
+
+all_Ponerinae_times <- round(as.numeric(names(all_Ponerinae_rates_through_time_matrix$times)), 1)
+time_scale <- all_Ponerinae_times
 
 ## May need to unload 'raster' package to avoid conflict
 detach("package:raster", unload = TRUE)
@@ -5529,7 +5854,9 @@ for (i in seq_along(time_scale))
   
   # Save input data for STRAPP test
   # saveRDS(STRAPP_data_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_data_all_bioregions_all_time.rds")
-  saveRDS(STRAPP_data_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_data_all_bioregions_all_time.rds")
+  # saveRDS(STRAPP_data_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_data_all_bioregions_all_time.rds")
+  saveRDS(STRAPP_data_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_data_all_bioregions_all_time.rds")
+  # saveRDS(STRAPP_data_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_data_all_bioregions_all_time.rds")
   
   ## 12.5.2/ Run STRAPP test ####
   
@@ -5582,7 +5909,9 @@ for (i in seq_along(time_scale))
   
   # Save STRAPP test outputs
   # saveRDS(STRAPP_tests_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
-  saveRDS(STRAPP_tests_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
+  # saveRDS(STRAPP_tests_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
+  saveRDS(STRAPP_tests_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
+  # saveRDS(STRAPP_tests_all_bioregions_all_time, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
   
   ## Print progress
   if (i %% 1 == 0)
@@ -5593,22 +5922,30 @@ for (i in seq_along(time_scale))
 
 ## 12.5.3/ Plot evolution of p-value in time ####
 
-# # Load input data for STRAPP test
-# STRAPP_data_all_bioregions_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_data_all_bioregions_all_time.rds")
-# STRAPP_data_all_bioregions_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_data_all_bioregions_all_time.rds")
-
 # Load STRAPP test outputs
 # STRAPP_tests_all_bioregions_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
 STRAPP_tests_all_bioregions_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
+# STRAPP_tests_all_bioregions_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
+# STRAPP_tests_all_bioregions_all_time <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_tests_all_bioregions_all_time.rds")
 
-# Focal-time = 0 My; Q5 = -53.58, p = 0.594
 STRAPP_tests_all_bioregions_all_time[[100]]
+# For MCC: Focal-time = 0 My; Q5 = -53.58, p = 0.594
+# For Youngest: Focal-time = 0 My; Q5 = -66.04, p = 0.647
+# For Oldest: Focal-time = 0 My; Q5 = -48.49, p = 0.700
 
-# Focal-time = 10 My; Q5 = -11.55, p = 0.678
 STRAPP_tests_all_bioregions_all_time[[92]]
+# For MCC: Focal-time = 10 My; Q5 = -11.55, p = 0.678
+STRAPP_tests_all_bioregions_all_time[[90]]
+# For Youngest: Focal-time = 10.4 My; Q5 = -17.7, p = 0.436
+STRAPP_tests_all_bioregions_all_time[[94]]
+# For Oldest: Focal-time = 10.5 My; Q5 = -20.88, p = 0.724
 
-# Focal-time = 23.7 My; Q5 = -11.94, p = 0.164
 STRAPP_tests_all_bioregions_all_time[[81]]
+# For MCC: Focal-time = 23.7 My; Q5 = -11.94, p = 0.164
+STRAPP_tests_all_bioregions_all_time[[85]]
+# For Youngest: Focal-time = 15.6 My; Q5 = -13.9, p = 0.258
+STRAPP_tests_all_bioregions_all_time[[81]]
+# For Oldest: Focal-time = 33.4 My; Q5 = -8.69, p = 0.212
 
 
 # Extract p-value and time
@@ -5619,12 +5956,17 @@ STRAPP_tests_all_bioregions_df
 # Save STRAPP tests through evolutionary time df for OW vs NW
 # saveRDS(STRAPP_tests_all_bioregions_df, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_all_bioregions_df.rds")
 saveRDS(STRAPP_tests_all_bioregions_df, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_all_bioregions_df.rds")
+# saveRDS(STRAPP_tests_all_bioregions_df, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_tests_all_bioregions_df.rds")
+# saveRDS(STRAPP_tests_all_bioregions_df, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_tests_all_bioregions_df.rds")
 
 # Extract root age
 root_age <- time_scale[1]
 max_age <- root_age
-# Set plot limits to Miocene
-max_age <- 23
+
+# Set X-axis limit
+max_age <- 85 # For MCC
+max_age <- 60 # For Youngest
+max_age <- 120 # For Oldest
 
 # Prepare data for significance area
 significance_area_poly_df <- data.frame(p_value = c(0.00, 0.00, 0.05, 0.05),
@@ -5660,6 +6002,8 @@ STRAPP_tests_all_bioregions_df[which.min(STRAPP_tests_all_bioregions_df$p_value)
 ## GGplot
 # pdf(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_tests_all_bioregions_pvalTT.pdf", height = 6, width = 8)
 pdf(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_tests_all_bioregions_pvalTT.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_tests_all_bioregions_pvalTT.pdf", height = 6, width = 8)
+# pdf(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_tests_all_bioregions_pvalTT.pdf", height = 6, width = 8)
 
 STRAPP_tests_all_bioregions_plot <- ggplot(# data = STRAPP_tests_all_bioregions_df,
   data = STRAPP_tests_all_bioregions_df[!is.na(STRAPP_tests_all_bioregions_df$p_value), ],
@@ -5685,7 +6029,9 @@ STRAPP_tests_all_bioregions_plot <- ggplot(# data = STRAPP_tests_all_bioregions_
             linewidth = 2.0) +
   
   # Add special times to investigate differences
-  geom_vline(xintercept = 23, linewidth = 1.0, linetype = "dashed") + # T = 23 My (Oligo-Miocene) => Biggest difference
+  # geom_vline(xintercept = 33.4, linewidth = 1.0, linetype = "dashed") + # T = 33 My (Mid Oligocene) => Biggest difference for Oldest
+  geom_vline(xintercept = 23, linewidth = 1.0, linetype = "dashed") + # T = 23 My (Oligo-Miocene) => Biggest difference for MCC
+  # geom_vline(xintercept = 15.6, linewidth = 1.0, linetype = "dashed") + # T = 16 My (Early Miocene) => Biggest difference for Youngest
   geom_vline(xintercept = 10, linewidth = 1.0, linetype = "dashed") + # T = 10 My (Mid Miocene) => Limit for Trop/Temp tests
   geom_vline(xintercept = 0, linewidth = 1.0, linetype = "dashed") + # T = 0 My (Present) => Classic BAMM test
   
@@ -5743,6 +6089,8 @@ library(raster)
 ## Load binary alpha-hull range raster stack
 Ponerinae_alpha_hull_stack_WGS84 <- readRDS(file = paste0("./outputs/Species_richness_maps/Ponerinae_species_alpha_hull_stack_WGS84.rds"))
 
+plot(Ponerinae_alpha_hull_stack_WGS84)
+
 ## Load bioregion sf
 Bioregions_sf_Bioregions_level <- readRDS(file = "./input_data/geoBoundaries/Bioregions_sf_Bioregions_level.rds")
 Bioregions_sf_Bioregions_level_Mollweide <- readRDS(file = "./outputs/Species_richness_maps/Bioregions_sf_Bioregions_level_Mollweide.rds")
@@ -5750,6 +6098,8 @@ Bioregions_sf_Bioregions_level_Mollweide <- readRDS(file = "./outputs/Species_ri
 ## Load the BAMM posterior samples object
 # BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/BAMM_posterior_samples_data.rds")
 BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+# BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/BAMM_posterior_samples_data.rds")
+# BAMM_posterior_samples_data <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/BAMM_posterior_samples_data.rds")
 
 ### 13.1/ Compute current median net diversification rates ####
 
@@ -5774,6 +6124,8 @@ current_median_tip_rates_df$net_div <- current_median_tip_rates_df$lambda - curr
 # Save current median tip rates
 #saveRDS(current_median_tip_rates_df, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/current_median_tip_rates_df.rds")
 saveRDS(current_median_tip_rates_df, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/current_median_tip_rates_df.rds")
+# saveRDS(current_median_tip_rates_df, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/current_median_tip_rates_df.rds")
+# saveRDS(current_median_tip_rates_df, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/current_median_tip_rates_df.rds")
 
 
 ### 13.2/ Compute mean current rates raster ####
@@ -5784,6 +6136,8 @@ terrestrial_bg_WGS84 <- readRDS(file = "./outputs/Species_richness_maps/terrestr
 # Load current median tip rates
 # current_median_tip_rates_df <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/current_median_tip_rates_df.rds")
 current_median_tip_rates_df <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/current_median_tip_rates_df.rds")
+# current_median_tip_rates_df <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/current_median_tip_rates_df.rds")
+# current_median_tip_rates_df <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/current_median_tip_rates_df.rds")
 
 # Reorder as in raster stack
 current_median_tip_rates_df_reordered <- current_median_tip_rates_df[match(names(Ponerinae_alpha_hull_stack_WGS84), table = current_median_tip_rates_df$taxa), ]
@@ -5796,13 +6150,15 @@ length(names(Ponerinae_alpha_hull_stack_WGS84))
 # Assign rates to binary ranges 
 Ponerinae_net_div_rates_stack_WGS84 <- Ponerinae_alpha_hull_stack_WGS84 * current_median_tip_rates_df_reordered$net_div
 plot(Ponerinae_net_div_rates_stack_WGS84[[1:9]])
-rm(Ponerinae_alpha_hull_stack_WGS84) # Remove alpha hull ranges to save RAM space
+rm(Ponerinae_alpha_hull_stack_WGS84) ; gc() # Remove alpha hull ranges to save RAM space
 Ponerinae_net_div_rates_stack_WGS84 <- readAll(Ponerinae_net_div_rates_stack_WGS84)
 
 ## Save stack of current net div rates
 # saveRDS(Ponerinae_net_div_rates_stack_WGS84, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/Ponerinae_net_div_rates_stack_WGS84.rds")
 saveRDS(Ponerinae_net_div_rates_stack_WGS84, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/Ponerinae_net_div_rates_stack_WGS84.rds")
-  
+# saveRDS(Ponerinae_net_div_rates_stack_WGS84, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_net_div_rates_stack_WGS84.rds")
+# saveRDS(Ponerinae_net_div_rates_stack_WGS84, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_net_div_rates_stack_WGS84.rds")
+
 
 # Compute mean current rates raster (do not account for zeros as they are absences)
 Ponerinae_mean_net_div_rates_WGS84 <- raster::calc(x = Ponerinae_net_div_rates_stack_WGS84,
@@ -5815,20 +6171,38 @@ temp[!is.na(Ponerinae_mean_net_div_rates_WGS84@data@values)] <- Ponerinae_mean_n
 Ponerinae_mean_net_div_rates_WGS84 <- temp
 
 plot(Ponerinae_mean_net_div_rates_WGS84)
-rm(Ponerinae_net_div_rates_stack_WGS84) # Remove stack of current net div rates to save RAM space
+rm(Ponerinae_net_div_rates_stack_WGS84) ; gc() # Remove stack of current net div rates to save RAM space
 
 ## Save raster of mean current net div rates
 # saveRDS(Ponerinae_mean_net_div_rates_WGS84, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/Ponerinae_mean_net_div_rates_WGS84.rds")
 saveRDS(Ponerinae_mean_net_div_rates_WGS84, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/Ponerinae_mean_net_div_rates_WGS84.rds")
+# saveRDS(Ponerinae_mean_net_div_rates_WGS84, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_mean_net_div_rates_WGS84.rds")
+# saveRDS(Ponerinae_mean_net_div_rates_WGS84, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_mean_net_div_rates_WGS84.rds")
+
 
 ### 13.3/ Filter out pixels with low richness ####
 
 ## Load raster of mean current net div rates
 # Ponerinae_mean_net_div_rates_WGS84 <- readRDS(file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/Ponerinae_mean_net_div_rates_WGS84.rds")
 Ponerinae_mean_net_div_rates_WGS84 <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/Ponerinae_mean_net_div_rates_WGS84.rds")
+# Ponerinae_mean_net_div_rates_WGS84 <- readRDS(file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_mean_net_div_rates_WGS84.rds")
+# Ponerinae_mean_net_div_rates_WGS84 <- readRDS(file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_mean_net_div_rates_WGS84.rds")
 
 ## Load raw richness raster
 Ponerinae_species_richness_WGS84 <- readRDS(file = "./outputs/Species_richness_maps/Ponerinae_species_richness_WGS84.rds")
+
+# Load color palette
+pal_bl_red_Mannion <- readRDS(file = "./outputs/Species_richness_maps/pal_bl_red_Mannion.rds")
+pal_bl_red_brewer <- rev(RColorBrewer::brewer.pal(n = 11, "RdYlBu"))
+pal_bl_red_brewer_fn <- colorRampPalette(colors = pal_bl_red_brewer)
+pal_bl_red_brewer <- pal_bl_red_brewer_fn(n = 400)
+# blues <- round(seq(from = 1, to = 260, length.out = 99), 0)
+# reds <- round(seq(from = 261, to = 400, length.out = 100), 0)
+blues <- round(seq(from = 1, to = 210, length.out = 99), 0)
+reds <- round(seq(from = 211, to = 400, length.out = 100), 0) # Strong reds
+reds <- round(seq(from = 211, to = 350, length.out = 100), 0) # Lighter reds
+pal_bl_red_brewer <- pal_bl_red_brewer[c(blues, reds)]
+pal_bl_red_brewer <- c("grey90", pal_bl_red_brewer)
 
 plot(Ponerinae_mean_net_div_rates_WGS84, col = pal_bl_red_brewer)
 plot(Ponerinae_species_richness_WGS84, col = pal_bl_red_brewer)
@@ -5853,6 +6227,7 @@ min_richness_threshold <- 3
 # dev.off()
 
 source("./functions/contrasting_raster.R")
+
 Ponerinae_mean_net_div_rates_WGS84_thresholded <- Ponerinae_mean_net_div_rates_WGS84
 Ponerinae_mean_net_div_rates_WGS84_thresholded@data@values[Ponerinae_species_richness_WGS84@data@values < min_richness_threshold] <- 0
 
@@ -5860,6 +6235,8 @@ plot(Ponerinae_mean_net_div_rates_WGS84, col = pal_bl_red_brewer)
 plot(Ponerinae_mean_net_div_rates_WGS84_thresholded, col = pal_bl_red_brewer)
 
 pdf(file = paste0("./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/Ponerinae_mean_net_div_rates_maps_multiple_thresholds.pdf"),
+# pdf(file = paste0("./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_mean_net_div_rates_maps_multiple_thresholds.pdf"),
+# pdf(file = paste0("./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_mean_net_div_rates_maps_multiple_thresholds.pdf"),
     width = 20, height = 10)
 
 par(mfrow = c(2,2))
@@ -5894,14 +6271,21 @@ pal_bl_red_brewer <- c("grey90", pal_bl_red_brewer)
 
 # Contrast raster
 source("./functions/contrasting_raster.R")
+
 hist(Ponerinae_mean_net_div_rates_WGS84[])
 table(Ponerinae_mean_net_div_rates_WGS84[])
 hist(Ponerinae_mean_net_div_rates_WGS84_thresholded[])
-table(Ponerinae_mean_net_div_rates_WGS84_thresholded[])
+range(Ponerinae_mean_net_div_rates_WGS84_thresholded[], na.rm = T)
+
+# Set limits for contrast
+zmin <- 0.04 ; zmax <- 0.16 # For MCC
+# zmin <- 0.09 ; zmax <- 0.24 # For Youngest
+# zmin <- 0.04 ; zmax <- 0.16 # For Oldest
+
 Ponerinae_mean_net_div_rates_WGS84_contrasted <- contrasting_raster(# x = Ponerinae_mean_net_div_rates_WGS84, # Use the non-thresholded full version
                                                                     x = Ponerinae_mean_net_div_rates_WGS84_thresholded, # Use the thresholded version
                                                                     # zmin = 0.06, zmax = 0.14)
-                                                                    zmin = 0.04, zmax = 0.16)
+                                                                    zmin = zmin, zmax = zmax)
 
 # Convert raster of mean current net div rates to Mollweide
 Ponerinae_mean_net_div_rates_Mollweide_contrasted <- raster::projectRaster(from = Ponerinae_mean_net_div_rates_WGS84_contrasted,
@@ -5974,6 +6358,8 @@ Ponerinae_mean_net_div_rates_ggplot <- ggplot() +
 
 ## With threshold
 pdf(file = paste0("./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/Ponerinae_mean_net_div_rates_map_threshold_",min_richness_threshold,".pdf"),
+# pdf(file = paste0("./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/Ponerinae_mean_net_div_rates_map_threshold_",min_richness_threshold,".pdf"),
+# pdf(file = paste0("./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/Ponerinae_mean_net_div_rates_map_threshold_",min_richness_threshold,".pdf"),
     width = 10, height = 5)
 
 print(Ponerinae_mean_net_div_rates_ggplot)

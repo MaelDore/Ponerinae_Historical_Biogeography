@@ -68,6 +68,8 @@ window_steps <- 1 # Steps = 1 My (Must be a divider of window_width)
 # Extract root age
 # DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
 DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+# DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+# DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
 
 root_age <- max(DEC_J_LTT_all_areas_ggplot$time)
 
@@ -81,6 +83,8 @@ mean_time_list <- (rootward_time_list + tipward_time_list) / 2
 ## Load the melted data.frame of counts of events per source areas
 # all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 names(all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot)
 
@@ -89,11 +93,15 @@ names(all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot
 ## Load the melted data.frame of residence times per areas across BSM maps
 # residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
 residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
+# residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
+# residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
 
 ### 1.5/ Set bioregion color scheme ####
 
 # DEC_J_BSM_counts_arrays_all_sliding_windows <- readRDS(file = paste0("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
 DEC_J_BSM_counts_arrays_all_sliding_windows <- readRDS(file = paste0("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
+# DEC_J_BSM_counts_arrays_all_sliding_windows <- readRDS(file = paste0("./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
+# DEC_J_BSM_counts_arrays_all_sliding_windows <- readRDS(file = paste0("./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
 
 areas_list <- dimnames(DEC_J_BSM_counts_arrays_all_sliding_windows$dispersal_events_count_matrices_all_sliding_windows)[[1]]
 
@@ -170,8 +178,8 @@ cladogenetic_event_types_list <- c("range inheritance (y)", "vicariance (v)", "s
 
 names(all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot)
 
-# Adjust order and names of Bioregions
-all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot$source <- factor(all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot$source, levels = areas_list, labels = bioregion_names)
+# # Adjust order and names of Bioregions
+# all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot$source <- factor(all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot$source, levels = areas_list, labels = bioregion_names)
 
 # Extract and sum counts of cladogenetic events
 all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot %>% 
@@ -219,6 +227,10 @@ all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_gg
 # saveRDS(object = all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 ### 2.2/ Sum across all source bioregions ####
 
@@ -274,6 +286,10 @@ all_cladogenetic_events_mean_counts_overall_all_sliding_windows_ggplot$mean_rate
 # saveRDS(object = all_cladogenetic_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/all_cladogenetic_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = all_cladogenetic_events_count_per_maps_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/all_cladogenetic_events_count_per_maps_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = all_cladogenetic_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/all_cladogenetic_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_cladogenetic_events_count_per_maps_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/all_cladogenetic_events_count_per_maps_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_cladogenetic_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/all_cladogenetic_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_cladogenetic_events_count_per_maps_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/all_cladogenetic_events_count_per_maps_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_cladogenetic_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/all_cladogenetic_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 
 ##### 3/ Plot stacked bars of mean raw number of cladogenetic events per source bioregions along sliding windows ####
@@ -281,9 +297,13 @@ saveRDS(object = all_cladogenetic_events_mean_counts_overall_all_sliding_windows
 # Load data.frame of mean counts per source bioregions across dispersal events
 # all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/Cladogenetic_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
-pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/Cladogenetic_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/Cladogenetic_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/Cladogenetic_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/Cladogenetic_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
@@ -294,8 +314,9 @@ barplot_count_mean_per_cladogenetic_events_all_source_bioregions_all_sliding_win
            col = "black", linewidth = 0.3) +
   
   # Reverse time scale
-  scale_x_continuous(transform = "reverse") +
-  #                  limits = c(100, 0) # Set limits
+  scale_x_continuous(transform = "reverse", 
+                     # limits = c(150, 0)) + # Set limits for Oldest
+                     limits = c(100, 0)) + # Set limits
   
   # Set plot title +
   ggtitle(label = paste0("Counts of cladogenetic events\nper Source bioregions\nacross 1000 BS maps")) +
@@ -328,9 +349,13 @@ dev.off()
 # Load data.frame of mean counts per source bioregions across dispersal events
 # all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/Cladogenetic_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
-pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/Cladogenetic_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/Cladogenetic_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/Cladogenetic_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/Cladogenetic_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
@@ -341,8 +366,9 @@ barplot_count_perc_per_cladogenetic_events_all_source_bioregions_all_sliding_win
            col = "black", linewidth = 0.3) +
   
   # Reverse time scale
-  scale_x_continuous(transform = "reverse") +
-  #                  limits = c(100, 0) # Set limits
+  scale_x_continuous(transform = "reverse", 
+                     # limits = c(150, 0)) + # Set limits for Oldest
+                     limits = c(100, 0)) + # Set limits
   
   # Set plot title +
   ggtitle(label = paste0("Percentages of cladogenetic events\nper Source bioregions\nacross 1000 BS maps")) +
@@ -379,12 +405,20 @@ dev.off()
 # all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_cladogenetic_events_count_per_maps_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/all_cladogenetic_events_count_per_maps_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_cladogenetic_events_count_per_maps_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/all_cladogenetic_events_count_per_maps_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_cladogenetic_events_count_per_maps_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/all_cladogenetic_events_count_per_maps_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Load data.frames of mean counts across dispersal events
 # all_cladogenetic_events_mean_counts_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/all_cladogenetic_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 # all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_cladogenetic_events_mean_counts_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/all_cladogenetic_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_cladogenetic_events_mean_counts_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/all_cladogenetic_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_cladogenetic_events_mean_counts_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/all_cladogenetic_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 ## 5.1.1/ Counts per maps
 
@@ -400,6 +434,8 @@ all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows
 # Save data.frame with all rates, including total
 # saveRDS(object = all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
 saveRDS(object = all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
+# saveRDS(object = all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
+# saveRDS(object = all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/all_cladogenetic_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
 
 ## 5.1.2/ Mean counts aggregated across maps
 
@@ -415,6 +451,8 @@ all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_gg
 # Save data.frame with all rates, including total
 # saveRDS(object = all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
 saveRDS(object = all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
+# saveRDS(object = all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
+# saveRDS(object = all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/all_cladogenetic_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
 
 ### 5.2/ Plot rates of cladogenetic event types (= diversification rates) per source bioregions along sliding windows ####
 
@@ -424,6 +462,8 @@ max_mean_rates <- max(all_cladogenetic_events_mean_counts_all_source_bioregions_
 
 # pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/Cladogenetic_events_rates_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/Cladogenetic_events_rates_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/Cladogenetic_events_rates_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/Cladogenetic_events_rates_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
@@ -461,6 +501,7 @@ lines_rates_per_cladogenetic_events_all_source_bioregions_all_sliding_windows_gg
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0) # Set limits
                      limits = c(100, 0) # Set limits
   ) + 
   
@@ -495,6 +536,8 @@ dev.off()
 ## Load the array of counts of events per source/dest areas
 # DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_all_unique_events_all_sliding_windows_",window_width,"My_source_dest_array.rds"))
 DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/DEC_J_BSM_counts_all_unique_events_all_sliding_windows_",window_width,"My_source_dest_array.rds"))
+# DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/DEC_J_BSM_counts_all_unique_events_all_sliding_windows_",window_width,"My_source_dest_array.rds"))
+# DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/DEC_J_BSM_counts_all_unique_events_all_sliding_windows_",window_width,"My_source_dest_array.rds"))
 
 # Extract counts only for targeted type of events
 in_situ_speciation_event_types_list <- c("range inheritance (y)")
@@ -522,6 +565,8 @@ in_situ_speciation_events_count_per_maps_all_bioregions_all_sliding_windows_ggpl
 # Save ggplot df dataframe of in situ speciation events per areas transitions x time-windows
 # saveRDS(object = in_situ_speciation_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = in_situ_speciation_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = in_situ_speciation_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = in_situ_speciation_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 ## 6.1.2/ Aggregate per source bioregions and merge with area richness and residence times
 
@@ -533,8 +578,10 @@ in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windo
 
 ## Compute rates based on LTT
 # Load LTT data
-DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
-# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 
 total_richness_per_bioregions <- DEC_J_LTT_all_areas_mean_ggplot %>% 
   filter(areas != "total") %>% 
@@ -550,6 +597,8 @@ in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windo
 # Load residence times data
 # residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
 residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
+# residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
+# residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
 
 # Merge with residence times
 in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- left_join(x = in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot,
@@ -607,6 +656,10 @@ in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_
 # saveRDS(object = in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 ### 6.2/ Sum across all source bioregions ####
 
@@ -662,6 +715,10 @@ in_situ_speciation_events_mean_counts_overall_all_sliding_windows_ggplot$mean_ra
 # saveRDS(object = in_situ_speciation_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/in_situ_speciation_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = in_situ_speciation_events_count_per_maps_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_count_per_maps_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = in_situ_speciation_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = in_situ_speciation_events_count_per_maps_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_count_per_maps_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = in_situ_speciation_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = in_situ_speciation_events_count_per_maps_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_count_per_maps_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = in_situ_speciation_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 
 ##### 7/ Plot stacked bars of mean raw number of in situ speciation events per source bioregions along sliding windows ####
@@ -669,9 +726,13 @@ saveRDS(object = in_situ_speciation_events_mean_counts_overall_all_sliding_windo
 # Load data.frame of mean counts per source bioregions across dispersal events
 # in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/In_situ_speciation_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
-pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/In_situ_speciation_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/In_situ_speciation_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/In_situ_speciation_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/In_situ_speciation_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
@@ -683,7 +744,8 @@ barplot_count_mean_per_in_situ_speciation_events_all_source_bioregions_all_slidi
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
-                    limits = c(100, 0)) + # Set limits
+                     # limits = c(150, 0)) + # Set limits
+                     limits = c(100, 0)) + # Set limits
   
   # Set plot title +
   ggtitle(label = paste0("Counts of in situ speciation events\nper Source bioregions\nacross 1000 BS maps")) +
@@ -716,9 +778,13 @@ dev.off()
 # Load data.frame of mean counts per source bioregions across dispersal events
 # in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/In_situ_speciation_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
-pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/In_situ_speciation_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/In_situ_speciation_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/In_situ_speciation_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/In_situ_speciation_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
@@ -730,6 +796,7 @@ barplot_count_perc_per_in_situ_speciation_events_all_source_bioregions_all_slidi
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse", 
+                     # limits = c(150, 0)) + # Set limits
                      limits = c(100, 0)) + # Set limits
   
   # Set plot title +
@@ -767,12 +834,20 @@ dev.off()
 # in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 in_situ_speciation_events_count_per_maps_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_count_per_maps_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# in_situ_speciation_events_count_per_maps_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_count_per_maps_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# in_situ_speciation_events_count_per_maps_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_count_per_maps_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Load data.frames of mean counts across dispersal events
 # in_situ_speciation_events_mean_counts_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/in_situ_speciation_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 # in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 in_situ_speciation_events_mean_counts_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# in_situ_speciation_events_mean_counts_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# in_situ_speciation_events_mean_counts_overall_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 ## 9.1.1/ Counts per maps
 
@@ -788,6 +863,8 @@ in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windo
 # Save data.frame with all rates, including total
 # saveRDS(object = in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
 saveRDS(object = in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
+# saveRDS(object = in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
+# saveRDS(object = in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
 
 ## 9.1.2/ Mean counts aggregated across maps
 
@@ -803,6 +880,8 @@ in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_
 # Save data.frame with all rates, including total
 # saveRDS(object = in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
 saveRDS(object = in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
+# saveRDS(object = in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
+# saveRDS(object = in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total, file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot_with_total.rds"))
 
 ### 9.2/ Plot rates of in situ speciation event types (= diversification rates) per source bioregions along sliding windows ####
 
@@ -810,24 +889,26 @@ saveRDS(object = in_situ_speciation_events_mean_counts_all_source_bioregions_all
 max_rates <- max(in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total$rates)
 max_mean_rates <- max(in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total$mean_rates, na.rm = T)
 
-# Remove rates of IndoMalaya before 85My as they are based on a single lineage
-in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total_filtered <- in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total %>% 
-  filter(!(source == "Indomalaya" & time > 80))
-in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total_filtered <- in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total %>% 
-  filter(!(source == "Indomalaya" & time > 80))
+# # Remove rates of IndoMalaya before 85My as they are based on a single lineage
+# in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total_filtered <- in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total %>% 
+#   filter(!(source == "Indomalaya" & time > 80))
+# in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total_filtered <- in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total %>% 
+#   filter(!(source == "Indomalaya" & time > 80))
 
 # pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/In_situ_speciation_events_rates_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/In_situ_speciation_events_rates_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/In_situ_speciation_events_rates_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/In_situ_speciation_events_rates_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
-lines_rates_per_in_situ_speciation_events_all_source_bioregions_all_sliding_windows_ggplot <- ggplot(# data = in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total
-                                                                                                     data = in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total_filtered
+lines_rates_per_in_situ_speciation_events_all_source_bioregions_all_sliding_windows_ggplot <- ggplot(data = in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total
+                                                                                                     # data = in_situ_speciation_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot_with_total_filtered
                                                                                                      ) +
   
   # Plot mean lines + 1000 replicates
-  geom_smooth(# data = in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total,
-              data = in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total_filtered,
+  geom_smooth(data = in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total,
+              # data = in_situ_speciation_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot_with_total_filtered,
               mapping = aes(y = rates, x = time, group = source, col = source, fill = source),
                             method = "gam", se = TRUE, method.args = list(gamma = 3),
                             linewidth = 1.5, alpha = 0.1) +
@@ -859,6 +940,7 @@ lines_rates_per_in_situ_speciation_events_all_source_bioregions_all_sliding_wind
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0) # Set limits for Oldest
                      limits = c(100, 0) # Set limits
   ) + 
   
@@ -891,6 +973,8 @@ dev.off()
 ## Load the array of counts of events per source/dest areas
 # DEC_J_BSM_all_unique_events_source_dest_array <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_all_unique_events_source_dest_array.rds")
 DEC_J_BSM_all_unique_events_source_dest_array <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_counts_all_unique_events_source_dest_array.rds")
+# DEC_J_BSM_all_unique_events_source_dest_array <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_BSM_counts_all_unique_events_source_dest_array.rds")
+# DEC_J_BSM_all_unique_events_source_dest_array <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_BSM_counts_all_unique_events_source_dest_array.rds")
 
 # Extract counts only for targeted type of events
 in_situ_speciation_event_types_list <- c("range inheritance (y)")
@@ -955,6 +1039,8 @@ in_situ_speciation_events_summary_counts_overall_ggplot$source <- factor(in_situ
 ## GGplot without sd
 # pdf(file = "./outputs/Empirical_diversification_rates/Ponerinae_rough_phylogeny_1534t/In_situ_speciation_events_count_per_source_bioregions_overall_barplot.pdf", width = 10, height = 6)
 pdf(file = "./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/In_situ_speciation_events_count_per_source_bioregions_overall_barplot.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/In_situ_speciation_events_count_per_source_bioregions_overall_barplot.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/In_situ_speciation_events_count_per_source_bioregions_overall_barplot.pdf", width = 10, height = 6)
 
 barplot_in_situ_speciation_events_mean_count_per_source_bioregions_ggplot <- ggplot(data = in_situ_speciation_events_mean_count_per_source_bioregions_overall,
                                                                            mapping = aes(y = mean_counts, x = source, fill = source)) +
@@ -986,6 +1072,8 @@ dev.off()
 
 ## GGplot with sd
 pdf(file = "./outputs/Empirical_diversification_rates/Ponerinae_MCC_phylogeny_1534t/In_situ_speciation_events_count_per_source_bioregions_overall_barplot_with_sd.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Empirical_diversification_rates/Ponerinae_Youngest_phylogeny_1534t/In_situ_speciation_events_count_per_source_bioregions_overall_barplot_with_sd.pdf", width = 10, height = 6)
+# pdf(file = "./outputs/Empirical_diversification_rates/Ponerinae_Oldest_phylogeny_1534t/In_situ_speciation_events_count_per_source_bioregions_overall_barplot_with_sd.pdf", width = 10, height = 6)
 
 barplot_in_situ_speciation_events_mean_count_per_source_bioregions_ggplot <- ggplot(data = in_situ_speciation_events_summary_counts_overall_ggplot,
                                                                                     mapping = aes(y = mean_counts, x = source, fill = source)) +

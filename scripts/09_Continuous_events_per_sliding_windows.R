@@ -94,10 +94,14 @@ library(magick)   # For animated GIF
 # Load time-stratified DEC+J model output
 # DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
 DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Youngest_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Oldest_phylogeny_1534t/DEC_J_fit.rds")
 
 # Load BSM outputs
 # DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_output.rds")
 DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_output.rds")
+# DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_BSM_output.rds")
+# DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_BSM_output.rds")
 
 # Extract records of events
 DEC_J_clado_events_tables <- DEC_J_BSM_output$RES_clado_events_tables
@@ -107,6 +111,10 @@ DEC_J_ana_events_tables <- DEC_J_BSM_output$RES_ana_events_tables
 # DEC_J_ana_events_tables_with_unique_source <- readRDS("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_ana_events_tables_with_unique_source.rds")
 DEC_J_clado_events_tables_with_unique_source <- readRDS("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_clado_events_tables_with_unique_source.rds")
 DEC_J_ana_events_tables_with_unique_source <- readRDS("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_ana_events_tables_with_unique_source.rds")
+# DEC_J_clado_events_tables_with_unique_source <- readRDS("./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_clado_events_tables_with_unique_source.rds")
+# DEC_J_ana_events_tables_with_unique_source <- readRDS("./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_ana_events_tables_with_unique_source.rds")
+# DEC_J_clado_events_tables_with_unique_source <- readRDS("./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_clado_events_tables_with_unique_source.rds")
+# DEC_J_ana_events_tables_with_unique_source <- readRDS("./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_ana_events_tables_with_unique_source.rds")
 
 # Extract areas list
 returned_mats <- get_Qmat_COOmat_from_BioGeoBEARS_run_object(BioGeoBEARS_run_object = DEC_J_fit$inputs, include_null_range = DEC_J_fit$inputs$include_null_range)
@@ -164,6 +172,8 @@ source(file = "./functions/compute_residence_times_per_sliding_windows.R")
 # Load simmaps of BS maps
 # DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps.rds")
 DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps.rds")
+# DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_simmaps.rds")
+# DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_simmaps.rds")
 
 # Set time boundaries of sliding windows
 time_boundaries_df <- data.frame(tipward_times = start_time_list,   # Tipward time boundaries
@@ -202,6 +212,10 @@ residence_times_per_sliding_windows_in_areas_melted_df <- left_join(x = residenc
 # saveRDS(object = residence_times_per_sliding_windows_in_areas_melted_df, file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
 saveRDS(object = residence_times_per_sliding_windows_in_areas_array, file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_array_", window_width,"My.rds"))
 saveRDS(object = residence_times_per_sliding_windows_in_areas_melted_df, file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
+# saveRDS(object = residence_times_per_sliding_windows_in_areas_array, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_array_", window_width,"My.rds"))
+# saveRDS(object = residence_times_per_sliding_windows_in_areas_melted_df, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
+# saveRDS(object = residence_times_per_sliding_windows_in_areas_array, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_array_", window_width,"My.rds"))
+# saveRDS(object = residence_times_per_sliding_windows_in_areas_melted_df, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
 
 
 ##### 3/ Summarize events from stochastic maps per sliding time-window intervals to obtain continuous rates ####
@@ -412,6 +426,8 @@ str(DEC_J_BSM_counts_arrays_all_sliding_windows, max.level = 2)
 # Save summary arrays of event counts across all sliding windows
 # saveRDS(object = DEC_J_BSM_counts_arrays_all_sliding_windows, file = paste0("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
 saveRDS(object = DEC_J_BSM_counts_arrays_all_sliding_windows, file = paste0("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
+# saveRDS(object = DEC_J_BSM_counts_arrays_all_sliding_windows, file = paste0("./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
+# saveRDS(object = DEC_J_BSM_counts_arrays_all_sliding_windows, file = paste0("./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
 
 
 ##### 4/ Plot overall event type counts (all bioregions aggregated) #####
@@ -419,6 +435,8 @@ saveRDS(object = DEC_J_BSM_counts_arrays_all_sliding_windows, file = paste0("./o
 # Load summary arrays of event counts across all sliding windows
 # DEC_J_BSM_counts_arrays_all_sliding_windows <- readRDS(file = paste0("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
 DEC_J_BSM_counts_arrays_all_sliding_windows <- readRDS(file = paste0("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
+# DEC_J_BSM_counts_arrays_all_sliding_windows <- readRDS(file = paste0("./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
+# DEC_J_BSM_counts_arrays_all_sliding_windows <- readRDS(file = paste0("./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
 
 ### 4.1/ Compute overall event counts and rates ####
 
@@ -457,6 +475,8 @@ all_events_count_per_maps_all_sliding_windows_ggplot <- left_join(x = all_events
 # Load LTT data
 # DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 
 total_richness <- DEC_J_LTT_all_areas_mean_ggplot %>% 
   filter(areas == "total") %>% 
@@ -472,6 +492,8 @@ all_events_count_per_maps_all_sliding_windows_ggplot <- all_events_count_per_map
 # Load residence times data
 # residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
 residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
+# residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
+# residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
 
 # Aggregated all bioregions
 residence_times_per_sliding_windows_melted_df <- residence_times_per_sliding_windows_in_areas_melted_df %>% 
@@ -508,10 +530,16 @@ all_events_mean_counts_overall_all_sliding_windows_ggplot$event_type <- factor(a
 all_events_count_per_maps_all_sliding_windows_ggplot$event_type <- factor(all_events_count_per_maps_all_sliding_windows_ggplot$event_type, levels = event_types_list, labels = event_types_labels)
 
 # Save overall (mean) event counts and rates
+
 # saveRDS(all_events_count_per_maps_all_sliding_windows_ggplot, file = paste0("outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/all_events_count_per_maps_all_sliding_windows_",window_width,"My_ggplot.rds"))
+saveRDS(all_events_count_per_maps_all_sliding_windows_ggplot, file = paste0("outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/all_events_count_per_maps_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(all_events_count_per_maps_all_sliding_windows_ggplot, file = paste0("outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/all_events_count_per_maps_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(all_events_count_per_maps_all_sliding_windows_ggplot, file = paste0("outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/all_events_count_per_maps_all_sliding_windows_",window_width,"My_ggplot.rds"))
+
+# saveRDS(all_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Event_types/all_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(all_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/all_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
-# saveRDS(all_events_count_per_maps_all_sliding_windows_ggplot, file = paste0("outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Event_types/all_events_count_per_maps_all_sliding_windows_",window_width,"My_ggplot.rds"))
-saveRDS(all_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/all_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(all_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/all_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(all_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0("outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/all_events_mean_counts_overall_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 
 ### 4.2/ Plot stacked bars of cumulative mean raw number of event types along sliding windows ####
@@ -523,6 +551,8 @@ saveRDS(all_events_mean_counts_overall_all_sliding_windows_ggplot, file = paste0
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_cum_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/Events_count_cum_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/Events_count_cum_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/Events_count_cum_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
 
 barplot_cum_count_per_events_all_sliding_windows_ggplot <- ggplot(data = all_events_mean_counts_overall_all_sliding_windows_ggplot,
                                                                    mapping = aes(y = mean_cum_counts, x = time, fill = event_type)) +
@@ -570,6 +600,8 @@ dev.off()
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_mean_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/Events_count_mean_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/Events_count_mean_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/Events_count_mean_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
 
 barplot_raw_count_per_events_all_sliding_windows_ggplot <- ggplot(data = all_events_mean_counts_overall_all_sliding_windows_ggplot,
                                                                   mapping = aes(y = mean_counts, x = time, fill = event_type)) +
@@ -617,6 +649,8 @@ dev.off()
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Events_count_perc_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/Events_count_perc_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/Events_count_perc_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/Events_count_perc_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
 
 barplot_perc_count_per_events_all_sliding_windows_ggplot <- ggplot(data = all_events_mean_counts_overall_all_sliding_windows_ggplot,
                                                                   mapping = aes(y = mean_percs, x = time, fill = event_type)) +
@@ -665,6 +699,8 @@ dev.off()
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Events_rates_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/Events_count_perc_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/Events_count_perc_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/Events_count_perc_barplots_overall_all_sliding_windows_",window_width,"My.pdf"), width = 10, height = 6)
 
 lines_rates_per_events_all_sliding_windows_ggplot <- ggplot(data = all_events_mean_counts_overall_all_sliding_windows_ggplot,
                                                                    mapping = aes(y = mean_rates, x = time, col = event_type)) +
@@ -860,6 +896,8 @@ window_width <- 10 # For barplots
 # Load summary arrays of event counts across all sliding windows
 # DEC_J_BSM_counts_arrays_all_sliding_windows <- readRDS(file = paste0("./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
 DEC_J_BSM_counts_arrays_all_sliding_windows <- readRDS(file = paste0("./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
+# DEC_J_BSM_counts_arrays_all_sliding_windows <- readRDS(file = paste0("./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
+# DEC_J_BSM_counts_arrays_all_sliding_windows <- readRDS(file = paste0("./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_BSM_counts_arrays_all_sliding_windows_",window_width,"My.rds"))
 
 ## 5.2.1/ Initiate final array
 
@@ -935,6 +973,8 @@ DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array[ , ,"jump-disp
 ## Save the final array of counts of events per source/dest areas
 # saveRDS(object = DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array, file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_all_unique_events_all_sliding_windows_",window_width,"My_source_dest_array.rds"))
 saveRDS(object = DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array, file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/DEC_J_BSM_counts_all_unique_events_all_sliding_windows_",window_width,"My_source_dest_array.rds"))
+# saveRDS(object = DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/DEC_J_BSM_counts_all_unique_events_all_sliding_windows_",window_width,"My_source_dest_array.rds"))
+# saveRDS(object = DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/DEC_J_BSM_counts_all_unique_events_all_sliding_windows_",window_width,"My_source_dest_array.rds"))
 
 
 ### 5.3/ Build ggplot dataframe of events per source/dest areas ####
@@ -942,6 +982,8 @@ saveRDS(object = DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_arr
 ## Load the array of counts of events per source/dest areas
 # DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_counts_all_unique_events_all_sliding_windows_",window_width,"My_source_dest_array.rds"))
 DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/DEC_J_BSM_counts_all_unique_events_all_sliding_windows_",window_width,"My_source_dest_array.rds"))
+# DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/DEC_J_BSM_counts_all_unique_events_all_sliding_windows_",window_width,"My_source_dest_array.rds"))
+# DEC_J_BSM_all_unique_events_all_sliding_windows_source_dest_array <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/DEC_J_BSM_counts_all_unique_events_all_sliding_windows_",window_width,"My_source_dest_array.rds"))
 
 ## List event types for plots
 
@@ -975,12 +1017,16 @@ all_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot <- left_join
 # Save ggplot df dataframe of events per areas transitions x time-windows
 # saveRDS(object = all_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/all_events_count_per_maps_all_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = all_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/all_events_count_per_maps_all_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/all_events_count_per_maps_all_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/all_events_count_per_maps_all_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 
 ### 5.4/ Aggregate per ggplot dataframe of events per source areas x time-windows ####
 
 # all_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/all_events_count_per_maps_all_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/all_events_count_per_maps_all_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/all_events_count_per_maps_all_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/all_events_count_per_maps_all_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- all_events_count_per_maps_all_bioregions_all_sliding_windows_ggplot %>% 
   group_by(map, event_type, source, time) %>% 
@@ -991,6 +1037,8 @@ all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- al
 # Load LTT data
 # DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 
 total_richness_per_bioregions <- DEC_J_LTT_all_areas_mean_ggplot %>% 
   filter(areas != "total") %>% 
@@ -1006,6 +1054,8 @@ all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- al
 # Load residence times data
 # residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
 residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
+# residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
+# residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
 
 # Merge with residence times
 all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- left_join(x = all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot,
@@ -1031,6 +1081,9 @@ all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot$sourc
 # Save ggplot df
 # saveRDS(object = all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+
 
 ### 5.5/ Aggregate per ggplot dataframe of events per destination areas x time-windows ####
 
@@ -1043,6 +1096,8 @@ all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot <- all_
 # Load LTT data
 # DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 
 total_richness_per_bioregions <- DEC_J_LTT_all_areas_mean_ggplot %>% 
   filter(areas != "total") %>% 
@@ -1058,6 +1113,8 @@ all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot <- all_
 # Load residence times data
 # residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
 residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
+# residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
+# residence_times_per_sliding_windows_in_areas_melted_df <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_sliding_windows_in_areas_melted_df_", window_width,"My.rds"))
 
 # Merge with residence times
 all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot <- left_join(x = all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot,
@@ -1083,6 +1140,8 @@ all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot$dest <-
 # Save ggplot df
 # saveRDS(object = all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 
 ##### 6/ Plot event type counts per source bioregions #####
@@ -2550,6 +2609,8 @@ dispersal_event_types_list <- c("range extension (d)", "jump-dispersal (j)")
 # Load ggplot df of of event types counts aggregated per source bioregions
 # all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 names(all_events_count_per_maps_all_source_bioregions_all_sliding_windows_ggplot)
 
@@ -2596,12 +2657,19 @@ all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplo
 # saveRDS(object = all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = all_dispersal_events_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_dispersal_events_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_dispersal_events_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+
 
 ### 9.2/ Plot stacked bars of cumulative mean raw number of dispersal events per source bioregions along sliding windows ####
 
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot %>% 
@@ -2612,6 +2680,8 @@ all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplo
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_count_cum_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/Dispersal_events_count_cum_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_cum_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_cum_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
@@ -2623,6 +2693,7 @@ barplot_count_cum_per_dispersal_events_all_source_bioregions_all_sliding_windows
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0)) + # Set limits for Oldest
                      limits = c(100, 0)) + # Set limits
   
   # Set plot title +
@@ -2656,6 +2727,8 @@ dev.off()
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot %>% 
@@ -2666,6 +2739,8 @@ all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplo
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/Dispersal_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_mean_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
@@ -2677,7 +2752,8 @@ barplot_count_mean_per_dispersal_events_all_source_bioregions_all_sliding_window
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
-                    limits = c(100, 0)) + # Set limits
+                     # limits = c(150, 0)) + # Set limits for Oldest
+                     limits = c(100, 0)) + # Set limits
   
   # Set plot title +
   ggtitle(label = paste0("Counts of dispersal events\nper Source bioregions\nacross 1000 BS maps")) +
@@ -2704,11 +2780,14 @@ print(barplot_count_mean_per_dispersal_events_all_source_bioregions_all_sliding_
 
 dev.off()
 
+
 ### 9.4/ Plot stacked bars of percentages of dispersal events per source bioregions along sliding windows ####
 
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot %>% 
@@ -2719,6 +2798,8 @@ all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplo
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/Dispersal_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_perc_barplots_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
@@ -2730,6 +2811,7 @@ barplot_count_perc_per_dispersal_events_all_source_bioregions_all_sliding_window
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0)) + # Set limits for Oldest
                      limits = c(100, 0)) + # Set limits
   
   # Set plot title +
@@ -2763,6 +2845,8 @@ dev.off()
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot %>% 
@@ -2773,6 +2857,8 @@ all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplo
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_rates_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/Dispersal_events_rates_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/Dispersal_events_rates_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/Dispersal_events_rates_all_source_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
@@ -2808,6 +2894,7 @@ lines_rates_per_dispersal_events_all_source_bioregions_all_sliding_windows_ggplo
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0) # Set limits for Oldest
                      limits = c(100, 0) # Set limits
   ) + 
   
@@ -2844,6 +2931,8 @@ dispersal_event_types_list <- c("range extension (d)", "jump-dispersal (j)")
 # Load ggplot df of of event types counts aggregated per destination bioregions
 # all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Event_types/DEC_J_all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 names(all_events_count_per_maps_all_dest_bioregions_all_sliding_windows_ggplot)
 
@@ -2889,12 +2978,18 @@ all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot$
 # saveRDS(object = all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = all_dispersal_events_counts_all_dest_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 saveRDS(object = all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_dispersal_events_counts_all_dest_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_dispersal_events_counts_all_dest_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# saveRDS(object = all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot, file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 ### 10.2/ Plot stacked bars of cumulative mean raw number of dispersal events per destination bioregions along sliding windows ####
 
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot %>% 
@@ -2905,6 +3000,8 @@ all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot 
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_count_cum_barplots_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/Dispersal_events_count_cum_barplots_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_cum_barplots_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_cum_barplots_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
@@ -2916,6 +3013,7 @@ barplot_count_cum_per_dispersal_events_all_dest_bioregions_all_sliding_windows_g
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0)) + # Set limits for Oldest
                      limits = c(100, 0)) + # Set limits
   
   # Set plot title +
@@ -2949,6 +3047,8 @@ dev.off()
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot %>% 
@@ -2959,6 +3059,8 @@ all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot 
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_count_mean_barplots_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/Dispersal_events_count_mean_barplots_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_mean_barplots_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_mean_barplots_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
@@ -2970,6 +3072,7 @@ barplot_count_mean_per_dispersal_events_all_dest_bioregions_all_sliding_windows_
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0)) + # Set limits for Oldest
                      limits = c(100, 0)) + # Set limits
   
   # Set plot title +
@@ -3002,6 +3105,8 @@ dev.off()
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot %>% 
@@ -3012,6 +3117,8 @@ all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot 
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_count_perc_barplots_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"), 
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/Dispersal_events_count_perc_barplots_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"), 
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_perc_barplots_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"), 
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_perc_barplots_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"), 
     width = 10, height = 6)
 
 # Generate plot
@@ -3023,6 +3130,7 @@ barplot_count_perc_per_dispersal_events_all_dest_bioregions_all_sliding_windows_
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0)) + # Set limits for Oldest
                      limits = c(100, 0)) + # Set limits
   
   # Set plot title +
@@ -3056,6 +3164,8 @@ dev.off()
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot %>% 
@@ -3066,6 +3176,8 @@ all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot 
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_rates_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/Dispersal_events_rates_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/Dispersal_events_rates_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/Dispersal_events_rates_all_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 10, height = 6)
 
 # Generate plot
@@ -3101,6 +3213,7 @@ geom_line(data = all_dispersal_events_mean_counts_all_dest_bioregions_all_slidin
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0) # Set limits for Oldest
                      limits = c(100, 0) # Set limits
   ) + 
   
@@ -3140,6 +3253,8 @@ dev.off()
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot %>% 
@@ -3151,6 +3266,8 @@ all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot 
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot %>% 
@@ -3189,6 +3306,7 @@ barplot_count_cum_per_dispersal_events_all_source_bioregions_all_sliding_windows
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0)) + # Set limits for Oldest
                      limits = c(100, 0)) + # Set limits
   
   # Set plot title +
@@ -3226,6 +3344,7 @@ barplot_count_cum_per_dispersal_events_all_dest_bioregions_all_sliding_windows_g
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0)) + # Set limits for Oldest
                      limits = c(100, 0)) + # Set limits
   
   # Set plot title +
@@ -3260,6 +3379,8 @@ barplot_count_cum_per_dispersal_events_all_source_dest_bioregions_all_sliding_wi
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_count_cum_barplots_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/Dispersal_events_count_cum_barplots_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_cum_barplots_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_cum_barplots_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 17, height = 6)
 
 gridExtra::grid.arrange(
@@ -3279,6 +3400,8 @@ dev.off()
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot %>% 
@@ -3290,6 +3413,8 @@ all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot 
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot %>% 
@@ -3327,6 +3452,7 @@ barplot_count_mean_per_dispersal_events_all_source_bioregions_all_sliding_window
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0)) + # Set limits for Oldest
                      limits = c(100, 0)) + # Set limits
   
   # Set plot title +
@@ -3364,6 +3490,7 @@ barplot_count_mean_per_dispersal_events_all_dest_bioregions_all_sliding_windows_
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0)) + # Set limits for Oldest
                      limits = c(100, 0)) + # Set limits
   
   # Set plot title +
@@ -3398,7 +3525,9 @@ barplot_count_mean_per_dispersal_events_all_source_dest_bioregions_all_sliding_w
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_count_mean_barplots_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/Dispersal_events_count_mean_barplots_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
-    width = 17, height = 6)
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_mean_barplots_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_mean_barplots_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+   width = 17, height = 6)
 
 gridExtra::grid.arrange(
   grobs = barplot_count_mean_per_dispersal_events_all_source_dest_bioregions_all_sliding_windows_ggplot_list, # List of ggplots
@@ -3417,6 +3546,8 @@ dev.off()
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot %>% 
@@ -3428,6 +3559,8 @@ all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot 
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot %>% 
@@ -3446,6 +3579,7 @@ barplot_count_perc_per_dispersal_events_all_source_bioregions_all_sliding_window
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0)) + # Set limits for Oldest
                      limits = c(100, 0)) + # Set limits
   
   # Set plot title +
@@ -3480,6 +3614,7 @@ barplot_count_perc_per_dispersal_events_all_dest_bioregions_all_sliding_windows_
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0)) +# Set limits for Oldest
                      limits = c(100, 0)) +# Set limits
   
   # Set plot title +
@@ -3514,7 +3649,9 @@ barplot_count_perc_per_dispersal_events_all_source_dest_bioregions_all_sliding_w
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_count_perc_barplots_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/Dispersal_events_count_perc_barplots_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
-    width = 17, height = 6)
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_perc_barplots_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/Dispersal_events_count_perc_barplots_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+            width = 17, height = 6)
 
 gridExtra::grid.arrange(
   grobs = barplot_count_perc_per_dispersal_events_all_source_dest_bioregions_all_sliding_windows_ggplot_list, # List of ggplots
@@ -3528,11 +3665,14 @@ gridExtra::grid.arrange(
 dev.off()
 
 
+
 ### 11.4/ Plot rates of dispersal event types per destination bioregions along sliding windows ####
 
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot %>% 
@@ -3544,6 +3684,8 @@ all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot 
 # Load ggplot df of mean counts per source bioregions across dispersal events
 # all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
+# all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- readRDS(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_",window_width,"My_ggplot.rds"))
 
 # Filter out records when cumulative mean counts of events is less than one to avoid accounting for outliers before colonization is agreed by the majority of BSM simulations
 all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot <- all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot %>% 
@@ -3575,12 +3717,12 @@ lines_rates_per_dispersal_events_all_source_bioregions_all_sliding_windows_ggplo
   #           alpha = 0.01,
   #           linewidth = 2.0) +
 
-# Plot mean lines only
-geom_line(data = all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot,
-          mapping = aes(y = mean_rates, x = time, group = source, col = source),
-          alpha = 1.0,
-          linewidth = 2.0,
-          show.legend = F) + # Remove legend
+  # Plot mean lines only
+  geom_line(data = all_dispersal_events_mean_counts_all_source_bioregions_all_sliding_windows_ggplot,
+            mapping = aes(y = mean_rates, x = time, group = source, col = source),
+            alpha = 1.0,
+            linewidth = 2.0,
+            show.legend = F) + # Remove legend
   
   # Set plot title +
   ggtitle(label = paste0("Rates of dispersal events\nper Source bioregions\nacross 1000 BS maps")) +
@@ -3594,6 +3736,7 @@ geom_line(data = all_dispersal_events_mean_counts_all_source_bioregions_all_slid
 
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0) # Set limits for Oldest
                      limits = c(100, 0) # Set limits
   ) + 
   
@@ -3630,11 +3773,11 @@ lines_rates_per_dispersal_events_all_dest_bioregions_all_sliding_windows_ggplot 
   #           alpha = 0.01,
   #           linewidth = 2.0) +
 
-# Plot mean lines only
-geom_line(data = all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot,
-          mapping = aes(y = mean_rates, x = time, group = dest, col = dest),
-          alpha = 1.0,
-          linewidth = 2.0) +
+  # Plot mean lines only
+  geom_line(data = all_dispersal_events_mean_counts_all_dest_bioregions_all_sliding_windows_ggplot,
+            mapping = aes(y = mean_rates, x = time, group = dest, col = dest),
+            alpha = 1.0,
+            linewidth = 2.0) +
   
   # Set plot title +
   ggtitle(label = paste0("Rates of dispersal events\nper Destination bioregions\nacross 1000 BS maps")) +
@@ -3648,6 +3791,7 @@ geom_line(data = all_dispersal_events_mean_counts_all_dest_bioregions_all_slidin
   
   # Reverse time scale
   scale_x_continuous(transform = "reverse",
+                     # limits = c(150, 0) # Set limits for Oldest
                      limits = c(100, 0) # Set limits
   ) + 
   
@@ -3679,6 +3823,8 @@ lines_rates_per_dispersal_events_all_source_dest_bioregions_all_sliding_windows_
 
 # pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_rough_phylogeny_1534t/Dispersal_events_rates_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
 pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_MCC_phylogeny_1534t/Dispersal_events/Dispersal_events_rates_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Youngest_phylogeny_1534t/Dispersal_events/Dispersal_events_rates_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
+# pdf(file = paste0("./outputs/Continuous_events_counts/Ponerinae_Oldest_phylogeny_1534t/Dispersal_events/Dispersal_events_rates_all_source_dest_bioregions_all_sliding_windows_",window_width,"My.pdf"),
     width = 17, height = 6)
 
 gridExtra::grid.arrange(

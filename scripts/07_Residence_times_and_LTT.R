@@ -8,7 +8,7 @@
 ### Goals
 
 # Compute residence time of each state across time-strata
-# Compute lineages per bioregions across continous time (LTT)
+# Compute lineages per bioregions across continuous time (LTT)
 # Summarize all information in array across time x bioregions x BSM maps
 
 # Plot the evolution of residence times and lineages counts (LTT) across time 
@@ -74,10 +74,14 @@ library(gganimate)
 # Load time-stratified DEC+J model output
 # DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/DEC_J_fit.rds")
 DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_MCC_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Youngest_phylogeny_1534t/DEC_J_fit.rds")
+# DEC_J_fit <- readRDS(file = "./outputs/BioGeoBEARS_models/model_fits/Ponerinae_Oldest_phylogeny_1534t/DEC_J_fit.rds")
 
 # Load BSM outputs
 # DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_BSM_output.rds")
 DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_BSM_output.rds")
+# DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_BSM_output.rds")
+# DEC_J_BSM_output <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_BSM_output.rds")
 
 # Extract records of events
 DEC_J_clado_events_tables <- DEC_J_BSM_output$RES_clado_events_tables
@@ -97,6 +101,8 @@ source("./functions/generate_list_ranges.R") # Function to generate list of all 
 # Load simmaps of BS maps
 # DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps.rds")
 DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps.rds")
+# DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_simmaps.rds")
+# DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_simmaps.rds")
 
 ## Initiate output array
 
@@ -147,12 +153,16 @@ for (i in 1:length(DEC_J_simmaps))
 # Save residence times states x maps x Time-strata
 # saveRDS(object = residence_times_all_BSM_maps_array, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
 saveRDS(object = residence_times_all_BSM_maps_array, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
+# saveRDS(object = residence_times_all_BSM_maps_array, file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
+# saveRDS(object = residence_times_all_BSM_maps_array, file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
 
 ### 2.2/ Compute summary statistics of residence time across all maps ####
 
 # Load array of residence times states x maps x Time-strata
 # residence_times_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
 residence_times_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
+# residence_times_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
+# residence_times_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
 
 # (mean, sd, 95% CI, 95% HPD)
 dim(residence_times_all_BSM_maps_array)
@@ -182,6 +192,8 @@ aperm(residence_times_all_BSM_maps_summary_array["raw", , , ], c(1,3,2))
 # Save summary statistics of residence times per states, per time strata across all maps
 # saveRDS(object = residence_times_all_BSM_maps_summary_array, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/residence_times_all_BSM_maps_summary_array.rds")
 saveRDS(object = residence_times_all_BSM_maps_summary_array, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/residence_times_all_BSM_maps_summary_array.rds")
+# saveRDS(object = residence_times_all_BSM_maps_summary_array, file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/residence_times_all_BSM_maps_summary_array.rds")
+# saveRDS(object = residence_times_all_BSM_maps_summary_array, file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/residence_times_all_BSM_maps_summary_array.rds")
 
 
 ##### 3/ Aggregate residence times per unique areas #####
@@ -191,7 +203,9 @@ saveRDS(object = residence_times_all_BSM_maps_summary_array, file = "./outputs/B
 
 # Load array of residence times states x maps x Time-strata
 # residence_times_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
-residence_times_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
+# residence_times_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
+# residence_times_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
+residence_times_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/residence_times_all_BSM_maps_array.rds")
 
 # Extract ranges
 all_ranges <- dimnames(residence_times_all_BSM_maps_array)[[2]]
@@ -261,13 +275,17 @@ residence_times_per_areas_all_BSM_maps_array[,"total",,] <- residence_times_all_
 # Save summary statistics of residence times per unique areas, per time strata across all maps
 # saveRDS(object = residence_times_per_areas_all_BSM_maps_array, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_array.rds")
 saveRDS(object = residence_times_per_areas_all_BSM_maps_array, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_array.rds")
+# saveRDS(object = residence_times_per_areas_all_BSM_maps_array, file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_array.rds")
+# saveRDS(object = residence_times_per_areas_all_BSM_maps_array, file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_array.rds")
 
 
 ### 3.3/ Compute summary statistics of residence time across all maps for unique areas ####
 
 # Load array of residence times states x maps x Time-strata
 # residence_times_per_areas_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_array.rds")
-residence_times_per_areas_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_array.rds")
+# residence_times_per_areas_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_array.rds")
+# residence_times_per_areas_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_array.rds")
+residence_times_per_areas_all_BSM_maps_array <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_array.rds")
 
 # (mean, sd, 95% CI, 95% HPD)
 residence_times_per_areas_all_BSM_maps_array
@@ -298,13 +316,17 @@ aperm(residence_times_per_areas_all_BSM_maps_summary_array["perc", , , ], c(1,3,
 # Save summary statistics of residence times per states, per time strata across all maps
 # saveRDS(object = residence_times_per_areas_all_BSM_maps_summary_array, file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_summary_array.rds")
 saveRDS(object = residence_times_per_areas_all_BSM_maps_summary_array, file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_summary_array.rds")
+# saveRDS(object = residence_times_per_areas_all_BSM_maps_summary_array, file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_summary_array.rds")
+# saveRDS(object = residence_times_per_areas_all_BSM_maps_summary_array, file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_summary_array.rds")
 
 
 ##### 4/ Plot residence times in areas per time-strata ####
 
 # Load summary statistics of residence times per states, per time strata across all maps
 # residence_times_per_areas_all_BSM_maps_summary_array <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_summary_array.rds")
-residence_times_per_areas_all_BSM_maps_summary_array <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_summary_array.rds")
+# residence_times_per_areas_all_BSM_maps_summary_array <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_summary_array.rds")
+# residence_times_per_areas_all_BSM_maps_summary_array <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_summary_array.rds")
+residence_times_per_areas_all_BSM_maps_summary_array <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_areas_all_BSM_maps_summary_array.rds")
 
 ### 4.1/ Raw residence times ####
 
@@ -315,6 +337,7 @@ residence_times_per_areas_raw_ggplot <- aperm(residence_times_per_areas_all_BSM_
 
 # Rename Time-strata with geological era names
 colnames(residence_times_per_areas_raw_ggplot)  <- c("PPHo", "Miocene", "Oligocene", "Eocene", "Paleocene", "Late Cr.", "Early Cr.")
+# colnames(residence_times_per_areas_raw_ggplot)  <- c("PPHo", "Miocene", "Oligocene", "Eocene", "Paleocene", "Late Cr.", "Early Cr.", "Jurassic") # For Oldest. Need Jurassic as Stratum 8
 
 # Rename areas with bioregion names
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic", "Total")
@@ -327,6 +350,8 @@ residence_times_per_areas_raw_ggplot
 # Save ggplot df for Raw residence times per bioregions, per geological era
 # saveRDS(residence_times_per_areas_raw_ggplot, file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/residence_times_per_areas_raw_ggplot.rds")
 saveRDS(residence_times_per_areas_raw_ggplot, file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/residence_times_per_areas_raw_ggplot.rds")
+# saveRDS(residence_times_per_areas_raw_ggplot, file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_areas_raw_ggplot.rds")
+# saveRDS(residence_times_per_areas_raw_ggplot, file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_areas_raw_ggplot.rds")
 
 ## Set colors and legend
 
@@ -358,6 +383,8 @@ View(residence_times_per_areas_raw_ggplot)
 
 # pdf(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/Residence_times_per_areas_raw_ggplot.pdf", width = 12, height = 8)
 pdf(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/Residence_times_per_areas_raw_ggplot.pdf", width = 12, height = 8)
+# pdf(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/Residence_times_per_areas_raw_ggplot.pdf", width = 12, height = 8)
+# pdf(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/Residence_times_per_areas_raw_ggplot.pdf", width = 12, height = 8)
 
 ggplot_residence_times_per_areas_raw <- ggplot(data = residence_times_per_areas_raw_ggplot[remove_total_indices, ], mapping = aes(x = Time_strata, y = Lineage_counts, fill = Bioregions)) +
   
@@ -408,6 +435,7 @@ residence_times_per_areas_perc_ggplot <- aperm(residence_times_per_areas_all_BSM
 
 # Rename Time-strata with geological era names
 colnames(residence_times_per_areas_perc_ggplot)  <- c("PPHo", "Miocene", "Oligocene", "Eocene", "Paleocene", "Late Cr.", "Early Cr.")
+# colnames(residence_times_per_areas_perc_ggplot)  <- c("PPHo", "Miocene", "Oligocene", "Eocene", "Paleocene", "Late Cr.", "Early Cr.", "Jurassic") # For Oldest - Need Jurassic as Stratum 8
 
 # Rename areas with bioregion names
 bioregion_names <- c("Afrotropics", "Australasia", "Indomalaya", "Nearctic", "Neotropics", "Eastern Palearctic", "Western Palearctic", "Total")
@@ -420,10 +448,14 @@ residence_times_per_areas_perc_ggplot
 # Save ggplot df for Raw residence times per bioregions, per geological era
 # saveRDS(residence_times_per_areas_perc_ggplot, file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/residence_times_per_areas_perc_ggplot.rds")
 saveRDS(residence_times_per_areas_perc_ggplot, file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/residence_times_per_areas_perc_ggplot.rds")
+# saveRDS(residence_times_per_areas_perc_ggplot, file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_areas_perc_ggplot.rds")
+# saveRDS(residence_times_per_areas_perc_ggplot, file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_areas_perc_ggplot.rds")
 
 # Load
 # residence_times_per_areas_perc_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/residence_times_per_areas_perc_ggplot.rds")
-residence_times_per_areas_perc_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/residence_times_per_areas_perc_ggplot.rds")
+# residence_times_per_areas_perc_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/residence_times_per_areas_perc_ggplot.rds")
+# residence_times_per_areas_perc_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/residence_times_per_areas_perc_ggplot.rds")
+residence_times_per_areas_perc_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/residence_times_per_areas_perc_ggplot.rds")
 
 
 ## Set colors and legend
@@ -456,6 +488,8 @@ View(residence_times_per_areas_perc_ggplot)
 
 # pdf(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/Residence_times_per_areas_perc_ggplot.pdf", width = 12, height = 8)
 pdf(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/Residence_times_per_areas_perc_ggplot.pdf", width = 12, height = 8)
+# pdf(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/Residence_times_per_areas_perc_ggplot.pdf", width = 12, height = 8)
+# pdf(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/Residence_times_per_areas_perc_ggplot.pdf", width = 12, height = 8)
 
 ggplot_residence_times_per_areas_perc <- ggplot(data = residence_times_per_areas_perc_ggplot[remove_total_indices, ], mapping = aes(x = Time_strata, y = Lineage_counts, fill = Bioregions)) +
   
@@ -504,6 +538,8 @@ dev.off()
 # Load phytools.simmaps
 # DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_rough_phylogeny_1534t/DEC_J_simmaps.rds")
 DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_MCC_phylogeny_1534t/DEC_J_simmaps.rds")
+# DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_Youngest_phylogeny_1534t/DEC_J_simmaps.rds")
+# DEC_J_simmaps <- readRDS(file = "./outputs/BSM/Ponerinae_Oldest_phylogeny_1534t/DEC_J_simmaps.rds")
 
 source(file = "./functions/ltt_simmap_custom.R")
 
@@ -513,12 +549,16 @@ DEC_J_LTT_all_maps <- ltt_multiSimmap_custom(DEC_J_simmaps)
 # Save LTT plot data
 # saveRDS(object = DEC_J_LTT_all_maps, file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_maps.rds")
 saveRDS(object = DEC_J_LTT_all_maps, file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_maps.rds")
+# saveRDS(object = DEC_J_LTT_all_maps, file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_maps.rds")
+# saveRDS(object = DEC_J_LTT_all_maps, file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_maps.rds")
 
 ### 5.2/ Extract LTT data across ranges ####
 
 # Load LTT plot data
 # DEC_J_LTT_all_maps <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_maps.rds")
 DEC_J_LTT_all_maps <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_maps.rds")
+# DEC_J_LTT_all_maps <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_maps.rds")
+# DEC_J_LTT_all_maps <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_maps.rds")
 
 # Initiate df
 
@@ -556,6 +596,8 @@ View(DEC_J_LTT_all_ranges_ggplot)
 # Save data frame of LTT per ranges, per BS maps
 # saveRDS(object = DEC_J_LTT_all_ranges_ggplot, file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_ranges_ggplot.rds")
 saveRDS(object = DEC_J_LTT_all_ranges_ggplot, file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_ranges_ggplot.rds")
+# saveRDS(object = DEC_J_LTT_all_ranges_ggplot, file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_ranges_ggplot.rds")
+# saveRDS(object = DEC_J_LTT_all_ranges_ggplot, file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_ranges_ggplot.rds")
 
 # Remove raw LTT data to clean RAM
 # rm(DEC_J_LTT_all_maps) ; gc()
@@ -626,6 +668,8 @@ DEC_J_LTT_all_ranges_time_std_ggplot <- DEC_J_LTT_all_ranges_time_std_ggplot %>%
 # Save data frame of LTT per ranges, per BS maps
 # saveRDS(object = DEC_J_LTT_all_ranges_time_std_ggplot, file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_ranges_time_std_ggplot.rds")
 saveRDS(object = DEC_J_LTT_all_ranges_time_std_ggplot, file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_ranges_time_std_ggplot.rds")
+# saveRDS(object = DEC_J_LTT_all_ranges_time_std_ggplot, file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_ranges_time_std_ggplot.rds")
+# saveRDS(object = DEC_J_LTT_all_ranges_time_std_ggplot, file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_ranges_time_std_ggplot.rds")
 
 # Remove raw LTT data with no time standardization to clean RAM
 # rm(DEC_J_LTT_all_ranges_ggplot) ; gc()
@@ -723,6 +767,8 @@ View(DEC_J_LTT_all_areas_ggplot)
 # Save data frame of LTT per areas, per BS maps
 # saveRDS(object = DEC_J_LTT_all_areas_ggplot, file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
 saveRDS(object = DEC_J_LTT_all_areas_ggplot, file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+# saveRDS(object = DEC_J_LTT_all_areas_ggplot, file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+# saveRDS(object = DEC_J_LTT_all_areas_ggplot, file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
 
 
 ### 5.5/ Compute mean across all BS maps ####
@@ -745,6 +791,8 @@ DEC_J_LTT_all_areas_mean_ggplot <- DEC_J_LTT_all_areas_mean_ggplot %>%
 # Save data frame of LTT per areas, mean across all BS maps
 # saveRDS(object = DEC_J_LTT_all_areas_mean_ggplot, file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 saveRDS(object = DEC_J_LTT_all_areas_mean_ggplot, file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# saveRDS(object = DEC_J_LTT_all_areas_mean_ggplot, file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# saveRDS(object = DEC_J_LTT_all_areas_mean_ggplot, file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 
 
 ##### 6/ Plot lineages through time per bioregions #####
@@ -752,10 +800,16 @@ saveRDS(object = DEC_J_LTT_all_areas_mean_ggplot, file = "./outputs/LTT/Ponerina
 ### 6.1/ Plot raw counts and CI using GGplot, with Total ####
 
 # Load data frame of LTT per areas, per BS maps
+
 # DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
 DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+# DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+# DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+
 # DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 
 # Use color scheme of BSM
 colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
@@ -775,6 +829,8 @@ View(DEC_J_LTT_all_areas_ggplot)
 
 # pdf(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_raw_ggplot.pdf", width = 12, height = 8)
 pdf(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_raw_ggplot.pdf", width = 12, height = 8)
+# pdf(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_raw_ggplot.pdf", width = 12, height = 8)
+# pdf(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_raw_ggplot.pdf", width = 12, height = 8)
 
 ggplot_DEC_J_LTT_all_areas_raw <- ggplot(data = DEC_J_LTT_all_areas_ggplot, mapping = aes(x = time, col = areas)) +
   
@@ -829,10 +885,16 @@ dev.off()
 ### 6.2/ Plot raw counts and CI using GGplot, without Total ####
 
 # Load data frame of LTT per areas, per BS maps
+
 # DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
-# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+# DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+# DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 
 # Use color scheme of BSM
 colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
@@ -851,6 +913,8 @@ remove_total_indices <- DEC_J_LTT_all_areas_ggplot$areas != "total"
 
 # pdf(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_raw_without_total_ggplot.pdf", width = 12, height = 8)
 pdf(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_raw_without_total_ggplot.pdf", width = 12, height = 8)
+# pdf(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_raw_without_total_ggplot.pdf", width = 12, height = 8)
+# pdf(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_raw_without_total_ggplot.pdf", width = 12, height = 8)
 
 ggplot_DEC_J_LTT_all_areas_raw_without_total <- ggplot(data = DEC_J_LTT_all_areas_ggplot[remove_total_indices, ], mapping = aes(x = time, col = areas)) +
   
@@ -906,10 +970,16 @@ dev.off()
 ### 6.3/ Plot cumulative percentages using GGplot ####
 
 # Load data frame of LTT per areas, per BS maps
+
 # DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
-# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+# DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+# DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 
 # Use color scheme of BSM
 colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
@@ -930,6 +1000,8 @@ remove_total_indices <- DEC_J_LTT_all_areas_mean_ggplot$areas != "total"
 
 # pdf(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_cumperc_ggplot.pdf", width = 12, height = 8)
 pdf(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_cumperc_ggplot.pdf", width = 12, height = 8)
+# pdf(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_cumperc_ggplot.pdf", width = 12, height = 8)
+# pdf(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_cumperc_ggplot.pdf", width = 12, height = 8)
 
 ggplot_DEC_J_LTT_all_areas_cumperc <- ggplot(data = DEC_J_LTT_all_areas_mean_ggplot[remove_total_indices, ], mapping = aes(x = time, y = mean_percentages, fill = areas)) +
   
@@ -977,10 +1049,16 @@ dev.off()
 ## Same than 6.3 but using a sliding window to compute smooth values
 
 # Load data frame of LTT per areas, per BS maps
+
 # DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
-# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+# DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+# DEC_J_LTT_all_areas_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_ggplot.rds")
+
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
+# DEC_J_LTT_all_areas_mean_ggplot <- readRDS(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_ggplot.rds")
 
 # Use color scheme of BSM
 colors_list_for_states <- readRDS(file = "./outputs/BSM/colors_list_for_states.rds")
@@ -1033,6 +1111,8 @@ View(DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot)
 # Save LTT smoothed data from sliding windows
 # saveRDS(object = DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot, file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot.rds")
 saveRDS(object = DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot, file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot.rds")
+# saveRDS(object = DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot, file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot.rds")
+# saveRDS(object = DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot, file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot.rds")
 
 # Remove the "total" values
 remove_total_indices <- DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot$areas != "total"
@@ -1042,6 +1122,8 @@ remove_total_indices <- DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot$area
 
 # pdf(file = "./outputs/LTT/Ponerinae_rough_phylogeny_1534t/DEC_J_LTT_all_areas_cumperc_per_sliding_windows_ggplot.pdf", width = 12, height = 8)
 pdf(file = "./outputs/LTT/Ponerinae_MCC_phylogeny_1534t/DEC_J_LTT_all_areas_cumperc_per_sliding_windows_ggplot.pdf", width = 12, height = 8)
+# pdf(file = "./outputs/LTT/Ponerinae_Youngest_phylogeny_1534t/DEC_J_LTT_all_areas_cumperc_per_sliding_windows_ggplot.pdf", width = 12, height = 8)
+# pdf(file = "./outputs/LTT/Ponerinae_Oldest_phylogeny_1534t/DEC_J_LTT_all_areas_cumperc_per_sliding_windows_ggplot.pdf", width = 12, height = 8)
 
 ggplot_DEC_J_LTT_all_areas_mean_per_sliding_windows <- ggplot(data = DEC_J_LTT_all_areas_mean_per_sliding_windows_ggplot[remove_total_indices, ], mapping = aes(x = smoothed_time, y = mean_percentages, fill = areas)) +
   
