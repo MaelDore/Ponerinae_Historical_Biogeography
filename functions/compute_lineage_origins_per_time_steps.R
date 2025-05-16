@@ -146,7 +146,9 @@ find_egde_origins_at_focal_time_on_Simmap <- function (simmap, focal_time, areas
   root_node_ID <- phangorn::getRoot(simmap)
   first_edges_ID <- which(simmap$edge[,1] == root_node_ID)
   first_edges_states <- names(unlist(state_maps[first_edges_ID]))
-  root_state <- paste(unique(unlist(str_split(string = first_edges_states, pattern = ""))), collapse = "")
+  root_areas <- unique(unlist(str_split(string = first_edges_states, pattern = ""))) # Unique areas
+  root_areas <- root_areas[rank(match(x = root_areas, table = areas_list))] # Order them as in areas_list
+  root_state <- paste(root_areas, collapse = "") # Collapse to unique range
   
   # Extract edge ages
   edges_data_df <- as.data.frame(round(-1 * phytools::nodeHeights(tree = simmap) + root_age, 5))
@@ -289,7 +291,7 @@ find_egde_origins_at_focal_time_on_Simmap <- function (simmap, focal_time, areas
     endemicity_score_df <- current_edges_data_df %>% 
       group_by(current_state) %>% 
       summarize(endemicity_raw = mean(endemicity_score),
-                nb_lineages = n())
+                nb_lineages = dplyr::n())
     
     ## Aggregate per unique bioregions
     endemicity_score_df$nb_areas <- nchar(endemicity_score_df$current_state)
