@@ -3872,6 +3872,13 @@ STRAPP_test_OW_vs_NW$obs.corr # Observed statistic for each posterior sample
 STRAPP_test_OW_vs_NW$gen # Generation ID of the selected posterior sample
 STRAPP_test_OW_vs_NW$null # Null statistic for each posterior sample
 
+U_obs <- STRAPP_test_OW_vs_NW$obs.corr
+U_perm <- STRAPP_test_OW_vs_NW$null
+p_value <- sum(abs(U_obs) <= abs(U_perm)) / length(U_perm)
+
+summary(abs(U_obs) - abs(U_perm))
+quantile(abs(U_obs) - abs(U_perm), probs = 0.05)
+
 # Save STRAPP test output
 # saveRDS(STRAPP_test_OW_vs_NW, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_test_OW_vs_NW.rds")
 saveRDS(STRAPP_test_OW_vs_NW, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_test_OW_vs_NW.rds")
@@ -3958,11 +3965,20 @@ STRAPP_test_Trop_vs_Temp$obs.corr # Observed statistic for each posterior sample
 STRAPP_test_Trop_vs_Temp$gen # Generation ID of the selected posterior sample
 STRAPP_test_Trop_vs_Temp$null # Null statistic for each posterior sample
 
+U_obs <- STRAPP_test_Trop_vs_Temp$obs.corr
+U_perm <- STRAPP_test_Trop_vs_Temp$null
+p_value <- sum(abs(U_obs) <= abs(U_perm)) / length(U_perm)
+
+summary(abs(U_obs) - abs(U_perm))
+quantile(abs(U_obs) - abs(U_perm), probs = 0.05)
+
 # Save STRAPP test output
-# saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_test_Trop_vs_Temps.rds")
-saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_test_Trop_vs_Temps.rds")
-# saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_test_Trop_vs_Temps.rds")
-# saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_test_Trop_vs_Temps.rds")
+# saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_rough_phylogeny_1534t/STRAPP_test_Trop_vs_Temp.rds")
+saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_test_Trop_vs_Temp.rds")
+# saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_Youngest_phylogeny_1534t/STRAPP_test_Trop_vs_Temp.rds")
+# saveRDS(STRAPP_test_Trop_vs_Temp, file = "./outputs/BAMM/Ponerinae_Oldest_phylogeny_1534t/STRAPP_test_Trop_vs_Temp.rds")
+
+STRAPP_test_Trop_vs_Temp <- readRDS(file = "./outputs/BAMM/Ponerinae_MCC_phylogeny_1534t/STRAPP_test_Trop_vs_Temp.rds")
 
 
 ## Plot histogram of the test

@@ -7,8 +7,9 @@ This repository contains the code and data used to carry out **data
 curation, tree grafting, and biogeographic and diversification
 analyses** for this research article:
 
-**Doré et al., 2025 - Timing is everything: Evolution of ponerine ants
-highlights how dispersal history shapes modern biodiversity. in prep.**
+**Doré et al., 2025 - Evolutionary history of ponerine ants highlights
+how the timing of dispersal events shapes modern biodiversity. in
+prep.**
 
 **DOI to update once the article is published!**
 
@@ -90,10 +91,9 @@ Please cite this research article as:
 **DOI to update once the article is published!**
 
 > Doré, M., Borowiec, M.L., Branstetter, M.G., Camacho, G.P., Fisher,
-> B.L., Longino, J.T., Ward, P.S., & Blaimer, B.B., 2025. Timing is
-> everything: Evolution of ponerine ants highlights how dispersal
-> history shapes modern biodiversity. in prep.
-> <https://doi.org/10.1111/XXXX>.
+> B.L., Longino, J.T., Ward, P.S., & Blaimer, B.B., 2025. Evolutionary
+> history of ponerine ants highlights how the timing of dispersal events
+> shapes modern biodiversity. in prep. <https://doi.org/10.1111/XXXX>.
 
 ## Associated online archives
 
