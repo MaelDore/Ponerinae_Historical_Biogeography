@@ -8,12 +8,10 @@ curation, tree grafting, and biogeographic and diversification
 analyses** for this research article:
 
 **Doré et al., 2025 - Evolutionary history of ponerine ants highlights
-how the timing of dispersal events shapes modern biodiversity. in
-prep.**
+how the timing of dispersal events shapes modern biodiversity. Nature
+Communications. In press.**
 
-**DOI to update once the article is published!**
-
-[![DOI](https://zenodo.org/badge/DOI/10.1111/XXXX.svg)](https://doi.org/10.1111/XXXX)
+[![DOI](https://zenodo.org/badge/DOI/10.1038/s41467-025-63709-3.svg)](https://doi.org/10.1038/s41467-025-63709-3)
 
 A cornerstone of biogeography since its early developments has been to
 disentangle the drivers of the distribution of biodiversity patterns
@@ -93,7 +91,8 @@ Please cite this research article as:
 > Doré, M., Borowiec, M.L., Branstetter, M.G., Camacho, G.P., Fisher,
 > B.L., Longino, J.T., Ward, P.S., & Blaimer, B.B., 2025. Evolutionary
 > history of ponerine ants highlights how the timing of dispersal events
-> shapes modern biodiversity. in prep. <https://doi.org/10.1111/XXXX>.
+> shapes modern biodiversity. Nature Communications. In press.
+> <https://doi.org/10.1038/s41467-025-63709-3>.
 
 ## Associated online archives
 
