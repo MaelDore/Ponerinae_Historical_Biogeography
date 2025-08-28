@@ -86,8 +86,6 @@ After unzipping:
 
 Please cite this research article as:
 
-**DOI to update once the article is published!**
-
 > Doré, M., Borowiec, M.L., Branstetter, M.G., Camacho, G.P., Fisher,
 > B.L., Longino, J.T., Ward, P.S., & Blaimer, B.B., 2025. Evolutionary
 > history of ponerine ants highlights how the timing of dispersal events
