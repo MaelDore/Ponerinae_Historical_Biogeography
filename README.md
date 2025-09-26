@@ -9,7 +9,7 @@ analyses** for this research article:
 
 **Doré et al., 2025 - Evolutionary history of ponerine ants highlights
 how the timing of dispersal events shapes modern biodiversity. Nature
-Communications. In press.**
+Communications, 16(1), 8297.**
 
 [![DOI](https://zenodo.org/badge/DOI/10.1038/s41467-025-63709-3.svg)](https://doi.org/10.1038/s41467-025-63709-3)
 
@@ -89,7 +89,7 @@ Please cite this research article as:
 > Doré, M., Borowiec, M.L., Branstetter, M.G., Camacho, G.P., Fisher,
 > B.L., Longino, J.T., Ward, P.S., & Blaimer, B.B., 2025. Evolutionary
 > history of ponerine ants highlights how the timing of dispersal events
-> shapes modern biodiversity. Nature Communications. In press.
+> shapes modern biodiversity. Nature Communications, 16(1), 8297.
 > <https://doi.org/10.1038/s41467-025-63709-3>.
 
 ## Associated online archives
