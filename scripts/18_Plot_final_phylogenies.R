@@ -861,7 +861,7 @@ names(genus_groups_offsets) <- Ponerinae_MCC_phylogeny_1534t_all_genus_groups_me
 # Initiate plot
 Ponerinae_phylogeny_plot <- ggtree(Ponerinae_MCC_phylogeny_1534t_treedata_for_ARE,
                                    color = NA,
-                                   open.angle = 8, # Doe snot work anti-clockwise
+                                   open.angle = 8, # Does not work anti-clockwise
                                    layout = "fan") +
                                    # layout = "circular") + # Do use to get the circular closed background rectangles of geological epochs
   # Add title
